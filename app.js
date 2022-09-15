@@ -47,4 +47,8 @@ app.get("/contact", function (request, response) {
   response.render("contact.hbs");
 });
 
+app.get("/login", function (request, response) {
+  response.render("login.hbs");
+});
+
 app.listen(8080);

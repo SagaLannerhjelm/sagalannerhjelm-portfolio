@@ -3,18 +3,20 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="/main.css" />
-    <link rel="stylesheet" href="/projects.css" />
-    <link rel="stylesheet" href="/project-detail.css" />
-    <link rel="stylesheet" href="/blog.css" />
     <link
       rel="stylesheet"
       href="https://unpkg.com/spectre.css/dist/spectre.min.css"
     />
+    <link rel="stylesheet" href="/main.css" />
+    <link rel="stylesheet" href="/projects.css" />
+    <link rel="stylesheet" href="/project-detail.css" />
+    <link rel="stylesheet" href="/about_contact_login.css" />
+    <link rel="stylesheet" href="/blog.css" />
+
     <title>Saga Lannerhjelm</title>
   </head>
   <body>
-    <nav>
+    <nav class="hide-md">
       <div class="nav-content">
         <span class="nav-links left">
           <a href="/">Home</a>
@@ -22,11 +24,24 @@
           <a href="/blog">Blog</a>
         </span>
         <h1 class="logga">Saga Lannerhjelm</h1>
-        <span class="nav-links right">
+        <span class="nav-links">
           <a href="/about">About</a>
           <a href="/contact">Contact</a>
-          <a href="">Login</a>
+          <a href="/login">Login</a>
         </span>
+      </div>
+
+    </nav>
+
+    <nav class="show-md">
+      <h1 class="logga">Saga Lannerhjelm</h1>
+      <div class="nav-content">
+        <a href="/">Home</a>
+        <a href="/#projects">Projects</a>
+        <a href="/blog">Blog</a>
+        <a href="/about">About</a>
+        <a href="/contact">Contact</a>
+        <a href="/login">Login</a>
       </div>
 
     </nav>
