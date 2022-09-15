@@ -1,0 +1,18 @@
+<div class="temporary-place-holder"></div>
+<div class="projects-container padding">
+  <div class="project-section" id="projects"><h2 class="title">Projects</h2>
+    <button class="filter-button">Filter</button></div>
+
+  {{#if projects.length}}
+    <div class="project-grid-container">
+      <div class="project-grid">
+        {{#each projects}}
+          <a href="/projects/{{id}}" class="picture-placeholder">{{Picture}}</a>
+        {{/each}}
+      </div>
+    </div>
+
+  {{else}}
+    <p>No projects exist.</p>
+  {{/if}}
+</div>

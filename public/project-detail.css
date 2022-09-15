@@ -1,0 +1,60 @@
+.project-page {
+  background-color: #2d2d2d;
+  color: #ffffff;
+}
+
+.my-breadcrumb {
+  padding-top: 60px;
+  margin-left: 7em;
+  color: #a9a8a8;
+}
+
+.breadcrumb-link {
+  font-size: 12px;
+  color: #a9a8a8;
+  text-decoration: none;
+}
+
+.breadcrumb-link:hover {
+  font-size: 12px;
+  color: #dcdcdc;
+  text-decoration: underline;
+}
+
+.project-container {
+  display: grid;
+  max-width: 65%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.project-descr {
+  margin-top: 20px;
+  line-height: 1.6;
+}
+
+.project-date {
+  margin-top: 20px;
+}
+
+.project-category {
+  margin-top: 20px;
+}
+
+.project-content {
+  display: grid;
+  grid-template-columns: 70% 30%;
+  color: #c4c4c4;
+  line-height: 1.6;
+}
+
+.date-category-container {
+  text-align: right;
+}
+
+.project-pic {
+  margin-top: 30px;
+  width: 100%;
+  height: 600px;
+  background-color: rgb(157, 157, 157);
+}
