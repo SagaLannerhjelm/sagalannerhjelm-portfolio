@@ -1,0 +1,42 @@
+/* Login page */
+
+.login-page {
+  background-color: rgb(160, 160, 160);
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-container {
+  display: flex;
+  width: 380px;
+  height: 60%;
+}
+
+.login-margin {
+  margin-top: 40px;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.login-button {
+  margin-top: 120px;
+}
+
+.form-title {
+  margin-top: 20px;
+}
+
+/* new project page */
+
+.button-container {
+  display: flex;
+  flex-direction: row;
+}
+
+.form-container {
+  display: flex;
+  width: 800px;
+  height: 60%;
+}

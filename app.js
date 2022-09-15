@@ -51,4 +51,12 @@ app.get("/login", function (request, response) {
   response.render("login.hbs");
 });
 
+app.get("/new-project", function (request, response) {
+  response.render("proj.hbs");
+});
+
+app.get("/new-blog", function (request, response) {
+  response.render("blogpost.hbs");
+});
+
 app.listen(8080);
