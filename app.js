@@ -31,4 +31,20 @@ app.get("/projects/:id", function (request, response) {
   response.render("project-detail.hbs", model);
 });
 
+app.get("/blog", function (request, response) {
+  const model = {
+    blogposts: data.blogposts,
+    comments: data.comments,
+  };
+  response.render("blog.hbs", model);
+});
+
+app.get("/about", function (request, response) {
+  response.render("about.hbs");
+});
+
+app.get("/contact", function (request, response) {
+  response.render("contact.hbs");
+});
+
 app.listen(8080);

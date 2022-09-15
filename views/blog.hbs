@@ -1,0 +1,38 @@
+<div class="blog-page padding">
+  {{#if blogposts.length}}
+    {{#each blogposts}}
+      <div class="blog-container">
+        <h2 class="title">{{Title}}</h2>
+        <p class="blog-date">{{Date}}</p>
+        <p class="blog-descr">{{Description}}</p>
+        <p class="blog-pic">{{Picture}}</p>
+        <h5 class="comments-title">Comments ({{comments.length}})</h5>
+      </div>
+
+    {{/each}}
+  {{else}}
+    <p>No blogposts exists yet...</p>
+  {{/if}}
+
+  {{#if comments.length}}
+    {{#each comments}}
+      <div class="comment-container">
+        <div class="comment-grid">
+          <p class="name">{{name}}</p>
+          <p class="comment-date">{{date}}</p>
+        </div>
+        <p class="comment">{{content}}</p>
+      </div>
+    {{/each}}
+  {{else}}
+    <p>No comments exists yet...</p>
+  {{/if}}
+</div>
+
+{{!-- {{#if comments.length}}
+          {{#each comments}}
+            <p>{{content}}</p>
+          {{/each}}
+        {{else}}
+          <p>No comments exists yet...</p>
+        {{/if}} --}}
