@@ -1,7 +1,7 @@
 <div class="login-page">
-  <div class="card form-container p-centered">
+  <div class="card form-container p-centered new-project-container">
     <div class="card-header p-centered">
-      <div class="card-title h3 form-title">New blog post</div>
+      <div class="card-title h3 form-title">New project</div>
     </div>
     <div class="card-body form-content side-margin">
       <div>
@@ -11,7 +11,7 @@
             class="form-input"
             type="text"
             id="input-example-1"
-            placeholder="Mail"
+            placeholder="Title"
           />
         </div>
         <div class="form-group">
@@ -20,11 +20,30 @@
             class="form-input"
             type="text"
             id="input-example-1"
-            placeholder="Password"
+            placeholder="Description"
           />
         </div>
       </div>
       <div>
+        <div class="form-group">
+          <label class="form-label" for="input-example-1">Category</label>
+          <select class="form-select">
+            <option>Choose an option</option>
+            <option>Illustration</option>
+            <option>Game development</option>
+            <option>Website</option>
+            <option>Graphic design</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="input-example-1">Date</label>
+          <input
+            class="form-input"
+            type="date"
+            id="input-example-1"
+            placeholder="XXXX-XX-XX"
+          />
+        </div>
         <div class="form-group">
           <label class="form-label" for="input-example-1">File</label>
           <input
@@ -35,11 +54,12 @@
           />
         </div>
       </div>
-
     </div>
+
     <div class="button-container">
-      <a class="btn p-centered" href="/blog">Cancel</a>
+      <a class="btn p-centered" href="/#projects">Cancel</a>
       <button class="btn btn-primary p-centered">Create</button>
     </div>
+
   </div>
 </div>

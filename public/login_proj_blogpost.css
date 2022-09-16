@@ -1,7 +1,7 @@
 /* Login page */
 
 .login-page {
-  background-color: rgb(160, 160, 160);
+  background-color: var(--gray);
   height: 100vh;
   display: flex;
   align-items: center;
@@ -12,12 +12,11 @@
   display: flex;
   width: 380px;
   height: 60%;
+  border-radius: 5px;
 }
 
 .login-margin {
   margin-top: 40px;
-  margin-left: 10px;
-  margin-right: 10px;
 }
 
 .login-button {
@@ -33,10 +32,29 @@
 .button-container {
   display: flex;
   flex-direction: row;
+  margin-bottom: 20px;
+}
+
+.new-project-container {
+  background-color: var(--dark-blue);
+  color: var(--white);
+  border: none;
 }
 
 .form-container {
   display: flex;
   width: 800px;
   height: 60%;
+  border-radius: 5px;
+}
+
+.form-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 20px;
+}
+
+.side-margin {
+  margin-left: 10px;
+  margin-right: 10px;
 }

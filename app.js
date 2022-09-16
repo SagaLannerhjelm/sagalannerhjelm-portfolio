@@ -17,7 +17,7 @@ app.get("/", function (request, response) {
   const model = {
     projects: data.projects,
   };
-  response.render("projects.hbs", model);
+  response.render("startpage.hbs", model);
 });
 
 app.get("/projects/:id", function (request, response) {
@@ -52,7 +52,7 @@ app.get("/login", function (request, response) {
 });
 
 app.get("/new-project", function (request, response) {
-  response.render("proj.hbs");
+  response.render("new-project.hbs");
 });
 
 app.get("/new-blog", function (request, response) {

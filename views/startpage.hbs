@@ -1,0 +1,94 @@
+<div class="temporary-place-holder">
+  <img class="cloud" src="fluffy_cloud.svg" alt="fluffy cloid illustration" />
+</div>
+{{!-- <div class="white-text">
+  <h4>
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+    tempor incididunt ut labore et dolore magna aliqua. Vestibulum morbi blandit
+    cursus risus at ultrices. Eget sit amet tellus cras adipiscing enim eu
+    turpis egestas. Sit amet volutpat consequat mauris nunc. Dui vivamus arcu
+    felis bibendum ut tristique et egestas quis. Vel pretium lectus quam id leo.
+    Est placerat in egestas erat. Massa massa ultricies mi quis hendrerit dolor
+    magna eget est. Eros donec ac odio tempor orci dapibus. Non curabitur
+    gravida arcu ac tortor dignissim. Cursus eget nunc scelerisque viverra.
+    Adipiscing elit duis tristique sollicitudin nibh sit amet. Nunc faucibus a
+    pellentesque sit amet porttitor eget dolor morbi. Cras semper auctor neque
+    vitae tempus quam pellentesque nec nam. Facilisis mauris sit amet massa
+    vitae tortor condimentum lacinia. Pharetra sit amet aliquam id diam maecenas
+    ultricies mi. Eros in cursus turpis massa tincidunt dui ut. Purus faucibus
+    ornare suspendisse sed nisi lacus sed viverra. Volutpat sed cras ornare
+    arcu. Purus in massa tempor nec feugiat. Vel facilisis volutpat est velit
+    egestas dui id ornare. Pharetra sit amet aliquam id diam maecenas. Nisi
+    scelerisque eu ultrices vitae auctor eu augue. Placerat orci nulla
+    pellentesque dignissim enim sit. Cursus sit amet dictum sit amet. Nulla
+    porttitor massa id neque aliquam vestibulum morbi. Aliquam sem fringilla ut
+    morbi tincidunt augue. Sagittis nisl rhoncus mattis rhoncus urna. Semper
+    feugiat nibh sed pulvinar proin gravida. Tempus urna et pharetra pharetra
+    massa massa. Urna id volutpat lacus laoreet non curabitur. Cras tincidunt
+    lobortis feugiat vivamus at augue. Nulla pharetra diam sit amet nisl.
+    Vestibulum morbi blandit cursus risus at ultrices mi tempus. Ut faucibus
+    pulvinar elementum integer enim neque volutpat ac tincidunt. Ipsum faucibus
+    vitae aliquet nec ullamcorper sit amet risus. Hendrerit gravida rutrum
+    quisque non tellus. Auctor eu augue ut lectus arcu bibendum. Morbi non arcu
+    risus quis varius quam. Vitae tortor condimentum lacinia quis vel eros
+    donec. Pretium fusce id velit ut tortor pretium viverra suspendisse potenti.
+    Diam donec adipiscing tristique risus nec feugiat. Quam adipiscing vitae
+    proin sagittis nisl rhoncus mattis rhoncus urna. Orci ac auctor augue
+    mauris. Tortor consequat id porta nibh venenatis cras sed felis. Arcu cursus
+    vitae congue mauris rhoncus aenean vel elit scelerisque. Etiam tempor orci
+    eu lobortis elementum nibh tellus. Mattis molestie a iaculis at erat
+    pellentesque. Volutpat odio facilisis mauris sit amet massa vitae. Dignissim
+    sodales ut eu sem integer vitae justo. Tincidunt ornare massa eget egestas
+    purus viverra accumsan in nisl. Diam quis enim lobortis scelerisque
+    fermentum dui faucibus in ornare. Quam lacus suspendisse faucibus interdum.
+    Volutpat odio facilisis mauris sit amet massa vitae. Dignissim sodales ut eu
+    sem integer vitae justo. Tincidunt ornare massa eget egestas purus viverra
+    accumsan in nisl. Diam quis enim lobortis scelerisque fermentum dui faucibus
+    in ornare. Quam lacus suspendisse faucibus interdum.
+  </h4>
+  {{! <h1>Hello</h1>
+  <p>.</p>
+  <p>.</p>
+  <p>.</p>
+  <p>.</p>
+  <p>.</p>
+  <p>.</p>
+  <p>.</p>
+  <h2>I'm Saga</h2>
+  <p>.</p>
+  <p>.</p>
+  <p>.</p>
+  <p>.</p>
+  <p>.</p>
+  <p>.</p>
+  <p>.</p>
+  <p>.</p>
+  <p>.</p>
+  <p>.</p>
+  <p>.</p>
+  <h3>Welcome to my page</h3><br /><br /><br /><br /><br /><br /><br /> }}
+</div> --}}
+<div class="projects-container padding">
+  <div class="project-section" id="projects"><h2 class="title">Projects</h2>
+    <button class="filter-button">Filter</button>
+    {{! <div class="chip-container">
+      <span class="chip">All</span>
+      <span class="chip">Illustrations</span>
+      <span class="chip">Games</span>
+    </div> }}
+  </div>
+  <a class="add-button add-proj-button" href="/new-project">+</a>
+
+  <div class="project-grid">
+    {{#if projects.length}}
+      {{#each projects}}
+        <a href="/projects/{{id}}" class="img-responsive img-fit-cover">
+          <img src="{{Picture}}" class="project-picture" />
+        </a>
+      {{/each}}
+
+    {{else}}
+      <p>No projects exist.</p>
+    {{/if}}
+  </div>
+</div>

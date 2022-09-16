@@ -1,10 +1,17 @@
+html {
+  --dark-blue: #06062c;
+  --white: #ffffff;
+  --main-purple: #782afe;
+  --gray: rgb(160, 160, 160);
+}
+
 * {
   margin: 0;
   padding: 0;
 }
 
 body {
-  background-color: #ffffff;
+  background-color: var(--white);
   /* background: linear-gradient(
     90deg,
     rgba(122, 201, 236, 1) 0%,
@@ -17,7 +24,7 @@ body {
 /* Style of the navigation bar */
 
 nav {
-  background-color: #ffffff;
+  background-color: var(--white);
   position: fixed;
   width: 100%;
   z-index: 1000;
@@ -91,14 +98,12 @@ nav a:hover {
   align-items: center;
   justify-content: center;
   border-radius: 10px;
-  border: 4px solid #782afe;
+  border: 4px solid var(--main-purple);
   height: 80px;
-  margin-top: 30px;
   text-align: center;
   color: #ffffff;
   font-size: 30pt;
   font-weight: 300;
-  /* max-width: 88%; */
   max-width: 80px;
   margin-left: auto;
   margin-right: auto;
