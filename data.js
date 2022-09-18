@@ -224,3 +224,12 @@ exports.comments = [
     blogId: 8,
   },
 ];
+
+exports.users = [
+  {
+    id: 1,
+    Name: "Saga Lannerhjelm",
+    Email: "lasa21ui@student.ju.se",
+    Password: "123456",
+  },
+];

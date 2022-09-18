@@ -1,11 +1,12 @@
 /* Login page */
 
-.login-page {
+.form-page {
   background-color: var(--gray);
   height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-top: -20px;
 }
 
 .login-container {

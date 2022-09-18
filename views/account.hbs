@@ -1,0 +1,14 @@
+<div class="account-page"></div>
+    <div class="account-container">
+        <h2 class="title text-primary account-title">Your account</h2>
+            {{#if users.length}}
+                <div class="account-details">
+                    <p> Name: {{users.Name}}</p>
+                    <p>Email: {{users.Email}}</p>
+                </div>
+            {{else}}
+                <p>No users exist</p>
+            {{/if}}
+        <button class="btn btn-primary p-centered logout-button">Logout</button>
+    </div>
+</div>

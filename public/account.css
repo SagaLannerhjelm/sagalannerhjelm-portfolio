@@ -1,0 +1,22 @@
+.account-page {
+  display: flex;
+  align-items: center;
+}
+
+.account-container {
+  text-align: center;
+  border-radius: 5px;
+}
+
+.account-title {
+  padding-top: 100px;
+}
+
+.account-details {
+  margin-top: 80px;
+}
+
+.logout-button {
+  margin-top: 50px;
+  margin-bottom: 35vh;
+}

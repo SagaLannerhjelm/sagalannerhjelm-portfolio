@@ -1,4 +1,4 @@
-<div class="login-page">
+<div class="form-page">
   <div class="card login-container p-centered">
     <div class="card-header p-centered">
       <div class="card-title h3 form-title">Login</div>
@@ -17,12 +17,16 @@
         <label class="form-label" for="input-example-1">Password</label>
         <input
           class="form-input"
-          type="text"
+          type="password"
           id="input-example-1"
           placeholder="Password"
         />
       </div>
-      <button class="btn btn-primary p-centered login-button">Login</button>
+      {{! <button class="btn btn-primary p-centered login-button">Login</button> }}
+      <a
+        href="/your-account"
+        class="btn btn-primary p-centered login-button"
+      >Login</a>
     </div>
   </div>
 </div>

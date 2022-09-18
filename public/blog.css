@@ -2,6 +2,10 @@
   background-color: var(--white);
 }
 
+.new-blog-button {
+  margin-top: 150px;
+}
+
 .blog-container {
   display: grid;
   grid-template-columns: 1fr;
@@ -32,12 +36,13 @@
 
 .comments-title {
   margin-top: 15px;
+  margin-bottom: 25px;
   font-weight: normal;
   text-align: center;
 }
 
 .comment-container {
-  background-color: #2d2d2d;
+  background-color: var(--dark-blue);
   border-radius: 10px;
   color: #d5d5d5;
   padding-top: 15px;
@@ -57,6 +62,7 @@
 
 .name {
   font-weight: bold;
+  margin-bottom: 0px;
 }
 
 .comment {
@@ -71,4 +77,9 @@
   text-align: right;
   font-size: 8pt;
   color: #848484;
+}
+
+.comment-button {
+  margin-top: 10px;
+  margin-bottom: 50px;
 }

@@ -13,6 +13,12 @@ app.engine(
 
 app.use(express.static("public"));
 
+app.use(
+  express.urlencoded({
+    extended: false,
+  })
+);
+
 app.get("/", function (request, response) {
   const model = {
     projects: data.projects,
@@ -51,12 +57,47 @@ app.get("/login", function (request, response) {
   response.render("login.hbs");
 });
 
+app.get("/your-account", function (request, response) {
+  const model = {
+    users: data.users,
+  };
+
+  response.render("account.hbs", model);
+});
+
 app.get("/new-project", function (request, response) {
   response.render("new-project.hbs");
 });
 
 app.get("/new-blog", function (request, response) {
-  response.render("blogpost.hbs");
+  response.render("new-blogpost.hbs");
+});
+
+app.post("/new-project", function (request, response) {
+  const title = request.body.title;
+  const description = request.body.description;
+  const date = request.body.date;
+  const category = request.body.category;
+  const file = request.body.file;
+
+  data.projects.unshift({
+    id: data.projects.at(-1).id + 1,
+    Title: title,
+    Description: description,
+    Date: date,
+    Category: category,
+    Picture: file,
+  });
+
+  response.redirect("/#projects");
+});
+
+app.get("/edit-project", function (request, response) {
+  response.render("edit-project.hbs");
+});
+
+app.get("/edit-blog", function (request, response) {
+  response.render("edit-blogpost.hbs");
 });
 
 app.listen(8080);
