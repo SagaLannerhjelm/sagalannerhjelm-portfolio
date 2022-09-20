@@ -1,10 +1,19 @@
 <div class="padding project-page">
-  <p class="my-breadcrumb"><a class="breadcrumb-link" href="/">Home</a>
+  <p class="my-breadcrumb">
+    <a class="breadcrumb-link" href="/#projects">Projects</a>
     /
-    <a class="breadcrumb-link">{{project.Title}}</a></p>
-
+    <a class="breadcrumb-link">{{project.Title}}</a>
+  </p>
   <div class="project-container">
-    <h2 class="title">{{project.Title}}</h2>
+    <h2 class="title">{{project.Title}}
+      <a href="/edit-project/{{project.id}}"><img
+          class="icons margin-left"
+          src="edit_icon_light.png"
+        /></a><a href="/edit-project"><img
+          class="icons"
+          src="delete_icon_light.png"
+        /></a>
+    </h2>
     <div class="project-content">
       <p class="project-descr">{{project.Description}}</p>
       <div class="date-category-container">
@@ -13,5 +22,6 @@
       </div>
     </div>
     <img class="project-pic" src="{{project.Picture}}" alt="" />
+
   </div>
 </div>

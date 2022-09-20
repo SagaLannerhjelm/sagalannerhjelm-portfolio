@@ -38,11 +38,35 @@ app.get("/projects/:id", function (request, response) {
 });
 
 app.get("/blog", function (request, response) {
+  // const comments = data.comments.filter((c) => c.blogId == 3);
+
   const model = {
     blogposts: data.blogposts,
     comments: data.comments,
   };
   response.render("blog.hbs", model);
+});
+
+app.post("/blog/:id", function (request, response) {
+  const blogId = request.params.id;
+
+  const name = request.body.name;
+  const comment = request.body.comment;
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = today.getMonth();
+  const monthCorrection = month.length <= 1 ? "0" + month + 1 : month + 1;
+  const date = today.getDate();
+  const time = year + "-" + monthCorrection + "-" + date;
+
+  data.comments.push({
+    id: data.comments.at(-1).id + 1,
+    name: name,
+    content: comment,
+    date: time,
+    blogId: blogId,
+  });
+  response.redirect("/blog");
 });
 
 app.get("/about", function (request, response) {
@@ -57,9 +81,11 @@ app.get("/login", function (request, response) {
   response.render("login.hbs");
 });
 
-app.get("/your-account", function (request, response) {
+app.get("/account", function (request, response) {
+  const user = data.users.find((u) => u.id == 1);
+
   const model = {
-    users: data.users,
+    user: user,
   };
 
   response.render("account.hbs", model);
@@ -67,10 +93,6 @@ app.get("/your-account", function (request, response) {
 
 app.get("/new-project", function (request, response) {
   response.render("new-project.hbs");
-});
-
-app.get("/new-blog", function (request, response) {
-  response.render("new-blogpost.hbs");
 });
 
 app.post("/new-project", function (request, response) {
@@ -81,7 +103,7 @@ app.post("/new-project", function (request, response) {
   const file = request.body.file;
 
   data.projects.unshift({
-    id: data.projects.at(-1).id + 1,
+    id: data.projects.at(0).id + 1,
     Title: title,
     Description: description,
     Date: date,
@@ -89,15 +111,50 @@ app.post("/new-project", function (request, response) {
     Picture: file,
   });
 
-  response.redirect("/#projects");
+  response.redirect("/projects/" + data.projects.length);
 });
 
-app.get("/edit-project", function (request, response) {
-  response.render("edit-project.hbs");
+app.get("/new-blog", function (request, response) {
+  response.render("new-blogpost.hbs");
 });
 
-app.get("/edit-blog", function (request, response) {
-  response.render("edit-blogpost.hbs");
+app.post("/new-blog", function (request, response) {
+  const title = request.body.title;
+  const description = request.body.description;
+  const date = new Date();
+  const file = request.body.file;
+
+  data.blogposts.unshift({
+    id: data.blogposts.at(0).id + 1,
+    Title: title,
+    Description: description,
+    Date: date,
+    Picture: file,
+  });
+
+  response.redirect("/blog");
+});
+
+app.get("/edit-project/:id", function (request, response) {
+  const id = request.params.id;
+
+  const project = data.projects.find((p) => p.id == id);
+
+  const model = {
+    project: project,
+  };
+  response.render("edit-project.hbs", model);
+});
+
+app.get("/edit-blog/:id", function (request, response) {
+  const id = request.params.id;
+
+  const blog = data.blogposts.find((b) => b.id == id);
+
+  const model = {
+    blog: blog,
+  };
+  response.render("edit-blogpost.hbs", model);
 });
 
 app.listen(8080);

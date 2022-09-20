@@ -86,8 +86,43 @@ nav a:hover {
   font-weight: normal;
 }
 
+.my-breadcrumb {
+  padding-top: 20px;
+  margin-top: 20px;
+  margin-left: 7em;
+  color: #bfbfbf;
+}
+
+.breadcrumb-link {
+  font-size: 12px;
+  color: #bfbfbf;
+  text-decoration: none;
+}
+
+.breadcrumb-link:hover {
+  font-size: 12px;
+  color: #dcdcdc;
+  text-decoration: underline;
+}
+
 .padding {
   padding-bottom: 180px;
+}
+
+.icons {
+  width: 30px;
+}
+
+.icons:hover {
+  opacity: 70%;
+}
+
+.margin-left {
+  margin-left: 15px;
+}
+
+.position-absolute {
+  position: absolute;
 }
 
 .cloud {

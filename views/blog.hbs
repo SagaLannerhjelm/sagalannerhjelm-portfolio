@@ -4,16 +4,18 @@
 
   {{#if blogposts.length}}
     {{#each blogposts}}
-      <div class="blog-container">
-        <h2 class="title text-primary">{{Title}}</h2>
+      <div class="blog-container" id="blog/{{id}}">
+        <h2 class="title text-primary float-left">{{Title}}
+            <a href="/edit-blog/{{id}}"><img class="icons margin-left" src="edit_icon_dark.png"/></a>
+            <a href="/edit-blog"><img class="icons" src="delete_icon_dark.png"/></a>
+        </h2>
         <p class="blog-date">{{Date}}</p>
         <p class="blog-descr">{{Description}}</p>
-        <p class="blog-pic">{{Picture}}</p>
-        <h5 class="comments-title">Comments ({{../comments.length}})</h5>
-
+        <img class="blog-pic" src="{{Picture}}"></img>
+        <h5 class="comments-title"><a href="#blog/{{id}}" action="/#blog{{id}}" method="post">Comments ({{../comments.length}})</a></h5>
         {{!-- Form for creating comment --}}
         <div class="card-title h4 form-title">Create comment</div>
-        <form action="/blog" method="post">
+        <form action="/blog/{{id}}" method="post">
           <div class="form-group">
             <label class="form-label">Name</label>
             <input class="form-input" type="text" name="name" placeholder="Write your name here...">
@@ -22,19 +24,25 @@
             <label class="form-label">Comment</label>
             <input class="form-input" type="text" name="comment" placeholder="Write a comment...">
           </div>
-          <input class="btn btn-primary comment-button" type="submit" value="Send">
+          <input class="btn btn-primary send-comment-button" type="submit" value="Send">
         </form>
       </div>
 
       {{#if ../comments.length}}
         {{! Loop that prints all the comments }}
         {{#each ../comments}}
-          <div class="comment-container">
+          <div class="comment-container" id="blog/{{../blogposts.id}}">
             <div class="comment-grid">
               <p class="name">{{name}}</p>
               <p class="comment-date">{{date}}</p>
             </div>
-            <p class="comment">{{content}}</p>
+            <div class="comment-grid ">
+              <p class="comment">{{content}}</p>
+              {{!-- Buttons for editing and deliting comment --}}
+              <div class="float-right comment-icons">
+                <a href="/edit-blog"><img class="icons" src="edit_icon_light.png"/></a><a href="/edit-blog"><img class="icons" src="delete_icon_light.png"/></a>
+              </div>
+            </div>
           </div>
         {{/each}}
         {{else}}
@@ -45,9 +53,32 @@
     {{else}}
         <p>No blogposts exists yet...</p>
   {{/if}}
-
 </div>
 
 
- 
+ {{!-- Pagination --}}
+
+<ul class="pagination">
+  <li class="page-item disabled">
+    <a href="#" tabindex="-1">Previous</a>
+  </li>
+  <li class="page-item active">
+    <a href="#">1</a>
+  </li>
+  <li class="page-item">
+    <a href="#">2</a>
+  </li>
+  <li class="page-item">
+    <a href="#">3</a>
+  </li>
+  <li class="page-item">
+    <span>...</span>
+  </li>
+  <li class="page-item">
+    <a href="#">12</a>
+  </li>
+  <li class="page-item">
+    <a href="#">Next</a>
+  </li>
+</ul>
 

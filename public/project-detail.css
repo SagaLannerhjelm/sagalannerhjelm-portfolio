@@ -4,24 +4,6 @@
   color: var(--white);
 }
 
-.my-breadcrumb {
-  padding-top: 20px;
-  margin-left: 7em;
-  color: #a9a8a8;
-}
-
-.breadcrumb-link {
-  font-size: 12px;
-  color: #a9a8a8;
-  text-decoration: none;
-}
-
-.breadcrumb-link:hover {
-  font-size: 12px;
-  color: #dcdcdc;
-  text-decoration: underline;
-}
-
 .project-container {
   display: grid;
   max-width: 65%;
