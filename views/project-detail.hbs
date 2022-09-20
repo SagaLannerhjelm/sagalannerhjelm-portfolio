@@ -2,11 +2,11 @@
   <p class="my-breadcrumb">
     <a class="breadcrumb-link" href="/#projects">Projects</a>
     /
-    <a class="breadcrumb-link">{{project.Title}}</a>
+    <a class="breadcrumb-link">{{project.projTitle}}</a>
   </p>
   <div class="project-container">
-    <h2 class="title">{{project.Title}}
-      <a href="/edit-project/{{project.id}}"><img
+    <h2 class="title">{{project.projTitle}}
+      <a href="/edit-project/{{project.projId}}"><img
           class="icons margin-left"
           src="edit_icon_light.png"
         /></a><a href="/edit-project"><img
@@ -15,13 +15,13 @@
         /></a>
     </h2>
     <div class="project-content">
-      <p class="project-descr">{{project.Description}}</p>
+      <p class="project-descr">{{project.projDescription}}</p>
       <div class="date-category-container">
-        <p class="project-date">Date: <br /> {{project.Date}}</p>
-        <p class="project-category">Category: <br />{{project.Category}}</p>
+        <p class="project-date">Date: <br /> {{project.projDate}}</p>
+        <p class="project-category">Category: <br />{{project.projCategory}}</p>
       </div>
     </div>
-    <img class="project-pic" src="{{project.Picture}}" alt="" />
+    <img class="project-pic" src="{{project.projPicture}}" alt="" />
 
   </div>
 </div>

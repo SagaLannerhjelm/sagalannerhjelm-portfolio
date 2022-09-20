@@ -4,18 +4,18 @@
 
   {{#if blogposts.length}}
     {{#each blogposts}}
-      <div class="blog-container" id="blog/{{id}}">
-        <h2 class="title text-primary float-left">{{Title}}
-            <a href="/edit-blog/{{id}}"><img class="icons margin-left" src="edit_icon_dark.png"/></a>
+      <div class="blog-container" id="blog/{{blogId}}">
+        <h2 class="title text-primary float-left">{{blogTitle}}
+            <a href="/edit-blog/{{blogId}}"><img class="icons margin-left" src="edit_icon_dark.png"/></a>
             <a href="/edit-blog"><img class="icons" src="delete_icon_dark.png"/></a>
         </h2>
-        <p class="blog-date">{{Date}}</p>
-        <p class="blog-descr">{{Description}}</p>
-        <img class="blog-pic" src="{{Picture}}"></img>
-        <h5 class="comments-title"><a href="#blog/{{id}}" action="/#blog{{id}}" method="post">Comments ({{../comments.length}})</a></h5>
+        <p class="blog-date">{{blogDate}}</p>
+        <p class="blog-descr">{{blogDescription}}</p>
+        <img class="blog-pic" src="{{blogPicture}}"></img>
+        <h5 class="comments-title">Comments ({{../comments.length}})</h5>
         {{!-- Form for creating comment --}}
         <div class="card-title h4 form-title">Create comment</div>
-        <form action="/blog/{{id}}" method="post">
+        <form action="/blog/{{blogId}}" method="post">
           <div class="form-group">
             <label class="form-label">Name</label>
             <input class="form-input" type="text" name="name" placeholder="Write your name here...">
@@ -31,13 +31,13 @@
       {{#if ../comments.length}}
         {{! Loop that prints all the comments }}
         {{#each ../comments}}
-          <div class="comment-container" id="blog/{{../blogposts.id}}">
+          <div class="comment-container" id="">
             <div class="comment-grid">
-              <p class="name">{{name}}</p>
-              <p class="comment-date">{{date}}</p>
+              <p class="name">{{cmntName}}</p>
+              <p class="comment-date">{{cmntDate}}</p>
             </div>
             <div class="comment-grid ">
-              <p class="comment">{{content}}</p>
+              <p class="comment">{{cmntContent}}</p>
               {{!-- Buttons for editing and deliting comment --}}
               <div class="float-right comment-icons">
                 <a href="/edit-blog"><img class="icons" src="edit_icon_light.png"/></a><a href="/edit-blog"><img class="icons" src="delete_icon_light.png"/></a>

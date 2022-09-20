@@ -5,7 +5,7 @@ exports.projects = [
     Description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Tincidunt praesent semper feugiat nibh sed pulvinar. Egestas dui id ornare arcu odio. Senectus et netus et malesuada fames ac turpis egestas. Turpis egestas integer eget aliquet nibh praesent. Accumsan tortor posuere ac ut. Cursus euismod quis viverra nibh cras pulvinar mattis nunc sed. Enim facilisis gravida neque convallis a. Facilisis leo vel fringilla est. Et egestas quis ipsum suspendisse ultrices gravida. Erat nam at lectus urna duis convallis convallis tellus. Arcu non sodales neque sodales ut etiam sit amet nisl. Turpis nunc eget lorem dolor sed viverra ipsum nunc aliquet.",
     Picture: "selfie_saga.png",
-    Category: "Art",
+    Category: "Illustration",
     Date: "Apr. 12, 2021",
   },
   {
@@ -14,7 +14,7 @@ exports.projects = [
     Description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Tincidunt praesent semper feugiat nibh sed pulvinar. Egestas dui id ornare arcu odio. Senectus et netus et malesuada fames ac turpis egestas. Turpis egestas integer eget aliquet nibh praesent. Accumsan tortor posuere ac ut. Cursus euismod quis viverra nibh cras pulvinar mattis nunc sed. Enim facilisis gravida neque convallis a. Facilisis leo vel fringilla est. Et egestas quis ipsum suspendisse ultrices gravida. Erat nam at lectus urna duis convallis convallis tellus. Arcu non sodales neque sodales ut etiam sit amet nisl. Turpis nunc eget lorem dolor sed viverra ipsum nunc aliquet.",
     Picture: "selfie_saga.png",
-    Category: "Art",
+    Category: "Illustration",
     Date: "Jul. 24, 2019",
   },
   {
@@ -23,7 +23,7 @@ exports.projects = [
     Description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Tincidunt praesent semper feugiat nibh sed pulvinar. Egestas dui id ornare arcu odio. Senectus et netus et malesuada fames ac turpis egestas. Turpis egestas integer eget aliquet nibh praesent. Accumsan tortor posuere ac ut. Cursus euismod quis viverra nibh cras pulvinar mattis nunc sed. Enim facilisis gravida neque convallis a. Facilisis leo vel fringilla est. Et egestas quis ipsum suspendisse ultrices gravida. Erat nam at lectus urna duis convallis convallis tellus. Arcu non sodales neque sodales ut etiam sit amet nisl. Turpis nunc eget lorem dolor sed viverra ipsum nunc aliquet.",
     Picture: "selfie_saga.png",
-    Category: "Game",
+    Category: "Game development",
     Date: "Apr. 20, 2020",
   },
   {
@@ -32,7 +32,7 @@ exports.projects = [
     Description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Tincidunt praesent semper feugiat nibh sed pulvinar. Egestas dui id ornare arcu odio. Senectus et netus et malesuada fames ac turpis egestas. Turpis egestas integer eget aliquet nibh praesent. Accumsan tortor posuere ac ut. Cursus euismod quis viverra nibh cras pulvinar mattis nunc sed. Enim facilisis gravida neque convallis a. Facilisis leo vel fringilla est. Et egestas quis ipsum suspendisse ultrices gravida. Erat nam at lectus urna duis convallis convallis tellus. Arcu non sodales neque sodales ut etiam sit amet nisl. Turpis nunc eget lorem dolor sed viverra ipsum nunc aliquet.",
     Picture: "selfie_saga.png",
-    Category: "News paper",
+    Category: "Graphic design",
     Date: "May 16, 2021",
   },
   {
@@ -41,7 +41,7 @@ exports.projects = [
     Description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Tincidunt praesent semper feugiat nibh sed pulvinar. Egestas dui id ornare arcu odio. Senectus et netus et malesuada fames ac turpis egestas. Turpis egestas integer eget aliquet nibh praesent. Accumsan tortor posuere ac ut. Cursus euismod quis viverra nibh cras pulvinar mattis nunc sed. Enim facilisis gravida neque convallis a. Facilisis leo vel fringilla est. Et egestas quis ipsum suspendisse ultrices gravida. Erat nam at lectus urna duis convallis convallis tellus. Arcu non sodales neque sodales ut etiam sit amet nisl. Turpis nunc eget lorem dolor sed viverra ipsum nunc aliquet.",
     Picture: "selfie_saga.png",
-    Category: "Art",
+    Category: "Illustration",
     Date: "Oct. 23, 2021",
   },
   {
@@ -50,7 +50,7 @@ exports.projects = [
     Description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Tincidunt praesent semper feugiat nibh sed pulvinar. Egestas dui id ornare arcu odio. Senectus et netus et malesuada fames ac turpis egestas. Turpis egestas integer eget aliquet nibh praesent. Accumsan tortor posuere ac ut. Cursus euismod quis viverra nibh cras pulvinar mattis nunc sed. Enim facilisis gravida neque convallis a. Facilisis leo vel fringilla est. Et egestas quis ipsum suspendisse ultrices gravida. Erat nam at lectus urna duis convallis convallis tellus. Arcu non sodales neque sodales ut etiam sit amet nisl. Turpis nunc eget lorem dolor sed viverra ipsum nunc aliquet.",
     Picture: "selfie_saga.png",
-    Category: "Game",
+    Category: "Game development",
     Date: "Oct. 28, 2020",
   },
   {
@@ -59,7 +59,7 @@ exports.projects = [
     Description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Tincidunt praesent semper feugiat nibh sed pulvinar. Egestas dui id ornare arcu odio. Senectus et netus et malesuada fames ac turpis egestas. Turpis egestas integer eget aliquet nibh praesent. Accumsan tortor posuere ac ut. Cursus euismod quis viverra nibh cras pulvinar mattis nunc sed. Enim facilisis gravida neque convallis a. Facilisis leo vel fringilla est. Et egestas quis ipsum suspendisse ultrices gravida. Erat nam at lectus urna duis convallis convallis tellus. Arcu non sodales neque sodales ut etiam sit amet nisl. Turpis nunc eget lorem dolor sed viverra ipsum nunc aliquet.",
     Picture: "selfie_saga.png",
-    Category: "Art",
+    Category: "Illustration",
     Date: "Jun. 2, 2022",
   },
   {
@@ -68,7 +68,7 @@ exports.projects = [
     Description:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Tincidunt praesent semper feugiat nibh sed pulvinar. Egestas dui id ornare arcu odio. Senectus et netus et malesuada fames ac turpis egestas. Turpis egestas integer eget aliquet nibh praesent. Accumsan tortor posuere ac ut. Cursus euismod quis viverra nibh cras pulvinar mattis nunc sed. Enim facilisis gravida neque convallis a. Facilisis leo vel fringilla est. Et egestas quis ipsum suspendisse ultrices gravida. Erat nam at lectus urna duis convallis convallis tellus. Arcu non sodales neque sodales ut etiam sit amet nisl. Turpis nunc eget lorem dolor sed viverra ipsum nunc aliquet.",
     Picture: "selfie_saga.png",
-    Category: "Art",
+    Category: "Illustration",
     Date: "Jan. 11, 2019",
   },
 ];
