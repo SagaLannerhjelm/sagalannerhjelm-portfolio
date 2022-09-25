@@ -3,7 +3,7 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    {{! Following two links are part of the css framework called spectre https://picturepan2.github.io/spectre/index.html }}
+    {{! Following two links are part of the css framework Spectre https://picturepan2.github.io/spectre/index.html }}
     <link
       rel="stylesheet"
       href="https://unpkg.com/spectre.css/dist/spectre.min.css"
@@ -17,11 +17,13 @@
     <link rel="stylesheet" href="/project-detail.css" />
     <link rel="stylesheet" href="/about_contact.css" />
     <link rel="stylesheet" href="/blog.css" />
-    <link rel="stylesheet" href="/login_proj_blogpost.css" />
+    <link rel="stylesheet" href="/login_create_edit.css" />
     <link rel="stylesheet" href="/account.css" />
     <title>Saga Lannerhjelm</title>
   </head>
   <body>
+
+    {{! Navigation bar when window size is big }}
     <nav class="hide-md">
       <div class="nav-content">
         <span class="nav-links left">
@@ -39,6 +41,7 @@
 
     </nav>
 
+    {{! Navigation bar when window size is small }}
     <nav class="show-md">
       <h1 class="logga">Saga Lannerhjelm</h1>
       <div class="nav-content">

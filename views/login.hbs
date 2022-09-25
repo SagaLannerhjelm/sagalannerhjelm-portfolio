@@ -3,13 +3,23 @@
     <div class="card-header p-centered">
       <div class="card-title h3 form-title">Login</div>
     </div>
-    <div class="card-body login-margin side-margin">
+
+    {{#if failedToLogin}}
+      <p>Wrong credentials</p>
+    {{/if}}
+
+    <form
+      class="card-body login-margin side-margin"
+      method="/login"
+      method="post"
+    >
       <div class="form-group">
         <label class="form-label" for="input-example-1">Mail</label>
         <input
           class="form-input"
           type="text"
           id="input-example-1"
+          name="mail"
           placeholder="Mail"
         />
       </div>
@@ -20,13 +30,17 @@
           type="password"
           id="input-example-1"
           placeholder="Password"
+          name="password"
         />
       </div>
-      {{! <button class="btn btn-primary p-centered login-button">Login</button> }}
-      <a
+      <button
+        type="sumbit"
+        class="btn btn-primary p-centered login-button"
+      >Login</button>
+      {{! <a
         href="/account"
         class="btn btn-primary p-centered login-button"
-      >Login</a>
-    </div>
+      >Login</a> }}
+    </form>
   </div>
 </div>

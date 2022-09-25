@@ -1,0 +1,43 @@
+<div class="edit-comment-page">
+  <div class="edit-comment-page">
+    <div class="edit-comment-title">
+      <h2 class="title">Edit comment</h2>
+    </div>
+
+    <div class="comment-container" id="blog/comment/{{comment.cmntId}}">
+      <form
+        action="/edit-comment/{{comment.cmntId}}"
+        method="post"
+        class="content-width"
+      >
+        <div class="form-group">
+          <p class="comment-date">{{comment.cmntDate}}</p>
+          <label class="form-label">Name</label>
+          <input
+            type="text"
+            class="form-input"
+            name="name"
+            placeholder="Name"
+            value="{{comment.cmntName}}"
+          />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Comment</label>
+          <input
+            type="text"
+            class="form-input"
+            name="comment"
+            placeholder="Write a comment"
+            value="{{comment.cmntContent}}"
+          />
+        </div>
+        {{! Buttons for editing and deliting comment }}
+        <div class="comment-icons edit-comment-buttons">
+          {{! Confirm changes }}
+          <a href="/blog" class="btn">Cancel</a>
+          <button type="submit" class="btn btn-primary">Confirm</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

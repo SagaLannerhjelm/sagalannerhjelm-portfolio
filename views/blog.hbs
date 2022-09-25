@@ -1,20 +1,29 @@
 <div class="blog-page padding">
-
   <a class="add-button new-blog-button" href="/new-blog">+</a>
 
   {{#if blogposts.length}}
-    {{#each blogposts}}
+    {{#each blogposts as | blogPost |}}
       <div class="blog-container" id="blog/{{blogId}}">
         <h2 class="title text-primary float-left">{{blogTitle}}
+            {{!-- Edit button --}}
             <a href="/edit-blog/{{blogId}}"><img class="icons margin-left" src="edit_icon_dark.png"/></a>
-            <a href="/edit-blog"><img class="icons" src="delete_icon_dark.png"/></a>
+            {{!-- Delete button --}}
+            <form
+              action="/delete-blog/{{blogId}}"
+              method="post"
+              class="delete-button"
+            >
+              <button type="submit" class="icon-button white-button">
+                <img class="icons" src="/delete_icon_dark.png" />
+              </button>
+            </form>
+            
         </h2>
         <p class="blog-date">{{blogDate}}</p>
         <p class="blog-descr">{{blogDescription}}</p>
         <img class="blog-pic" src="{{blogPicture}}"></img>
-        <h5 class="comments-title">Comments ({{../comments.length}})</h5>
         {{!-- Form for creating comment --}}
-        <div class="card-title h4 form-title">Create comment</div>
+        <div class="card-title h4 form-title">Write a comment</div>
         <form action="/blog/{{blogId}}" method="post">
           <div class="form-group">
             <label class="form-label">Name</label>
@@ -27,11 +36,13 @@
           <input class="btn btn-primary send-comment-button" type="submit" value="Send">
         </form>
       </div>
-
+ <h5 class="comments-title">Comments</h5>
+      {{!-- Show comments --}}
       {{#if ../comments.length}}
-        {{! Loop that prints all the comments }}
-        {{#each ../comments}}
-          <div class="comment-container" id="">
+        {{#each ../comments as | comment |}}
+        {{!-- Show the right comments on the right blogpost --}}
+        {{#ifEquals comment.blogId blogPost.blogId}}
+          <div class="comment-container" id="{{cmntId}}">
             <div class="comment-grid">
               <p class="name">{{cmntName}}</p>
               <p class="comment-date">{{cmntDate}}</p>
@@ -40,10 +51,17 @@
               <p class="comment">{{cmntContent}}</p>
               {{!-- Buttons for editing and deliting comment --}}
               <div class="float-right comment-icons">
-                <a href="/edit-blog"><img class="icons" src="edit_icon_light.png"/></a><a href="/edit-blog"><img class="icons" src="delete_icon_light.png"/></a>
+                {{!-- edit button --}}
+                  <a href="/edit-comment/{{cmntId}}" class="icon-button blue-button"><img class="icons" src="edit_icon_light.png"/></a>
+                {{!-- delete button --}}
+                <form action="/delete-comment/{{cmntId}}" method="post">
+                  <button type="submit" class="icon-button blue-button"><img class="icons" src="delete_icon_light.png"/></button>
+                </form>
+               
               </div>
             </div>
           </div>
+        {{/ifEquals}}
         {{/each}}
         {{else}}
           <p>No comments exists yet...</p>
@@ -53,6 +71,8 @@
     {{else}}
         <p>No blogposts exists yet...</p>
   {{/if}}
+
+  
 </div>
 
 

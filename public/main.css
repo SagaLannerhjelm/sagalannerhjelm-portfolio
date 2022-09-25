@@ -82,6 +82,7 @@ nav a:hover {
 }
 
 .title {
+  display: flex;
   margin-top: 60px;
   font-weight: normal;
 }
@@ -115,6 +116,7 @@ nav a:hover {
 
 .icons:hover {
   opacity: 70%;
+  cursor: pointer;
 }
 
 .margin-left {
@@ -150,8 +152,6 @@ nav a:hover {
   margin-right: auto;
 }
 
-/* Style of the footer */
-
 .add-button:hover {
   cursor: pointer;
   background-color: rgba(21, 18, 199, 0.3);
@@ -159,6 +159,25 @@ nav a:hover {
   color: #ffffff;
   text-decoration: none;
 }
+
+/* Delete button */
+
+.icon-button {
+  background-color: none;
+  color: none;
+  border: none;
+  width: 35px;
+}
+
+.blue-button {
+  background-color: var(--dark-blue);
+}
+
+.white-button {
+  background-color: var(--white);
+}
+
+/* Style of the footer */
 
 .footer {
   text-align: center;

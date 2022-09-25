@@ -8,11 +8,20 @@
     <h2 class="title">{{project.projTitle}}
       <a href="/edit-project/{{project.projId}}"><img
           class="icons margin-left"
-          src="edit_icon_light.png"
-        /></a><a href="/edit-project"><img
-          class="icons"
-          src="delete_icon_light.png"
+          src="/edit_icon_light.png"
         /></a>
+
+      {{! Delete button }}
+      <form
+        action="/projects/{{project.projId}}"
+        method="post"
+        class="delete-button"
+      >
+        <button type="submit" class="icon-button blue-button">
+          <img class="icons" src="/delete_icon_light.png" />
+        </button>
+      </form>
+
     </h2>
     <div class="project-content">
       <p class="project-descr">{{project.projDescription}}</p>
@@ -21,7 +30,6 @@
         <p class="project-category">Category: <br />{{project.projCategory}}</p>
       </div>
     </div>
-    <img class="project-pic" src="{{project.projPicture}}" alt="" />
-
+    <img class="project-pic" src="/{{project.projPicture}}" alt="" />
   </div>
 </div>
