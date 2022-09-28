@@ -9,13 +9,18 @@
     <div class="card-header p-centered">
       <div class="card-title h3 form-title">New project</div>
     </div>
+
+    {{! Display error messages }}
     {{#if errorMessage.length}}
-      <ul>
-        {{#each errorMessage}}
-          <li>{{this}}</li>
-        {{/each}}
-      </ul>
+      <div class="error-message-container bg-error">
+        <ul class="error-message text-light">
+          {{#each errorMessage}}
+            <li class="error-message-list">{{this}}</li>
+          {{/each}}
+        </ul>
+      </div>
     {{/if}}
+
     <form
       action="/new-project"
       method="post"

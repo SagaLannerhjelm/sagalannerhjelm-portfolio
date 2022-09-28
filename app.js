@@ -82,11 +82,11 @@ app.use(
   })
 );
 
-// app.use(
-//   bodyParser.urlencoded({
-//     extended: false,
-//   })
-// );
+app.use(
+  bodyParser.urlencoded({
+    extended: false,
+  })
+);
 
 //Midleware function to handle expressSession
 // app.use(
@@ -104,7 +104,7 @@ app.get("/", function (request, response) {
     const errorMessage = [];
 
     if (error) {
-      errorMessage.push("Inernal server error");
+      errorMessage.push("Internal server error");
     }
 
     const model = {
@@ -141,6 +141,10 @@ app.get("/projects/:id", function (request, response) {
   const values = [id];
 
   db.get(query, values, function (error, project) {
+    const errorMessage = [];
+    if (error) {
+      errorMessage.push("Internal server error");
+    }
     const model = {
       project,
     };
@@ -154,7 +158,15 @@ app.get("/blog", function (request, response) {
   const commentsQuery = `SELECT * FROM comments`;
 
   db.all(blogQuery, function (error, blogposts) {
+    const errorMessage = [];
+    if (error) {
+      errorMessage.push("Internal server error");
+    }
     db.all(commentsQuery, function (error, comments) {
+      const errorMessage = [];
+      if (error) {
+        errorMessage.push("Internal server error");
+      }
       const model = {
         blogposts,
         comments,
@@ -176,7 +188,7 @@ app.get("/blog", function (request, response) {
 //   });
 // });
 
-// Creates new comments on blog page
+// Create comments on blog page
 app.post("/blog/:id", function (request, response) {
   const blogId = request.params.id;
 
@@ -191,12 +203,47 @@ app.post("/blog/:id", function (request, response) {
   const date = today.getDate();
   const currentDate = year + "-" + monthCorrection + "-" + date;
 
-  const query = `INSERT INTO comments (cmntName, cmntDate, cmntContent, blogId) VALUES (?, ?, ?, ?)`;
-  const values = [name, currentDate, comment, blogId];
+  const errorMessage = [];
 
-  db.get(query, values, function (error) {
-    response.redirect("/blog");
-  });
+  const nameMaxLength = 50;
+  const commentMaxLenght = 200;
+
+  // Validation of name
+  if (name === "") {
+    errorMessage.push("Name can't be empty");
+  } else if (name > nameMaxLength) {
+    errorMessage.push("Name is longer than " + nameMaxLength + " characters");
+  }
+
+  // Validation of comment
+  if (comment === "") {
+    errorMessage.push("Comment can't be empty");
+  } else if (comment > commentMaxLenght) {
+    errorMessage.push(
+      "Comment is longer than " + commentMaxLenght + " characters"
+    );
+  }
+
+  if (errorMessage.length === 0) {
+    const query = `INSERT INTO comments (cmntName, cmntDate, cmntContent, blogId) VALUES (?, ?, ?, ?)`;
+    const values = [name, currentDate, comment, blogId];
+
+    db.get(query, values, function (error) {
+      if (error) {
+        errorMessage.push("Internal server error");
+        const model = {
+          errorMessage,
+        };
+        response.render("/blog", model);
+      }
+      response.redirect("/blog#comment-section/" + blogId);
+    });
+  } else {
+    const model = {
+      errorMessage,
+    };
+    response.render("/blog", model);
+  }
 });
 
 app.get("/about", function (request, response) {
@@ -210,16 +257,6 @@ app.get("/contact", function (request, response) {
 app.get("/login", function (request, response) {
   response.render("login.hbs");
 });
-
-// Example
-
-// app.get("/secret-page", function () {
-//   if (request.session.isLoggedIn === true) {
-//     //send back secret page
-//   } else {
-//     //send back error
-//   }
-// });
 
 let isLoggedIn = false;
 
@@ -246,6 +283,10 @@ app.get("/account", function (request, response) {
   const query = `SELECT * FROM admin`;
 
   db.all(query, function (error, admin) {
+    const errorMessage = [];
+    if (error) {
+      errorMessage.push("Internal server error");
+    }
     const model = {
       admin,
     };
@@ -258,6 +299,9 @@ app.get("/new-project", function (request, response) {
   response.render("new-project.hbs");
 });
 
+const titleMaxLength = 40;
+const descriptionMaxLenght = 1000;
+
 app.post("/new-project", function (request, response) {
   const title = request.body.title;
   const description = request.body.description;
@@ -267,9 +311,6 @@ app.post("/new-project", function (request, response) {
 
   const errorMessage = [];
 
-  const titleMaxLength = 100;
-  const descriptionMaxLenght = 1000;
-
   // validation for title
   if (title === "") {
     errorMessage.push("Title can't be empty");
@@ -277,12 +318,30 @@ app.post("/new-project", function (request, response) {
     errorMessage.push("Title is more than " + titleMaxLength + " characters");
   }
 
+  // validation for description
   if (description === "") {
     errorMessage.push("Description can't be empty");
   } else if (title.length > descriptionMaxLenght) {
     errorMessage.push(
       "Title is more than " + descriptionMaxLenght + " characters"
     );
+  }
+
+  // validation for category
+  if (category === "") {
+    errorMessage.push("Choose a category");
+  } else if (category === "Choose an option") {
+    errorMessage.push("Category can't be: Choose an option");
+  }
+
+  // validation for date
+  if (date === "") {
+    errorMessage.push("Pick a date");
+  }
+
+  // validation for picture
+  if (file === "") {
+    errorMessage.push("Choose a picture");
   }
 
   if (errorMessage.length === 0) {
@@ -293,7 +352,6 @@ app.post("/new-project", function (request, response) {
     db.run(query, values, function (error) {
       if (error) {
         errorMessage.push("Internal server error");
-
         const model = {
           errorMessage,
         };
@@ -320,6 +378,10 @@ app.get("/edit-project/:id", function (request, response) {
   const values = [id];
 
   db.get(query, values, function (error, project) {
+    const errorMessage = [];
+    if (error) {
+      errorMessage.push("Internal server error");
+    }
     const model = {
       project,
     };
@@ -337,19 +399,64 @@ app.post("/edit-project/:id", function (request, response) {
   const category = request.body.category;
   const file = request.body.file;
 
-  const query = `UPDATE projects SET 
-                projTitle = ?, 
-                projDescription = ?, 
-                projDate = ?, 
-                projCategory = ?, 
-                projPicture = ? 
-                WHERE projId = ?`;
+  const errorMessage = [];
 
-  const values = [title, description, date, category, file, id];
+  // validation for title
+  if (title === "") {
+    errorMessage.push("Title can't be empty");
+  } else if (title.length > titleMaxLength) {
+    errorMessage.push("Title is more than " + titleMaxLength + " characters");
+  }
 
-  db.run(query, values, function (error) {
-    response.redirect("/#projects");
-  });
+  // validation for description
+  if (description === "") {
+    errorMessage.push("Description can't be empty");
+  } else if (title.length > descriptionMaxLenght) {
+    errorMessage.push(
+      "Title is more than " + descriptionMaxLenght + " characters"
+    );
+  }
+
+  // validation for category
+  if (category === "") {
+    errorMessage.push("Choose a category");
+  } else if (category === "Choose an option") {
+    errorMessage.push("Category can't be: Choose an option");
+  }
+
+  // validation for date
+  if (date === "") {
+    errorMessage.push("Pick a date");
+  }
+
+  // validation for picture
+  if (file === "") {
+    errorMessage.push("Choose a picture");
+  }
+
+  if (errorMessage.length === 0) {
+    const query = `UPDATE projects SET projTitle = ?, projDescription = ?, projDate = ?, projCategory = ?, projPicture = ? WHERE projId = ?`;
+
+    const values = [title, description, date, category, file, id];
+
+    db.run(query, values, function (error) {
+      if (error) {
+        errorMessage.push("Internal server error");
+        const model = {
+          errorMessage,
+        };
+        response.render("edit-project.hbs", model);
+      } else {
+        response.redirect("/projects/" + id);
+      }
+    });
+  } else {
+    const model = {
+      errorMessage,
+    };
+
+    response.render("edit-project.hbs", model);
+  }
 });
 
 // Deletes a project with a specific id
@@ -361,6 +468,10 @@ app.post("/projects/:id", function (request, response) {
   const values = [id];
 
   db.run(query, values, function (error) {
+    const errorMessage = [];
+    if (error) {
+      errorMessage.push("Internal server error");
+    }
     response.redirect("/#projects");
   });
 });
@@ -384,12 +495,50 @@ app.post("/new-blog", function (request, response) {
 
   const file = request.body.file;
 
-  const query = `INSERT INTO blogposts (blogTitle, blogDescription, blogDate, blogPicture) VALUES (?, ?, ?, ?)`;
-  const values = [title, description, currentDate, file];
+  const errorMessage = [];
 
-  db.run(query, values, function (error) {
-    response.redirect("/blog");
-  });
+  // Validation for title
+  if (title === "") {
+    errorMessage.push("Title can't be empty");
+  } else if (title.length > titleMaxLength) {
+    errorMessage.push("Title is more than " + titleMaxLength + " characters");
+  }
+
+  // Validation for Description
+  if (description === "") {
+    errorMessage.push("Description can't be empty");
+  } else if (description.length > descriptionMaxLenght) {
+    errorMessage.push(
+      "Title is more than " + descriptionMaxLenght + " characters"
+    );
+  }
+
+  // Validation for picture
+  if (file === "") {
+    errorMessage.push("Choose a picture");
+  }
+
+  if (errorMessage.length === 0) {
+    const query = `INSERT INTO blogposts (blogTitle, blogDescription, blogDate, blogPicture) VALUES (?, ?, ?, ?)`;
+    const values = [title, description, currentDate, file];
+
+    db.run(query, values, function (error) {
+      if (error) {
+        errorMessage.push("Internal server error");
+        const model = {
+          errorMessage,
+        };
+        response.render("new-blogpost.hbs", model);
+      } else {
+        response.redirect("/blog");
+      }
+    });
+  } else {
+    const model = {
+      errorMessage,
+    };
+    response.render("new-blogpost.hbs", model);
+  }
 });
 
 // Shows the edit page for a blog post
@@ -400,6 +549,10 @@ app.get("/edit-blog/:id", function (request, response) {
   const values = [id];
 
   db.get(query, values, function (error, blog) {
+    const errorMessage = [];
+    if (error) {
+      errorMessage.push("Internal server error");
+    }
     const model = {
       blog,
     };
@@ -413,16 +566,52 @@ app.post("/edit-blog/:id", function (request, response) {
 
   const title = request.body.title;
   const description = request.body.description;
-
   const file = request.body.file;
 
-  const query = `UPDATE blogposts SET blogTitle = ?, blogDescription = ?, blogPicture = ? WHERE blogId = ?`;
+  const errorMessage = [];
 
-  const values = [title, description, file, id];
+  // Validation for title
+  if (title === "") {
+    errorMessage.push("Title can't be empty");
+  } else if (title.length > titleMaxLength) {
+    errorMessage.push("Title is more than " + titleMaxLength + " characters");
+  }
 
-  db.run(query, values, function (error) {
-    response.redirect("/blog");
-  });
+  // Validation for Description
+  if (description === "") {
+    errorMessage.push("Description can't be empty");
+  } else if (description.length > descriptionMaxLenght) {
+    errorMessage.push(
+      "Title is more than " + descriptionMaxLenght + " characters"
+    );
+  }
+
+  // Validation for picture
+  if (file === "") {
+    errorMessage.push("Choose a picture");
+  }
+
+  if (errorMessage.length === 0) {
+    const query = `UPDATE blogposts SET blogTitle = ?, blogDescription = ?, blogPicture = ? WHERE blogId = ?`;
+
+    const values = [title, description, file, id];
+
+    db.run(query, values, function (error) {
+      if (error) {
+        errorMessage.push("Internal server error");
+        const model = {
+          errorMessage,
+        };
+        response.render("edit-blogpost.hbs", model);
+      }
+      response.redirect("/blog");
+    });
+  } else {
+    const model = {
+      errorMessage,
+    };
+    response.render("edit-blogpost.hbs", model);
+  }
 });
 
 // Deletes a blog with a specific id
@@ -434,6 +623,10 @@ app.post("/delete-blog/:id", function (request, response) {
   const values = [id];
 
   db.run(query, values, function (error) {
+    const errorMessage = [];
+    if (error) {
+      errorMessage.push("Internal server error");
+    }
     response.redirect("/blog");
   });
 });
@@ -446,6 +639,10 @@ app.get("/edit-comment/:id", function (request, response) {
   const values = [id];
 
   db.get(query, values, function (error, comment) {
+    const errorMessage = [];
+    if (error) {
+      errorMessage.push("Internal server error");
+    }
     const model = {
       comment,
     };
@@ -453,20 +650,54 @@ app.get("/edit-comment/:id", function (request, response) {
   });
 });
 
-// Edits a project with a specific id
+// Edits a comment with a specific id
 app.post("/edit-comment/:id", function (request, response) {
   const id = request.params.id;
 
   const name = request.body.name;
   const comment = request.body.comment;
 
-  const query = `UPDATE comments SET cmntName = ?, cmntContent = ? WHERE cmntId = ?`;
+  const errorMessage = [];
 
-  const values = [name, comment, id];
+  const nameMaxLength = 50;
+  const commentMaxLenght = 200;
 
-  db.run(query, values, function (error) {
-    response.redirect("/blog");
-  });
+  // Validation of name
+  if (name === "") {
+    errorMessage.push("Name can't be empty");
+  } else if (name > nameMaxLength) {
+    errorMessage.push("Name is longer than " + nameMaxLength + " characters");
+  }
+
+  // Validation of comment
+  if (comment === "") {
+    errorMessage.push("Comment can't be empty");
+  } else if (comment > commentMaxLenght) {
+    errorMessage.push(
+      "Comment is longer than " + commentMaxLenght + " characters"
+    );
+  }
+
+  if (errorMessage.length === 0) {
+    const query = `UPDATE comments SET cmntName = ?, cmntContent = ? WHERE cmntId = ?`;
+    const values = [name, comment, id];
+
+    db.run(query, values, function (error) {
+      if (error) {
+        errorMessage.push("Internal server error");
+        const model = {
+          errorMessage,
+        };
+        response.render("edit-comment.hbs", model);
+      }
+      response.redirect("/blog");
+    });
+  } else {
+    const model = {
+      errorMessage,
+    };
+    response.render("edit-comment.hbs", model);
+  }
 });
 
 // Deletes a comment with a specific id
@@ -478,6 +709,10 @@ app.post("/delete-comment/:id", function (request, response) {
   const values = [id];
 
   db.run(query, values, function (error) {
+    const errorMessage = [];
+    if (error) {
+      errorMessage.push("Internal server error");
+    }
     response.redirect("/blog");
   });
 });

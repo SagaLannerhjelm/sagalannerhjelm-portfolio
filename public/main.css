@@ -75,6 +75,36 @@ nav a:hover {
   color: rgb(121, 121, 121);
 }
 
+.intro-container {
+  height: 100vh;
+  display: flex;
+  align-content: center;
+  justify-content: center;
+  align-items: center;
+  z-index: -1;
+}
+
+.cloud {
+  position: fixed;
+  margin-top: -30px;
+}
+
+.place-below {
+  z-index: -1;
+}
+
+.intro {
+  position: relative;
+  color: var(--white);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.intro-buttons {
+  margin-top: 20px;
+}
+
 /* Main content */
 .main-content {
   margin-top: 40px;
@@ -127,10 +157,25 @@ nav a:hover {
   position: absolute;
 }
 
-.cloud {
-  position: fixed;
-  z-index: -1;
-  margin-top: -30px;
+/* Error */
+.error-message-container {
+  width: 95%;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 5px;
+}
+
+.error-message {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  font-size: 13px;
+  line-height: 1em;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.error-message-list {
+  margin-top: 5px;
 }
 
 /* Style of big add button */

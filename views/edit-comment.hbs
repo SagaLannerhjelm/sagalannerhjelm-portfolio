@@ -10,6 +10,17 @@
         method="post"
         class="content-width"
       >
+
+        {{#if errorMessage.length}}
+          <div class="error-message-container bg-error">
+            <ul class="error-message text-light">
+              {{#each errorMessage}}
+                <li class="error-message-list">{{this}}</li>
+              {{/each}}
+            </ul>
+          </div>
+        {{/if}}
+
         <div class="form-group">
           <p class="comment-date">{{comment.cmntDate}}</p>
           <label class="form-label">Name</label>
