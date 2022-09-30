@@ -13,7 +13,8 @@
           href="https://www.instagram.com/drawingsby_saga/"
           target="_blank"
           class="btn place-below"
-        >Instagram</a>
+        >
+          Instagram</a>
         <a href="mailto:lasa21ui@student.ju.se" class="btn place-below">Mail</a>
       </div>
     </div>
@@ -32,12 +33,15 @@
       <span class="chip">Graphic design</span>
     </div>
   </div>
-  <a class="add-button add-proj-button" href="/new-project">+</a>
+
+  {{#if isLoggedIn}}
+    <a class="add-button add-proj-button" href="/new-project">+</a>
+  {{/if}}
 
   <div class="project-grid">
     {{#if projects.length}}
       {{#each projects}}
-        <a href="/projects/{{projId}}" class="img-responsive img-fit-cover">
+        <a href="/project/{{projId}}" class="img-responsive img-fit-cover">
           <img src="{{projPicture}}" class="project-picture" />
         </a>
       {{/each}}

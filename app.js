@@ -1,14 +1,26 @@
 const express = require("express");
 const expressHandlebars = require("express-handlebars");
 const sqlite3 = require("sqlite3");
-const bodyParser = require("body-parser");
 const expressSession = require("express-session");
+const cookieParser = require("cookie-parser");
+const connectSqLite3 = require("connect-sqlite3");
+const SQLiteStore = connectSqLite3(expressSession);
 
+// Variables
+const titleMaxLength = 40;
+const descriptionMaxLenght = 1000;
+
+// Database
 const db = new sqlite3.Database("portfolio-database.db");
 
-const adminMail = "ALice.gmail";
-const adminPassword = "123";
+// Hardcoded mail and password for login
+const adminMail = "admin@gmail.com";
+const adminPassword = "123456";
 
+// const test = `SELECT adminMail FROM admin where adminId = 1`;
+// console.log(test);
+
+// Database tables
 db.run(`
   CREATE TABLE IF NOT EXISTS projects (
     projId INTEGER PRIMARY KEY,
@@ -53,6 +65,8 @@ db.run(`
 const app = express();
 expressHandlebars.register;
 
+//Middlewares
+
 // Following code was made with help by Esterling Accime's video https://www.youtube.com/watch?v=2BoSBaWvFhM, retrieved 2022-09-24
 const hbs = expressHandlebars.create({
   defaultLayout: "main.hbs",
@@ -82,51 +96,61 @@ app.use(
   })
 );
 
+// Middleware function to handle expressSession
 app.use(
-  bodyParser.urlencoded({
-    extended: false,
+  expressSession({
+    store: new SQLiteStore({ db: "session-db.db" }),
+    saveUninitialized: false,
+    resave: false,
+    secret: "aewogofjegdfsef",
   })
 );
 
-//Midleware function to handle expressSession
-// app.use(
-//   expressSession({
-//     saveUninitalized: false,
-//     resave: false,
-//     secret: "aiuhkslao",
-//   })
-// );
+app.use(function (request, response, next) {
+  const isLoggedIn = request.session.isLoggedIn;
+  console.log(isLoggedIn);
+
+  response.locals.isLoggedIn = isLoggedIn;
+
+  response.locals.session = request.session;
+
+  next();
+});
+
+app.use(cookieParser());
 
 app.get("/", function (request, response) {
   const query = `SELECT * FROM projects ORDER BY projId DESC`;
 
   db.all(query, function (error, projects) {
-    const errorMessage = [];
+    const errorMessages = [];
 
     if (error) {
-      errorMessage.push("Internal server error");
+      errorMessages.push("Internal server error");
     }
 
     const model = {
-      errorMessage,
+      session: request.session,
+      errorMessages,
       projects,
     };
+
     response.render("startpage.hbs", model);
   });
 });
 
-// app.get("/projects/illustrations", function (request, response) {
+// app.get("/project/illustrations", function (request, response) {
 //   const query = `SELECT * FROM projects WHERE projCategory = "Website" ORDER BY projId DESC`;
 
 //   db.all(query, function (error, projects) {
-//     const errorMessage = [];
+//     const errorMessages = [];
 
 //     if (error) {
-//       errorMessage.push("Inernal server error");
+//       errorMessages.push("Inernal server error");
 //     }
 
 //     const model = {
-//       errorMessage,
+//       errorMessages,
 //       projects,
 //     };
 //     response.render("startpage.hbs", model);
@@ -134,16 +158,16 @@ app.get("/", function (request, response) {
 // });
 
 // Read projects with a specific id and render corresponding page
-app.get("/projects/:id", function (request, response) {
+app.get("/project/:id", function (request, response) {
   const id = request.params.id;
 
   const query = `SELECT * FROM projects WHERE projId = ?`;
   const values = [id];
 
   db.get(query, values, function (error, project) {
-    const errorMessage = [];
+    const errorMessages = [];
     if (error) {
-      errorMessage.push("Internal server error");
+      errorMessages.push("Internal server error");
     }
     const model = {
       project,
@@ -158,14 +182,14 @@ app.get("/blog", function (request, response) {
   const commentsQuery = `SELECT * FROM comments`;
 
   db.all(blogQuery, function (error, blogposts) {
-    const errorMessage = [];
+    const errorMessages = [];
     if (error) {
-      errorMessage.push("Internal server error");
+      errorMessages.push("Internal server error");
     }
     db.all(commentsQuery, function (error, comments) {
-      const errorMessage = [];
+      const errorMessages = [];
       if (error) {
-        errorMessage.push("Internal server error");
+        errorMessages.push("Internal server error");
       }
       const model = {
         blogposts,
@@ -203,46 +227,63 @@ app.post("/blog/:id", function (request, response) {
   const date = today.getDate();
   const currentDate = year + "-" + monthCorrection + "-" + date;
 
-  const errorMessage = [];
+  const errorMessages = [];
 
   const nameMaxLength = 50;
   const commentMaxLenght = 200;
 
   // Validation of name
   if (name === "") {
-    errorMessage.push("Name can't be empty");
+    errorMessages.push("Name can't be empty");
   } else if (name > nameMaxLength) {
-    errorMessage.push("Name is longer than " + nameMaxLength + " characters");
+    errorMessages.push("Name is longer than " + nameMaxLength + " characters");
   }
 
   // Validation of comment
   if (comment === "") {
-    errorMessage.push("Comment can't be empty");
+    errorMessages.push("Comment can't be empty");
   } else if (comment > commentMaxLenght) {
-    errorMessage.push(
+    errorMessages.push(
       "Comment is longer than " + commentMaxLenght + " characters"
     );
   }
 
-  if (errorMessage.length === 0) {
+  if (errorMessages.length === 0) {
     const query = `INSERT INTO comments (cmntName, cmntDate, cmntContent, blogId) VALUES (?, ?, ?, ?)`;
     const values = [name, currentDate, comment, blogId];
 
-    db.get(query, values, function (error) {
+    db.run(query, values, function (error) {
       if (error) {
-        errorMessage.push("Internal server error");
+        errorMessages.push("Internal server error");
         const model = {
-          errorMessage,
+          errorMessages,
         };
-        response.render("/blog", model);
+        response.render("blog.hbs", model);
       }
       response.redirect("/blog#comment-section/" + blogId);
     });
   } else {
-    const model = {
-      errorMessage,
-    };
-    response.render("/blog", model);
+    const blogQuery = `SELECT * FROM blogposts ORDER BY blogId DESC`;
+    const commentsQuery = `SELECT * FROM comments`;
+
+    db.all(blogQuery, function (error, blogposts) {
+      const errorMessages = [];
+      if (error) {
+        errorMessages.push("Internal server error");
+      }
+      db.all(commentsQuery, function (error, comments) {
+        const errorMessages = [];
+        if (error) {
+          errorMessages.push("Internal server error");
+        }
+        const model = {
+          errorMessages,
+          blogposts,
+          comments,
+        };
+        response.render("blog.hbs", model);
+      });
+    });
   }
 });
 
@@ -258,34 +299,59 @@ app.get("/login", function (request, response) {
   response.render("login.hbs");
 });
 
-let isLoggedIn = false;
-
 app.post("/login", function (request, response) {
-  const mail = request.body.mail;
-  const password = request.body.password;
+  const enteredMail = request.body.mail;
+  const enteredPassword = request.body.password;
 
-  if (mail == adminMail && password == adminPassword) {
+  const correctEnteredMail = enteredMail.includes("@");
+  const mailMaxLenght = 60;
+  const passwordMaxLenght = 8;
+
+  const errorMessages = [];
+
+  // Validation of mail
+  if (enteredMail === "") {
+    errorMessages.push("Mail can't be empty");
+  } else if (correctEnteredMail === false) {
+    errorMessages.push("The entered mail does not include a '@'");
+  } else if (enteredMail > mailMaxLenght) {
+    errorMessages.push(
+      "Entered mail can't be more than " + mailMaxLenght + " characters"
+    );
+  }
+
+  // Validation of password
+  if (enteredPassword === "") {
+    errorMessages.push("Password can't be empty");
+  } else if (enteredMail > passwordMaxLenght) {
+    errorMessages.push(
+      "Entered password can't be more than " + passwordMaxLenght + " characters"
+    );
+  }
+
+  if (enteredMail === adminMail && enteredPassword === adminPassword) {
+    // Login
     request.session.isLoggedIn = true;
 
     response.redirect("/");
   } else {
+    // Display error message
     const model = {
-      failedToLogin: false,
+      failedToLogin: true,
+      errorMessages,
     };
 
-    response.render("login.hbs");
+    response.render("login.hbs", model);
   }
-
-  response.redirect("account.hbs");
 });
 
 app.get("/account", function (request, response) {
   const query = `SELECT * FROM admin`;
 
   db.all(query, function (error, admin) {
-    const errorMessage = [];
+    const errorMessages = [];
     if (error) {
-      errorMessage.push("Internal server error");
+      errorMessages.push("Internal server error");
     }
     const model = {
       admin,
@@ -295,12 +361,14 @@ app.get("/account", function (request, response) {
   });
 });
 
+app.post("/logout", function (request, response) {
+  request.session.isLoggedIn = false;
+  response.redirect("/login");
+});
+
 app.get("/new-project", function (request, response) {
   response.render("new-project.hbs");
 });
-
-const titleMaxLength = 40;
-const descriptionMaxLenght = 1000;
 
 app.post("/new-project", function (request, response) {
   const title = request.body.title;
@@ -309,51 +377,58 @@ app.post("/new-project", function (request, response) {
   const category = request.body.category;
   const file = request.body.file;
 
-  const errorMessage = [];
+  const errorMessages = [];
 
-  // validation for title
-  if (title === "") {
-    errorMessage.push("Title can't be empty");
-  } else if (title.length > titleMaxLength) {
-    errorMessage.push("Title is more than " + titleMaxLength + " characters");
+  // Check if user is logged in
+  if (!request.session.isLoggedIn) {
+    errorMessages.push("You need to be logged in to perform this action");
+  } else {
+    // validation for title
+    if (title === "") {
+      errorMessages.push("Title can't be empty");
+    } else if (title.length > titleMaxLength) {
+      errorMessages.push(
+        "Title is more than " + titleMaxLength + " characters"
+      );
+    }
+
+    // validation for description
+    if (description === "") {
+      errorMessages.push("Description can't be empty");
+    } else if (title.length > descriptionMaxLenght) {
+      errorMessages.push(
+        "Title is more than " + descriptionMaxLenght + " characters"
+      );
+    }
+
+    // validation for category
+    if (category === "") {
+      errorMessages.push("Choose a category");
+    } else if (category === "Choose an option") {
+      errorMessages.push("Category can't be: Choose an option");
+    }
+
+    // validation for date
+    if (date === "") {
+      errorMessages.push("Pick a date");
+    }
+
+    // validation for picture
+    if (file === "") {
+      errorMessages.push("Choose a picture");
+    }
   }
 
-  // validation for description
-  if (description === "") {
-    errorMessage.push("Description can't be empty");
-  } else if (title.length > descriptionMaxLenght) {
-    errorMessage.push(
-      "Title is more than " + descriptionMaxLenght + " characters"
-    );
-  }
-
-  // validation for category
-  if (category === "") {
-    errorMessage.push("Choose a category");
-  } else if (category === "Choose an option") {
-    errorMessage.push("Category can't be: Choose an option");
-  }
-
-  // validation for date
-  if (date === "") {
-    errorMessage.push("Pick a date");
-  }
-
-  // validation for picture
-  if (file === "") {
-    errorMessage.push("Choose a picture");
-  }
-
-  if (errorMessage.length === 0) {
+  if (errorMessages.length === 0) {
     const query = `INSERT INTO projects (projTitle, projDescription, projDate, projCategory, projPicture) VALUES (?, ?, ?, ?, ?)`;
 
     const values = [title, description, date, category, file];
 
     db.run(query, values, function (error) {
       if (error) {
-        errorMessage.push("Internal server error");
+        errorMessages.push("Internal server error");
         const model = {
-          errorMessage,
+          errorMessages,
         };
 
         response.render("new-project.hbs", model);
@@ -363,7 +438,7 @@ app.post("/new-project", function (request, response) {
     });
   } else {
     const model = {
-      errorMessage,
+      errorMessages,
     };
 
     response.render("new-project.hbs", model);
@@ -378,9 +453,9 @@ app.get("/edit-project/:id", function (request, response) {
   const values = [id];
 
   db.get(query, values, function (error, project) {
-    const errorMessage = [];
+    const errorMessages = [];
     if (error) {
-      errorMessage.push("Internal server error");
+      errorMessages.push("Internal server error");
     }
     const model = {
       project,
@@ -399,60 +474,67 @@ app.post("/edit-project/:id", function (request, response) {
   const category = request.body.category;
   const file = request.body.file;
 
-  const errorMessage = [];
+  const errorMessages = [];
 
-  // validation for title
-  if (title === "") {
-    errorMessage.push("Title can't be empty");
-  } else if (title.length > titleMaxLength) {
-    errorMessage.push("Title is more than " + titleMaxLength + " characters");
+  // Check if user is logged in
+  if (!request.session.isLoggedIn) {
+    errorMessages.push("You need to be logged in to perform this action");
+  } else {
+    // validation for title
+    if (title === "") {
+      errorMessages.push("Title can't be empty");
+    } else if (title.length > titleMaxLength) {
+      errorMessages.push(
+        "Title is more than " + titleMaxLength + " characters"
+      );
+    }
+
+    // validation for description
+    if (description === "") {
+      errorMessages.push("Description can't be empty");
+    } else if (title.length > descriptionMaxLenght) {
+      errorMessages.push(
+        "Title is more than " + descriptionMaxLenght + " characters"
+      );
+    }
+
+    // validation for category
+    if (category === "") {
+      errorMessages.push("Choose a category");
+    } else if (category === "Choose an option") {
+      errorMessages.push("Category can't be: Choose an option");
+    }
+
+    // validation for date
+    if (date === "") {
+      errorMessages.push("Pick a date");
+    }
+
+    // validation for picture
+    if (file === "") {
+      errorMessages.push("Choose a picture");
+    }
   }
 
-  // validation for description
-  if (description === "") {
-    errorMessage.push("Description can't be empty");
-  } else if (title.length > descriptionMaxLenght) {
-    errorMessage.push(
-      "Title is more than " + descriptionMaxLenght + " characters"
-    );
-  }
-
-  // validation for category
-  if (category === "") {
-    errorMessage.push("Choose a category");
-  } else if (category === "Choose an option") {
-    errorMessage.push("Category can't be: Choose an option");
-  }
-
-  // validation for date
-  if (date === "") {
-    errorMessage.push("Pick a date");
-  }
-
-  // validation for picture
-  if (file === "") {
-    errorMessage.push("Choose a picture");
-  }
-
-  if (errorMessage.length === 0) {
+  if (errorMessages.length === 0) {
     const query = `UPDATE projects SET projTitle = ?, projDescription = ?, projDate = ?, projCategory = ?, projPicture = ? WHERE projId = ?`;
 
     const values = [title, description, date, category, file, id];
 
     db.run(query, values, function (error) {
       if (error) {
-        errorMessage.push("Internal server error");
+        errorMessages.push("Internal server error");
         const model = {
-          errorMessage,
+          errorMessages,
         };
         response.render("edit-project.hbs", model);
       } else {
-        response.redirect("/projects/" + id);
+        response.redirect("/project/" + id);
       }
     });
   } else {
     const model = {
-      errorMessage,
+      errorMessages,
     };
 
     response.render("edit-project.hbs", model);
@@ -460,7 +542,7 @@ app.post("/edit-project/:id", function (request, response) {
 });
 
 // Deletes a project with a specific id
-app.post("/projects/:id", function (request, response) {
+app.post("/project/:id", function (request, response) {
   const id = request.params.id;
 
   const query = `DELETE FROM projects WHERE projId = ?`;
@@ -468,9 +550,9 @@ app.post("/projects/:id", function (request, response) {
   const values = [id];
 
   db.run(query, values, function (error) {
-    const errorMessage = [];
+    const errorMessages = [];
     if (error) {
-      errorMessage.push("Internal server error");
+      errorMessages.push("Internal server error");
     }
     response.redirect("/#projects");
   });
@@ -495,38 +577,38 @@ app.post("/new-blog", function (request, response) {
 
   const file = request.body.file;
 
-  const errorMessage = [];
+  const errorMessages = [];
 
   // Validation for title
   if (title === "") {
-    errorMessage.push("Title can't be empty");
+    errorMessages.push("Title can't be empty");
   } else if (title.length > titleMaxLength) {
-    errorMessage.push("Title is more than " + titleMaxLength + " characters");
+    errorMessages.push("Title is more than " + titleMaxLength + " characters");
   }
 
   // Validation for Description
   if (description === "") {
-    errorMessage.push("Description can't be empty");
+    errorMessages.push("Description can't be empty");
   } else if (description.length > descriptionMaxLenght) {
-    errorMessage.push(
+    errorMessages.push(
       "Title is more than " + descriptionMaxLenght + " characters"
     );
   }
 
   // Validation for picture
   if (file === "") {
-    errorMessage.push("Choose a picture");
+    errorMessages.push("Choose a picture");
   }
 
-  if (errorMessage.length === 0) {
+  if (errorMessages.length === 0) {
     const query = `INSERT INTO blogposts (blogTitle, blogDescription, blogDate, blogPicture) VALUES (?, ?, ?, ?)`;
     const values = [title, description, currentDate, file];
 
     db.run(query, values, function (error) {
       if (error) {
-        errorMessage.push("Internal server error");
+        errorMessages.push("Internal server error");
         const model = {
-          errorMessage,
+          errorMessages,
         };
         response.render("new-blogpost.hbs", model);
       } else {
@@ -535,7 +617,7 @@ app.post("/new-blog", function (request, response) {
     });
   } else {
     const model = {
-      errorMessage,
+      errorMessages,
     };
     response.render("new-blogpost.hbs", model);
   }
@@ -549,9 +631,9 @@ app.get("/edit-blog/:id", function (request, response) {
   const values = [id];
 
   db.get(query, values, function (error, blog) {
-    const errorMessage = [];
+    const errorMessages = [];
     if (error) {
-      errorMessage.push("Internal server error");
+      errorMessages.push("Internal server error");
     }
     const model = {
       blog,
@@ -568,39 +650,39 @@ app.post("/edit-blog/:id", function (request, response) {
   const description = request.body.description;
   const file = request.body.file;
 
-  const errorMessage = [];
+  const errorMessages = [];
 
   // Validation for title
   if (title === "") {
-    errorMessage.push("Title can't be empty");
+    errorMessages.push("Title can't be empty");
   } else if (title.length > titleMaxLength) {
-    errorMessage.push("Title is more than " + titleMaxLength + " characters");
+    errorMessages.push("Title is more than " + titleMaxLength + " characters");
   }
 
   // Validation for Description
   if (description === "") {
-    errorMessage.push("Description can't be empty");
+    errorMessages.push("Description can't be empty");
   } else if (description.length > descriptionMaxLenght) {
-    errorMessage.push(
+    errorMessages.push(
       "Title is more than " + descriptionMaxLenght + " characters"
     );
   }
 
   // Validation for picture
   if (file === "") {
-    errorMessage.push("Choose a picture");
+    errorMessages.push("Choose a picture");
   }
 
-  if (errorMessage.length === 0) {
+  if (errorMessages.length === 0) {
     const query = `UPDATE blogposts SET blogTitle = ?, blogDescription = ?, blogPicture = ? WHERE blogId = ?`;
 
     const values = [title, description, file, id];
 
     db.run(query, values, function (error) {
       if (error) {
-        errorMessage.push("Internal server error");
+        errorMessages.push("Internal server error");
         const model = {
-          errorMessage,
+          errorMessages,
         };
         response.render("edit-blogpost.hbs", model);
       }
@@ -608,7 +690,7 @@ app.post("/edit-blog/:id", function (request, response) {
     });
   } else {
     const model = {
-      errorMessage,
+      errorMessages,
     };
     response.render("edit-blogpost.hbs", model);
   }
@@ -623,9 +705,9 @@ app.post("/delete-blog/:id", function (request, response) {
   const values = [id];
 
   db.run(query, values, function (error) {
-    const errorMessage = [];
+    const errorMessages = [];
     if (error) {
-      errorMessage.push("Internal server error");
+      errorMessages.push("Internal server error");
     }
     response.redirect("/blog");
   });
@@ -639,9 +721,9 @@ app.get("/edit-comment/:id", function (request, response) {
   const values = [id];
 
   db.get(query, values, function (error, comment) {
-    const errorMessage = [];
+    const errorMessages = [];
     if (error) {
-      errorMessage.push("Internal server error");
+      errorMessages.push("Internal server error");
     }
     const model = {
       comment,
@@ -657,36 +739,36 @@ app.post("/edit-comment/:id", function (request, response) {
   const name = request.body.name;
   const comment = request.body.comment;
 
-  const errorMessage = [];
+  const errorMessages = [];
 
   const nameMaxLength = 50;
   const commentMaxLenght = 200;
 
   // Validation of name
   if (name === "") {
-    errorMessage.push("Name can't be empty");
+    errorMessages.push("Name can't be empty");
   } else if (name > nameMaxLength) {
-    errorMessage.push("Name is longer than " + nameMaxLength + " characters");
+    errorMessages.push("Name is longer than " + nameMaxLength + " characters");
   }
 
   // Validation of comment
   if (comment === "") {
-    errorMessage.push("Comment can't be empty");
+    errorMessages.push("Comment can't be empty");
   } else if (comment > commentMaxLenght) {
-    errorMessage.push(
+    errorMessages.push(
       "Comment is longer than " + commentMaxLenght + " characters"
     );
   }
 
-  if (errorMessage.length === 0) {
+  if (errorMessages.length === 0) {
     const query = `UPDATE comments SET cmntName = ?, cmntContent = ? WHERE cmntId = ?`;
     const values = [name, comment, id];
 
     db.run(query, values, function (error) {
       if (error) {
-        errorMessage.push("Internal server error");
+        errorMessages.push("Internal server error");
         const model = {
-          errorMessage,
+          errorMessages,
         };
         response.render("edit-comment.hbs", model);
       }
@@ -694,7 +776,7 @@ app.post("/edit-comment/:id", function (request, response) {
     });
   } else {
     const model = {
-      errorMessage,
+      errorMessages,
     };
     response.render("edit-comment.hbs", model);
   }
@@ -709,9 +791,9 @@ app.post("/delete-comment/:id", function (request, response) {
   const values = [id];
 
   db.run(query, values, function (error) {
-    const errorMessage = [];
+    const errorMessages = [];
     if (error) {
-      errorMessage.push("Internal server error");
+      errorMessages.push("Internal server error");
     }
     response.redirect("/blog");
   });

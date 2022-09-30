@@ -1,70 +1,76 @@
-<p class="my-breadcrumb position-absolute">
-  <a class="breadcrumb-link" href="/blog">Blog</a>
-  /
-  <a class="breadcrumb-link">Edit blog post</a>
-</p>
+{{#if blog}}
 
-<div class="form-page">
+  <p class="my-breadcrumb position-absolute">
+    <a class="breadcrumb-link" href="/blog">Blog</a>
+    /
+    <a class="breadcrumb-link">Edit blog post</a>
+  </p>
 
-  <form
-    action="/edit-blog/{{blog.blogId}}"
-    method="post"
-    class="card form-container p-centered"
-  >
-    <div class="card-header p-centered">
-      <div class="card-title h3 form-title">Edit blog post</div>
-    </div>
+  <div class="form-page">
 
-    {{! Display error messages }}
-    {{#if errorMessage.length}}
-      <div class="error-message-container bg-error">
-        <ul class="error-message text-light">
-          {{#each errorMessage}}
-            <li class="error-message-list">{{this}}</li>
-          {{/each}}
-        </ul>
-      </div>
-    {{/if}}
-
-    <div class="card-body form-content side-margin">
-      <div>
-        <div class="form-group">
-          <label class="form-label">Title</label>
-          <input
-            class="form-input"
-            type="text"
-            placeholder="Title"
-            name="title"
-            value="{{blog.blogTitle}}"
-          />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Description</label>
-          <textarea
-            class="form-input"
-            type="text"
-            placeholder="Description"
-            name="description"
-            rows="7"
-          >{{blog.blogDescription}}</textarea>
-        </div>
-      </div>
-      <div>
-        <div class="form-group">
-          <label class="form-label">File</label>
-          <input
-            class="form-input"
-            type="file"
-            name="file"
-            value="{{blog.blogPicture}}"
-          />
-        </div>
+    <form
+      action="/edit-blog/{{blog.blogId}}"
+      method="post"
+      class="card form-container p-centered"
+    >
+      <div class="card-header p-centered">
+        <div class="card-title h3 form-title">Edit blog post</div>
       </div>
 
-    </div>
-    <div class="button-container p-centered">
-      <a class="btn" href="/blog">Cancel</a>
-      <button type="submit" class="btn btn-primary">Confirm changes</button>
-    </div>
-  </form>
-</div>
+      {{! Display error messages }}
+      {{#if errorMessage.length}}
+        <div class="error-message-container bg-error">
+          <ul class="error-message text-light">
+            {{#each errorMessage}}
+              <li class="error-message-list">{{this}}</li>
+            {{/each}}
+          </ul>
+        </div>
+      {{/if}}
+
+      <div class="card-body form-content side-margin">
+        <div>
+          <div class="form-group">
+            <label class="form-label">Title</label>
+            <input
+              class="form-input"
+              type="text"
+              placeholder="Title"
+              name="title"
+              value="{{blog.blogTitle}}"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Description</label>
+            <textarea
+              class="form-input"
+              type="text"
+              placeholder="Description"
+              name="description"
+              rows="7"
+            >{{blog.blogDescription}}</textarea>
+          </div>
+        </div>
+        <div>
+          <div class="form-group">
+            <label class="form-label">File</label>
+            <input
+              class="form-input"
+              type="file"
+              name="file"
+              value="{{blog.blogPicture}}"
+            />
+          </div>
+        </div>
+
+      </div>
+      <div class="button-container p-centered">
+        <a class="btn" href="/blog">Cancel</a>
+        <button type="submit" class="btn btn-primary">Confirm changes</button>
+      </div>
+    </form>
+  </div>
+
+{{else}}
+  <p>This page cannot be found</p>
+{{/if}}

@@ -5,12 +5,23 @@
     </div>
 
     {{#if failedToLogin}}
-      <p>Wrong credentials</p>
+      <li class="error-message-list">Wrong mail or password</li>
+    {{/if}}
+
+    {{! Display error messages }}
+    {{#if errorMessages.length}}
+      <div class="error-message-container bg-error">
+        <ul class="error-message text-light">
+          {{#each errorMessages}}
+            <li class="error-message-list">{{this}}</li>
+          {{/each}}
+        </ul>
+      </div>
     {{/if}}
 
     <form
       class="card-body login-margin side-margin"
-      method="/login"
+      action="/login"
       method="post"
     >
       <div class="form-group">

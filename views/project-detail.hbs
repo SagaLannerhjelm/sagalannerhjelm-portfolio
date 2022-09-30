@@ -6,22 +6,22 @@
   </p>
   <div class="project-container">
     <h2 class="title">{{project.projTitle}}
-      <a href="/edit-project/{{project.projId}}"><img
-          class="icons margin-left"
-          src="/edit_icon_light.png"
-        /></a>
-
-      {{! Delete button }}
-      <form
-        action="/projects/{{project.projId}}"
-        method="post"
-        class="delete-button"
-      >
-        <button type="submit" class="icon-button blue-button">
-          <img class="icons" src="/delete_icon_light.png" />
-        </button>
-      </form>
-
+      {{#if session.isLoggedIn}}
+        <a href="/edit-project/{{project.projId}}"><img
+            class="icons margin-left"
+            src="/edit_icon_light.png"
+          /></a>
+        {{! Delete button }}
+        <form
+          action="/projects/{{project.projId}}"
+          method="post"
+          class="delete-button"
+        >
+          <button type="submit" class="icon-button blue-button">
+            <img class="icons" src="/delete_icon_light.png" />
+          </button>
+        </form>
+      {{/if}}
     </h2>
     <div class="project-content">
       <p class="project-descr">{{project.projDescription}}</p>

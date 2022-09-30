@@ -1,96 +1,102 @@
-<p class="my-breadcrumb position-absolute">
-  <a class="breadcrumb-link" href="/#projects">Projects</a>
-  /
-  <a
-    class="breadcrumb-link"
-    href="/projects/{{project.projId}}"
-  >{{project.projTitle}}</a>
-  /
-  <a class="breadcrumb-link">Edit project</a>
-</p>
+{{#if project}}
 
-<div class="form-page">
-  <div class="card form-container p-centered new-project-container">
-    <div class="card-header p-centered">
-      <div class="card-title h3 form-title">Edit project</div>
+  <p class="my-breadcrumb position-absolute">
+    <a class="breadcrumb-link" href="/#projects">Projects</a>
+    /
+    <a
+      class="breadcrumb-link"
+      href="/project/{{project.projId}}"
+    >{{project.projTitle}}</a>
+    /
+    <a class="breadcrumb-link">Edit project</a>
+  </p>
+
+  <div class="form-page">
+    <div class="card form-container p-centered new-project-container">
+      <div class="card-header p-centered">
+        <div class="card-title h3 form-title">Edit project</div>
+      </div>
+
+      {{! Display error messages }}
+      {{#if errorMessages.length}}
+        <div class="error-message-container bg-error">
+          <ul class="error-message text-light">
+            {{#each errorMessages}}
+              <li class="error-message-list">{{this}}</li>
+            {{/each}}
+          </ul>
+        </div>
+      {{/if}}
+
+      <form
+        action="/edit-project/{{project.projId}}"
+        method="post"
+        class="card-body form-content side-margin"
+      >
+        <div>
+          <div class="form-group">
+            <label class="form-label">Title</label>
+            <input
+              name="title"
+              class="form-input"
+              type="text"
+              placeholder="Title"
+              value="{{project.projTitle}}"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Description</label>
+            <textarea
+              class="form-input"
+              type="text"
+              placeholder="Description"
+              name="description"
+              rows="6"
+            >{{project.projDescription}}</textarea>
+          </div>
+        </div>
+        <div>
+          <div class="form-group">
+            <label class="form-label">Category</label>
+            <select name="category" class="form-select text-dark">
+              <option>Choose an option</option>
+              <option>Illustration</option>
+              <option>Game development</option>
+              <option>Website</option>
+              <option>Graphic design</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Date</label>
+            <input
+              name="date"
+              class="form-input"
+              type="date"
+              value="{{project.projDate}}"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">File</label>
+            <input
+              name="file"
+              class="form-input"
+              type="file"
+              placeholder="Upload a file"
+              value="{{project.ptojPicture}}"
+            />
+          </div>
+
+        </div>
+        <div class="button-container p-centered">
+          {{!-- <a class="btn" href="/project/{{project.projId}}">Cancel</a> --}}
+          <a href="/project/{{project.projId}}" class="btn">Cancel</a>
+          <button type="submit" class="btn btn-primary">Confirm changes</button>
+        </div>
+      </form>
+
     </div>
-
-    {{! Display error messages }}
-    {{#if errorMessage.length}}
-      <div class="error-message-container bg-error">
-        <ul class="error-message text-light">
-          {{#each errorMessage}}
-            <li class="error-message-list">{{this}}</li>
-          {{/each}}
-        </ul>
-      </div>
-    {{/if}}
-
-    <form
-      action="/edit-project/{{project.projId}}"
-      method="post"
-      class="card-body form-content side-margin"
-    >
-      <div>
-        <div class="form-group">
-          <label class="form-label">Title</label>
-          <input
-            name="title"
-            class="form-input"
-            type="text"
-            placeholder="Title"
-            value="{{project.projTitle}}"
-          />
-        </div>
-        <div class="form-group">
-          <label class="form-label">Description</label>
-          <textarea
-            class="form-input"
-            type="text"
-            placeholder="Description"
-            name="description"
-            rows="6"
-          >{{project.projDescription}}</textarea>
-        </div>
-      </div>
-      <div>
-        <div class="form-group">
-          <label class="form-label">Category</label>
-          <select name="category" class="form-select text-dark">
-            <option>Choose an option</option>
-            <option>Illustration</option>
-            <option>Game development</option>
-            <option>Website</option>
-            <option>Graphic design</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Date</label>
-          <input
-            name="date"
-            class="form-input"
-            type="date"
-            value="{{project.projDate}}"
-          />
-        </div>
-        <div class="form-group">
-          <label class="form-label">File</label>
-          <input
-            name="file"
-            class="form-input"
-            type="file"
-            placeholder="Upload a file"
-            value="{{project.ptojPicture}}"
-          />
-        </div>
-
-      </div>
-      <div class="button-container p-centered">
-        {{!-- <a class="btn" href="/projects/{{project.projId}}">Cancel</a> --}}
-        <a href="/projects/{{project.projId}}" class="btn">Cancel</a>
-        <button type="submit" class="btn btn-primary">Confirm changes</button>
-      </div>
-    </form>
-
   </div>
-</div>
+
+{{else}}
+  <p>This page cannot be found</p>
+{{/if}}

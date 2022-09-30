@@ -35,7 +35,12 @@
         <span class="nav-links">
           <a href="/about">About</a>
           <a href="/contact">Contact</a>
-          <a href="/login">Login</a>
+          {{#unless isLoggedIn}}
+            <a href="/login">Login</a>
+          {{/unless}}
+          {{#if isLoggedIn}}
+            <a href="/account">Account</a>
+          {{/if}}
         </span>
       </div>
 
