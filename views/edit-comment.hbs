@@ -1,61 +1,89 @@
-{{#if comment}}
+{{#if session.isLoggedIn}}
 
-  <div class="edit-comment-page">
+  {{#if comment}}
+
     <div class="edit-comment-page">
-      <div class="edit-comment-title">
-        <h2 class="title">Edit comment</h2>
-      </div>
+      <div class="edit-comment-page">
+        <div class="edit-comment-title">
+          <h2 class="title text-primary">Edit comment</h2>
+        </div>
 
-      <div class="comment-container" id="blog/comment/{{comment.cmntId}}">
-        <form
-          action="/edit-comment/{{comment.cmntId}}"
-          method="post"
-          class="content-width"
-        >
+        <div class="comment-container" id="blog/comment/{{comment.cmntId}}">
+          <form
+            action="/edit-comment/{{comment.cmntId}}"
+            method="post"
+            class="content-width"
+          >
 
-          {{#if errorMessages.length}}
-            <div class="error-message-container bg-error">
-              <ul class="error-message text-light">
-                {{#each errorMessages}}
-                  <li class="error-message-list">{{this}}</li>
-                {{/each}}
-              </ul>
+            {{#if errorMessages.length}}
+              <div class="error-message-container bg-error">
+                <ul class="error-message text-light">
+                  {{#each errorMessages}}
+                    <li class="error-message-list">{{this}}</li>
+                  {{/each}}
+                </ul>
+              </div>
+            {{/if}}
+
+            <div class="form-group">
+              <p class="comment-date">{{comment.cmntDate}}</p>
+              <label class="form-label">Name</label>
+              <input
+                type="text"
+                class="form-input"
+                name="name"
+                placeholder="Name"
+                value="{{comment.cmntName}}"
+              />
             </div>
-          {{/if}}
-
-          <div class="form-group">
-            <p class="comment-date">{{comment.cmntDate}}</p>
-            <label class="form-label">Name</label>
-            <input
-              type="text"
-              class="form-input"
-              name="name"
-              placeholder="Name"
-              value="{{comment.cmntName}}"
-            />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Comment</label>
-            <input
-              type="text"
-              class="form-input"
-              name="comment"
-              placeholder="Write a comment"
-              value="{{comment.cmntContent}}"
-            />
-          </div>
-          {{! Buttons for editing and deliting comment }}
-          <div class="comment-icons edit-comment-buttons">
-            {{! Confirm changes }}
-            <a href="/blog" class="btn">Cancel</a>
-            <button type="submit" class="btn btn-primary">Confirm</button>
-          </div>
-        </form>
+            <div class="form-group">
+              <label class="form-label">Comment</label>
+              <input
+                type="text"
+                class="form-input"
+                name="comment"
+                placeholder="Write a comment"
+                value="{{comment.cmntContent}}"
+              />
+            </div>
+            {{! Buttons for editing and deliting comment }}
+            <div class="comment-icons edit-comment-buttons">
+              {{! Confirm changes }}
+              <a href="/blog" class="btn">Cancel</a>
+              <button type="submit" class="btn btn-primary">Confirm</button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
-  </div>
+
+  {{else}}
+    <img
+      src="/images/low_opacity_clouds.png"
+      alt="Illustration of clouds"
+      class="cloud clouds-picture"
+    />
+    <div class="locked-page">
+      <div class="">
+        <h4 class="position-relative">This page cannot be found</h4>
+      </div>
+    </div>
+
+  {{/if}}
 
 {{else}}
-  <p>This page cannot be found</p>
+
+  <img
+    src="/images/low_opacity_clouds.png"
+    alt="Illustration of clouds"
+    class="cloud clouds-picture"
+  />
+  <div class="locked-page">
+    <div class="not-logged-in-container">
+      <p class="position-relative">You are not logged in :&lpar;. You need to be
+        Logged in to access this page.</p>
+      <a href="/login" class="btn btn-primary">Go to login</a>
+    </div>
+  </div>
 
 {{/if}}

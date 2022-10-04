@@ -1,22 +1,22 @@
 <div class="intro-container">
   <img
     class="cloud place-below"
-    src="fluffy_cloud.svg"
-    alt="fluffy cloid illustration"
+    src="/images/fluffy_cloud.svg"
+    alt="fluffy cloud illustration"
   />
   <div class="p-fixed place-below">
     <div class="intro place-below">
       <h1 class="place-below text-normal">Hi, I'm Saga!</h1>
       <h2 class="place-below text-normal">Welcome to my page</h2>
-      <div class="button-container place-below intro-buttons">
+      {{! <div class="button-container intro-buttons">
         <a
           href="https://www.instagram.com/drawingsby_saga/"
           target="_blank"
-          class="btn place-below"
+          class="btn"
         >
           Instagram</a>
-        <a href="mailto:lasa21ui@student.ju.se" class="btn place-below">Mail</a>
-      </div>
+        <a href="mailto:lasa21ui@student.ju.se" class="btn">Mail</a>
+      </div> }}
     </div>
   </div>
 
@@ -34,15 +34,19 @@
     </div>
   </div>
 
-  {{#if isLoggedIn}}
+  {{#if session.isLoggedIn}}
     <a class="add-button add-proj-button" href="/new-project">+</a>
   {{/if}}
 
   <div class="project-grid">
-    {{#if projects.length}}
-      {{#each projects}}
+    {{#if project.length}}
+      {{#each project}}
         <a href="/project/{{projId}}" class="img-responsive img-fit-cover">
-          <img src="{{projPicture}}" class="project-picture" />
+          <img
+            src="/images/{{projPicture}}"
+            class="project-picture"
+            alt="Picture of a project"
+          />
         </a>
       {{/each}}
 

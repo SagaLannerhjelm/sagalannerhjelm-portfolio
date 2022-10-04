@@ -107,10 +107,10 @@ app.use(
 );
 
 app.use(function (request, response, next) {
-  const isLoggedIn = request.session.isLoggedIn;
-  console.log(isLoggedIn);
+  // const isLoggedIn = request.session.isLoggedIn;
+  // console.log(isLoggedIn);
 
-  response.locals.isLoggedIn = isLoggedIn;
+  // response.locals.isLoggedIn = isLoggedIn;
 
   response.locals.session = request.session;
 
@@ -122,7 +122,7 @@ app.use(cookieParser());
 app.get("/", function (request, response) {
   const query = `SELECT * FROM projects ORDER BY projId DESC`;
 
-  db.all(query, function (error, projects) {
+  db.all(query, function (error, project) {
     const errorMessages = [];
 
     if (error) {
@@ -130,9 +130,9 @@ app.get("/", function (request, response) {
     }
 
     const model = {
-      session: request.session,
+      // session: request.session,
       errorMessages,
-      projects,
+      project,
     };
 
     response.render("startpage.hbs", model);
@@ -181,19 +181,19 @@ app.get("/blog", function (request, response) {
   const blogQuery = `SELECT * FROM blogposts ORDER BY blogId DESC`;
   const commentsQuery = `SELECT * FROM comments`;
 
-  db.all(blogQuery, function (error, blogposts) {
+  db.all(blogQuery, function (error, blogpost) {
     const errorMessages = [];
     if (error) {
       errorMessages.push("Internal server error");
     }
-    db.all(commentsQuery, function (error, comments) {
+    db.all(commentsQuery, function (error, comment) {
       const errorMessages = [];
       if (error) {
         errorMessages.push("Internal server error");
       }
       const model = {
-        blogposts,
-        comments,
+        blogpost,
+        comment,
       };
       response.render("blog.hbs", model);
     });
@@ -212,6 +212,16 @@ app.get("/blog", function (request, response) {
 //   });
 // });
 
+// app.get("/about", function (request, response) {
+//   const query = `SELECT * FROM blogposts LEFT OUTER JOIN comments ON blogposts.blogId = comments.blogId`;
+//   db.all(query, function (error, blogposts) {
+//     const model = {
+//       blogposts,
+//     };
+//     response.render("about.hbs", model);
+//   });
+// });
+
 // Create comments on blog page
 app.post("/blog/:id", function (request, response) {
   const blogId = request.params.id;
@@ -223,9 +233,10 @@ app.post("/blog/:id", function (request, response) {
   const today = new Date();
   const year = today.getFullYear();
   const month = today.getMonth();
-  const monthCorrection = month < 10 ? "0" + (month + 1) : month + 1;
+  const monthCorrection = month + 1 < 10 ? "0" + (month + 1) : month + 1;
   const date = today.getDate();
-  const currentDate = year + "-" + monthCorrection + "-" + date;
+  const dateCorrection = date < 10 ? "0" + date : date;
+  const currentDate = year + "-" + monthCorrection + "-" + dateCorrection;
 
   const errorMessages = [];
 
@@ -235,14 +246,14 @@ app.post("/blog/:id", function (request, response) {
   // Validation of name
   if (name === "") {
     errorMessages.push("Name can't be empty");
-  } else if (name > nameMaxLength) {
+  } else if (name.length > nameMaxLength) {
     errorMessages.push("Name is longer than " + nameMaxLength + " characters");
   }
 
   // Validation of comment
   if (comment === "") {
     errorMessages.push("Comment can't be empty");
-  } else if (comment > commentMaxLenght) {
+  } else if (comment.length > commentMaxLenght) {
     errorMessages.push(
       "Comment is longer than " + commentMaxLenght + " characters"
     );
@@ -257,29 +268,33 @@ app.post("/blog/:id", function (request, response) {
         errorMessages.push("Internal server error");
         const model = {
           errorMessages,
+          blogpost,
+          comment,
         };
         response.render("blog.hbs", model);
+      } else {
+        response.redirect("/blog#comment-section/" + blogId);
       }
-      response.redirect("/blog#comment-section/" + blogId);
     });
   } else {
     const blogQuery = `SELECT * FROM blogposts ORDER BY blogId DESC`;
     const commentsQuery = `SELECT * FROM comments`;
 
-    db.all(blogQuery, function (error, blogposts) {
-      const errorMessages = [];
+    const errorOccured = blogId;
+
+    db.all(blogQuery, function (error, blogpost) {
       if (error) {
         errorMessages.push("Internal server error");
       }
-      db.all(commentsQuery, function (error, comments) {
-        const errorMessages = [];
+      db.all(commentsQuery, function (error, comment) {
         if (error) {
           errorMessages.push("Internal server error");
         }
         const model = {
+          blogpost,
+          comment,
           errorMessages,
-          blogposts,
-          comments,
+          errorOccured,
         };
         response.render("blog.hbs", model);
       });
@@ -314,7 +329,7 @@ app.post("/login", function (request, response) {
     errorMessages.push("Mail can't be empty");
   } else if (correctEnteredMail === false) {
     errorMessages.push("The entered mail does not include a '@'");
-  } else if (enteredMail > mailMaxLenght) {
+  } else if (enteredMail.length > mailMaxLenght) {
     errorMessages.push(
       "Entered mail can't be more than " + mailMaxLenght + " characters"
     );
@@ -323,7 +338,7 @@ app.post("/login", function (request, response) {
   // Validation of password
   if (enteredPassword === "") {
     errorMessages.push("Password can't be empty");
-  } else if (enteredMail > passwordMaxLenght) {
+  } else if (enteredPassword.length > passwordMaxLenght) {
     errorMessages.push(
       "Entered password can't be more than " + passwordMaxLenght + " characters"
     );
@@ -405,7 +420,7 @@ app.post("/new-project", function (request, response) {
     if (category === "") {
       errorMessages.push("Choose a category");
     } else if (category === "Choose an option") {
-      errorMessages.push("Category can't be: Choose an option");
+      errorMessages.push("Pick a specific category");
     }
 
     // validation for date
@@ -502,7 +517,7 @@ app.post("/edit-project/:id", function (request, response) {
     if (category === "") {
       errorMessages.push("Choose a category");
     } else if (category === "Choose an option") {
-      errorMessages.push("Category can't be: Choose an option");
+      errorMessages.push("Pick a specific category");
     }
 
     // validation for date
@@ -526,6 +541,14 @@ app.post("/edit-project/:id", function (request, response) {
         errorMessages.push("Internal server error");
         const model = {
           errorMessages,
+          project: {
+            projId: id,
+            title,
+            description,
+            date,
+            category,
+            file,
+          },
         };
         response.render("edit-project.hbs", model);
       } else {
@@ -533,11 +556,19 @@ app.post("/edit-project/:id", function (request, response) {
       }
     });
   } else {
-    const model = {
-      errorMessages,
-    };
+    const query = `SELECT * FROM projects WHERE projId = ?`;
+    const values = [id];
 
-    response.render("edit-project.hbs", model);
+    db.get(query, values, function (error, project) {
+      if (error) {
+        errorMessages.push("Internal server error");
+      }
+      const model = {
+        errorMessages,
+        project,
+      };
+      response.render("edit-project.hbs", model);
+    });
   }
 });
 
@@ -571,33 +602,41 @@ app.post("/new-blog", function (request, response) {
   const today = new Date();
   const year = today.getFullYear();
   const month = today.getMonth();
-  const monthCorrection = month < 10 ? "0" + (month + 1) : month + 1;
+  const monthCorrection = month + 1 < 10 ? "0" + (month + 1) : month + 1;
   const date = today.getDate();
-  const currentDate = year + "-" + monthCorrection + "-" + date;
+  const dateCorrection = date < 10 ? "0" + date : date;
+  const currentDate = year + "-" + monthCorrection + "-" + dateCorrection;
 
   const file = request.body.file;
 
   const errorMessages = [];
 
-  // Validation for title
-  if (title === "") {
-    errorMessages.push("Title can't be empty");
-  } else if (title.length > titleMaxLength) {
-    errorMessages.push("Title is more than " + titleMaxLength + " characters");
-  }
+  // Check if user is logged in
+  if (!request.session.isLoggedIn) {
+    errorMessages.push("You need to be logged in to perform this action");
+  } else {
+    // Validation for title
+    if (title === "") {
+      errorMessages.push("Title can't be empty");
+    } else if (title.length > titleMaxLength) {
+      errorMessages.push(
+        "Title is more than " + titleMaxLength + " characters"
+      );
+    }
 
-  // Validation for Description
-  if (description === "") {
-    errorMessages.push("Description can't be empty");
-  } else if (description.length > descriptionMaxLenght) {
-    errorMessages.push(
-      "Title is more than " + descriptionMaxLenght + " characters"
-    );
-  }
+    // Validation for Description
+    if (description === "") {
+      errorMessages.push("Description can't be empty");
+    } else if (description.length > descriptionMaxLenght) {
+      errorMessages.push(
+        "Title is more than " + descriptionMaxLenght + " characters"
+      );
+    }
 
-  // Validation for picture
-  if (file === "") {
-    errorMessages.push("Choose a picture");
+    // Validation for picture
+    if (file === "") {
+      errorMessages.push("Choose a picture");
+    }
   }
 
   if (errorMessages.length === 0) {
@@ -652,25 +691,32 @@ app.post("/edit-blog/:id", function (request, response) {
 
   const errorMessages = [];
 
-  // Validation for title
-  if (title === "") {
-    errorMessages.push("Title can't be empty");
-  } else if (title.length > titleMaxLength) {
-    errorMessages.push("Title is more than " + titleMaxLength + " characters");
-  }
+  // Check if user is logged in
+  if (!request.session.isLoggedIn) {
+    errorMessages.push("You need to be logged in to perform this action");
+  } else {
+    // Validation for title
+    if (title === "") {
+      errorMessages.push("Title can't be empty");
+    } else if (title.length > titleMaxLength) {
+      errorMessages.push(
+        "Title is more than " + titleMaxLength + " characters"
+      );
+    }
 
-  // Validation for Description
-  if (description === "") {
-    errorMessages.push("Description can't be empty");
-  } else if (description.length > descriptionMaxLenght) {
-    errorMessages.push(
-      "Title is more than " + descriptionMaxLenght + " characters"
-    );
-  }
+    // Validation for Description
+    if (description === "") {
+      errorMessages.push("Description can't be empty");
+    } else if (description.length > descriptionMaxLenght) {
+      errorMessages.push(
+        "Title is more than " + descriptionMaxLenght + " characters"
+      );
+    }
 
-  // Validation for picture
-  if (file === "") {
-    errorMessages.push("Choose a picture");
+    // Validation for picture
+    if (file === "") {
+      errorMessages.push("Choose a picture");
+    }
   }
 
   if (errorMessages.length === 0) {
@@ -683,16 +729,32 @@ app.post("/edit-blog/:id", function (request, response) {
         errorMessages.push("Internal server error");
         const model = {
           errorMessages,
+          blog: {
+            blogId: id,
+            title,
+            description,
+            file,
+          },
         };
         response.render("edit-blogpost.hbs", model);
+      } else {
+        response.redirect("/blog");
       }
-      response.redirect("/blog");
     });
   } else {
-    const model = {
-      errorMessages,
-    };
-    response.render("edit-blogpost.hbs", model);
+    const query = `SELECT * FROM blogposts WHERE blogID = ?`;
+    const values = [id];
+
+    db.get(query, values, function (error, blog) {
+      if (error) {
+        errorMessages.push("Internal server error");
+      }
+      const model = {
+        errorMessages,
+        blog,
+      };
+      response.render("edit-blogpost.hbs", model);
+    });
   }
 });
 
@@ -700,16 +762,23 @@ app.post("/edit-blog/:id", function (request, response) {
 app.post("/delete-blog/:id", function (request, response) {
   const id = request.params.id;
 
-  const query = `DELETE FROM blogposts WHERE blogId = ?`;
+  const blogpostQuery = `DELETE FROM blogposts WHERE blogId = ?`;
+  const commentQuery = `DELETE FROM comments WHERE blogId = ?`;
 
   const values = [id];
 
-  db.run(query, values, function (error) {
+  db.run(blogpostQuery, values, function (error) {
     const errorMessages = [];
     if (error) {
       errorMessages.push("Internal server error");
     }
-    response.redirect("/blog");
+    db.run(commentQuery, values, function (error) {
+      const errorMessages = [];
+      if (error) {
+        errorMessages.push("Internal server error");
+      }
+      response.redirect("/blog");
+    });
   });
 });
 
@@ -741,23 +810,30 @@ app.post("/edit-comment/:id", function (request, response) {
 
   const errorMessages = [];
 
-  const nameMaxLength = 50;
+  const nameMaxLength = 20;
   const commentMaxLenght = 200;
 
-  // Validation of name
-  if (name === "") {
-    errorMessages.push("Name can't be empty");
-  } else if (name > nameMaxLength) {
-    errorMessages.push("Name is longer than " + nameMaxLength + " characters");
-  }
+  // Check if user is logged in
+  if (!request.session.isLoggedIn) {
+    errorMessages.push("You need to be logged in to perform this action");
+  } else {
+    // Validation of name
+    if (name === "") {
+      errorMessages.push("Name can't be empty");
+    } else if (name.length > nameMaxLength) {
+      errorMessages.push(
+        "Name is longer than " + nameMaxLength + " characters"
+      );
+    }
 
-  // Validation of comment
-  if (comment === "") {
-    errorMessages.push("Comment can't be empty");
-  } else if (comment > commentMaxLenght) {
-    errorMessages.push(
-      "Comment is longer than " + commentMaxLenght + " characters"
-    );
+    // Validation of comment
+    if (comment === "") {
+      errorMessages.push("Comment can't be empty");
+    } else if (comment.length > commentMaxLenght) {
+      errorMessages.push(
+        "Comment is longer than " + commentMaxLenght + " characters"
+      );
+    }
   }
 
   if (errorMessages.length === 0) {
@@ -769,16 +845,30 @@ app.post("/edit-comment/:id", function (request, response) {
         errorMessages.push("Internal server error");
         const model = {
           errorMessages,
+          comment: {
+            comntId: id,
+            name,
+            comment,
+          },
         };
         response.render("edit-comment.hbs", model);
       }
       response.redirect("/blog");
     });
   } else {
-    const model = {
-      errorMessages,
-    };
-    response.render("edit-comment.hbs", model);
+    const query = `SELECT * FROM comments WHERE cmntId = ?`;
+    const values = [id];
+
+    db.get(query, values, function (error, comment) {
+      if (error) {
+        errorMessages.push("Internal server error");
+      }
+      const model = {
+        errorMessages,
+        comment,
+      };
+      response.render("edit-comment.hbs", model);
+    });
   }
 });
 
@@ -786,17 +876,23 @@ app.post("/edit-comment/:id", function (request, response) {
 app.post("/delete-comment/:id", function (request, response) {
   const id = request.params.id;
 
-  const query = `DELETE FROM comments WHERE cmntId = ?`;
+  const errorMessages = [];
+  // Check if user is logged in
+  if (!request.session.isLoggedIn) {
+    errorMessages.push("You need to be logged in to perform this action");
+  } else {
+    const query = `DELETE FROM comments WHERE cmntId = ?`;
 
-  const values = [id];
+    const values = [id];
 
-  db.run(query, values, function (error) {
-    const errorMessages = [];
-    if (error) {
-      errorMessages.push("Internal server error");
-    }
-    response.redirect("/blog");
-  });
+    db.run(query, values, function (error) {
+      const errorMessages = [];
+      if (error) {
+        errorMessages.push("Internal server error");
+      }
+      response.redirect("/blog");
+    });
+  }
 });
 
 app.listen(8080);

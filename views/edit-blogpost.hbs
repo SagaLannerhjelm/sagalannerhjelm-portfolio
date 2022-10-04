@@ -1,76 +1,103 @@
-{{#if blog}}
+{{#if session.isLoggedIn}}
 
-  <p class="my-breadcrumb position-absolute">
-    <a class="breadcrumb-link" href="/blog">Blog</a>
-    /
-    <a class="breadcrumb-link">Edit blog post</a>
-  </p>
+  {{#if blog}}
+    <p class="my-breadcrumb position-absolute">
+      <a class="breadcrumb-link" href="/blog">Blog</a>
+      /
+      <a class="breadcrumb-link">Edit blog post</a>
+    </p>
 
-  <div class="form-page">
+    <div class="form-page">
 
-    <form
-      action="/edit-blog/{{blog.blogId}}"
-      method="post"
-      class="card form-container p-centered"
-    >
-      <div class="card-header p-centered">
-        <div class="card-title h3 form-title">Edit blog post</div>
-      </div>
-
-      {{! Display error messages }}
-      {{#if errorMessage.length}}
-        <div class="error-message-container bg-error">
-          <ul class="error-message text-light">
-            {{#each errorMessage}}
-              <li class="error-message-list">{{this}}</li>
-            {{/each}}
-          </ul>
-        </div>
-      {{/if}}
-
-      <div class="card-body form-content side-margin">
-        <div>
-          <div class="form-group">
-            <label class="form-label">Title</label>
-            <input
-              class="form-input"
-              type="text"
-              placeholder="Title"
-              name="title"
-              value="{{blog.blogTitle}}"
-            />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Description</label>
-            <textarea
-              class="form-input"
-              type="text"
-              placeholder="Description"
-              name="description"
-              rows="7"
-            >{{blog.blogDescription}}</textarea>
-          </div>
-        </div>
-        <div>
-          <div class="form-group">
-            <label class="form-label">File</label>
-            <input
-              class="form-input"
-              type="file"
-              name="file"
-              value="{{blog.blogPicture}}"
-            />
-          </div>
+      <form
+        action="/edit-blog/{{blog.blogId}}"
+        method="post"
+        class="card form-container p-centered"
+      >
+        <div class="card-header p-centered">
+          <div class="card-title h3 form-title">Edit blog post</div>
         </div>
 
+        {{! Display error messages }}
+        {{#if errorMessages.length}}
+          <div class="error-message-container bg-error">
+            <ul class="error-message text-light">
+              {{#each errorMessages}}
+                <li class="error-message-list">{{this}}</li>
+              {{/each}}
+            </ul>
+          </div>
+        {{/if}}
+
+        <div class="card-body form-content side-margin">
+          <div>
+            <div class="form-group">
+              <label class="form-label">Title</label>
+              <input
+                class="form-input"
+                type="text"
+                placeholder="Title"
+                name="title"
+                value="{{blog.blogTitle}}"
+              />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Description</label>
+              <textarea
+                class="form-input"
+                type="text"
+                placeholder="Description"
+                name="description"
+                rows="7"
+              >{{blog.blogDescription}}</textarea>
+            </div>
+          </div>
+          <div>
+            <div class="form-group">
+              <label class="form-label">File</label>
+              <input
+                class="form-input"
+                type="file"
+                name="file"
+                value="{{blog.blogPicture}}"
+              />
+            </div>
+          </div>
+
+        </div>
+        <div class="button-container p-centered">
+          <a class="btn" href="/blog">Cancel</a>
+          <button type="submit" class="btn btn-primary">Confirm changes</button>
+        </div>
+      </form>
+    </div>
+
+  {{else}}
+    <img
+      src="/images/low_opacity_clouds.png"
+      alt="Illustration of clouds"
+      class="cloud clouds-picture"
+    />
+    <div class="locked-page">
+      <div class="">
+        <h4 class="position-relative">This page cannot be found</h4>
       </div>
-      <div class="button-container p-centered">
-        <a class="btn" href="/blog">Cancel</a>
-        <button type="submit" class="btn btn-primary">Confirm changes</button>
-      </div>
-    </form>
-  </div>
+    </div>
+  {{/if}}
 
 {{else}}
-  <p>This page cannot be found</p>
+
+  <img
+    src="/images/low_opacity_clouds.png"
+    alt="Illustration of clouds"
+    class="cloud clouds-picture"
+  />
+  <div class="locked-page">
+    <div class="not-logged-in-container">
+      <p class="position-relative">You are not logged in :&lpar;. You need to be
+        Logged in to access this page.</p>
+      <a href="/login" class="btn btn-primary">Go to login</a>
+    </div>
+  </div>
+
 {{/if}}

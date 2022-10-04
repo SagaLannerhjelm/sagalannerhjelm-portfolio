@@ -9,7 +9,8 @@
       {{#if session.isLoggedIn}}
         <a href="/edit-project/{{project.projId}}"><img
             class="icons margin-left"
-            src="/edit_icon_light.png"
+            src="/images/edit_icon_light.png"
+            alt="edit icon"
           /></a>
         {{! Delete button }}
         <form
@@ -18,7 +19,11 @@
           class="delete-button"
         >
           <button type="submit" class="icon-button blue-button">
-            <img class="icons" src="/delete_icon_light.png" />
+            <img
+              class="icons"
+              src="/images/delete_icon_light.png"
+              alt="Delete icon"
+            />
           </button>
         </form>
       {{/if}}
@@ -30,6 +35,10 @@
         <p class="project-category">Category: <br />{{project.projCategory}}</p>
       </div>
     </div>
-    <img class="project-pic" src="/{{project.projPicture}}" alt="" />
+    <img
+      class="project-pic"
+      src="/images/{{project.projPicture}}"
+      alt="Picture of a project"
+    />
   </div>
 </div>

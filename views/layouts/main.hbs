@@ -35,12 +35,11 @@
         <span class="nav-links">
           <a href="/about">About</a>
           <a href="/contact">Contact</a>
-          {{#unless isLoggedIn}}
+          {{#unless session.isLoggedIn}}
             <a href="/login">Login</a>
-          {{/unless}}
-          {{#if isLoggedIn}}
+          {{else}}
             <a href="/account">Account</a>
-          {{/if}}
+          {{/unless}}
         </span>
       </div>
 
@@ -55,7 +54,11 @@
         <a href="/blog">Blog</a>
         <a href="/about">About</a>
         <a href="/contact">Contact</a>
-        <a href="/login">Login</a>
+        {{#unless session.isLoggedIn}}
+          <a href="/login">Login</a>
+        {{else}}
+          <a href="/account">Account</a>
+        {{/unless}}
       </div>
 
     </nav>
@@ -65,7 +68,7 @@
     </div>
 
     <footer>
-      <h6 class="footer">Copyright Saga Lannerhjelm 2022</h6>
+      <p class="footer">Copyright &copy; 2022 Saga Lannerhjelm</p>
     </footer>
   </body>
 </html>

@@ -1,102 +1,131 @@
-{{#if project}}
+{{#if session.isLoggedIn}}
 
-  <p class="my-breadcrumb position-absolute">
-    <a class="breadcrumb-link" href="/#projects">Projects</a>
-    /
-    <a
-      class="breadcrumb-link"
-      href="/project/{{project.projId}}"
-    >{{project.projTitle}}</a>
-    /
-    <a class="breadcrumb-link">Edit project</a>
-  </p>
+  {{#if project}}
+    <p class="my-breadcrumb position-absolute">
+      <a class="breadcrumb-link" href="/#projects">Projects</a>
+      /
+      <a
+        class="breadcrumb-link"
+        href="/project/{{project.projId}}"
+      >{{project.projTitle}}</a>
+      /
+      <a class="breadcrumb-link">Edit project</a>
+    </p>
 
-  <div class="form-page">
-    <div class="card form-container p-centered new-project-container">
-      <div class="card-header p-centered">
-        <div class="card-title h3 form-title">Edit project</div>
+    <div class="form-page">
+      <div class="card form-container p-centered new-project-container">
+        <div class="card-header p-centered">
+          <div class="card-title h3 form-title">Edit project</div>
+        </div>
+
+        {{! Display error messages }}
+        {{#if errorMessages.length}}
+          <div class="error-message-container bg-error">
+            <ul class="error-message text-light">
+              {{#each errorMessages}}
+                <li class="error-message-list">{{this}}</li>
+              {{/each}}
+            </ul>
+          </div>
+        {{/if}}
+
+        <form
+          action="/edit-project/{{project.projId}}"
+          method="post"
+          class="card-body side-margin"
+        >
+          <div class="form-content">
+            <div>
+              <div class="form-group">
+                <label class="form-label">Title</label>
+                <input
+                  name="title"
+                  class="form-input"
+                  type="text"
+                  placeholder="Title"
+                  value="{{project.projTitle}}"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Description</label>
+                <textarea
+                  class="form-input"
+                  type="text"
+                  placeholder="Description"
+                  name="description"
+                  rows="6"
+                >{{project.projDescription}}</textarea>
+              </div>
+            </div>
+            <div>
+              <div class="form-group">
+                <label class="form-label">Category</label>
+                <select name="category" class="form-select text-dark">
+                  <option>Choose an option</option>
+                  <option>Illustration</option>
+                  <option>Game development</option>
+                  <option>Website</option>
+                  <option>Graphic design</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Date</label>
+                <input
+                  name="date"
+                  class="form-input"
+                  type="date"
+                  value="{{project.projDate}}"
+                />
+              </div>
+              <div class="form-group">
+                <label class="form-label">File</label>
+                <input
+                  name="file"
+                  class="form-input"
+                  type="file"
+                  placeholder="Upload a file"
+                  value="{{project.ptojPicture}}"
+                />
+              </div>
+
+            </div>
+          </div>
+          <div class="button-container p-centered">
+            {{!-- <a class="btn" href="/project/{{project.projId}}">Cancel</a> --}}
+            <a href="/project/{{project.projId}}" class="btn">Cancel</a>
+            <button type="submit" class="btn btn-primary">Confirm changes</button>
+          </div>
+        </form>
+
       </div>
+    </div>
 
-      {{! Display error messages }}
-      {{#if errorMessages.length}}
-        <div class="error-message-container bg-error">
-          <ul class="error-message text-light">
-            {{#each errorMessages}}
-              <li class="error-message-list">{{this}}</li>
-            {{/each}}
-          </ul>
-        </div>
-      {{/if}}
+  {{else}}
+    <img
+      src="/images/low_opacity_clouds.png"
+      alt="Illustration of clouds"
+      class="cloud clouds-picture"
+    />
+    <div class="locked-page">
+      <div class="">
+        <h4 class="position-relative">This page cannot be found</h4>
+      </div>
+    </div>
+  {{/if}}
 
-      <form
-        action="/edit-project/{{project.projId}}"
-        method="post"
-        class="card-body form-content side-margin"
-      >
-        <div>
-          <div class="form-group">
-            <label class="form-label">Title</label>
-            <input
-              name="title"
-              class="form-input"
-              type="text"
-              placeholder="Title"
-              value="{{project.projTitle}}"
-            />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Description</label>
-            <textarea
-              class="form-input"
-              type="text"
-              placeholder="Description"
-              name="description"
-              rows="6"
-            >{{project.projDescription}}</textarea>
-          </div>
-        </div>
-        <div>
-          <div class="form-group">
-            <label class="form-label">Category</label>
-            <select name="category" class="form-select text-dark">
-              <option>Choose an option</option>
-              <option>Illustration</option>
-              <option>Game development</option>
-              <option>Website</option>
-              <option>Graphic design</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Date</label>
-            <input
-              name="date"
-              class="form-input"
-              type="date"
-              value="{{project.projDate}}"
-            />
-          </div>
-          <div class="form-group">
-            <label class="form-label">File</label>
-            <input
-              name="file"
-              class="form-input"
-              type="file"
-              placeholder="Upload a file"
-              value="{{project.ptojPicture}}"
-            />
-          </div>
-
-        </div>
-        <div class="button-container p-centered">
-          {{!-- <a class="btn" href="/project/{{project.projId}}">Cancel</a> --}}
-          <a href="/project/{{project.projId}}" class="btn">Cancel</a>
-          <button type="submit" class="btn btn-primary">Confirm changes</button>
-        </div>
-      </form>
-
+{{else}}
+  <img
+    src="/images/low_opacity_clouds.png"
+    alt="Illustration of clouds"
+    class="cloud clouds-picture"
+  />
+  <div class="locked-page">
+    <div class="not-logged-in-container">
+      <p class="position-relative">You are not logged in :&lpar;. You need to be
+        Logged in to access this page.</p>
+      <a href="/login" class="btn btn-primary">Go to login</a>
     </div>
   </div>
 
-{{else}}
-  <p>This page cannot be found</p>
 {{/if}}

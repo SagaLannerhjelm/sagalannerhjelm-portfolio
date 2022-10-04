@@ -1,45 +1,56 @@
 <div class="blog-page padding">
-{{#if isLoggedIn}}
+{{#if session.isLoggedIn}}
   <a class="add-button new-blog-button" href="/new-blog">+</a>
 {{/if}}
- {{! Display error messages }}
-          {{#if errorMessages.length}}
-            <div class="error-message-container bg-error">
-              <ul class="error-message text-light">
-                {{#each errorMessages}}
-                  <li class="error-message-list">{{this}}</li>
-                {{/each}}
-              </ul>
-            </div>
-          {{/if}}
-  {{#if blogposts.length}}
-    {{#each blogposts as | blogPost |}}
+
+  {{#if blogpost.length}}
+    {{#each blogpost as | blog |}}
       <div class="blog-container" id="blog/{{blogId}}">
         <h2 class="title text-primary float-left">{{blogTitle}}
           {{#if ../session.isLoggedIn}}
             {{!-- Edit button --}}
-            <a href="/edit-blog/{{blogId}}"><img class="icons margin-left" src="/edit_icon_dark.png"/></a>
+            <a href="/edit-blog/{{blogId}}"><img class="icons margin-left" src="/images/edit_icon_dark.png"  alt="Edit icon"/></a>
+
             {{!-- Delete button --}}
             <form
               action="/delete-blog/{{blogId}}"
               method="post"
-              class="delete-button"
-            >
+              class="delete-button">
               <button type="submit" class="icon-button white-button">
-                <img class="icons" src="/delete_icon_dark.png" />
+                <img class="icons" src="/images/delete_icon_dark.png" alt="Delete icon" />
               </button>
             </form>
           {{/if}}
         </h2>
         <p class="blog-date">{{blogDate}}</p>
         <p class="blog-descr">{{blogDescription}}</p>
-        <img class="blog-pic" src="/{{blogPicture}}">
+        <img class="blog-pic" src="/images/{{blogPicture}}" alt="Blog picture">
+
+      
+        {{#if ../errorOccured.length}}
+          {{#ifEquals ../errorOccured blog.blogId}}
+          
+            {{! Display error messages }}
+            {{#if ../errorMessages.length}}
+              <div class="error-message-container-extended bg-error">
+                <ul class="error-message text-light">
+                  {{#each ../errorMessages}}
+                    <li class="error-message-list">{{this}}</li>
+                  {{/each}}
+                </ul>
+              </div>
+            {{/if}}
+            
+          {{/ifEquals}}
+        {{/if}}
+         
 
         {{!-- Form for creating comments --}}
-        {{#unless ../isLoggedIn}}
+        {{#unless ../session.isLoggedIn}}
           <div class="card-title h4 form-title" id="new-comment-section/{{blogId}}">Write a comment</div>
           <form action="/blog/{{blogId}}" method="post">
             <div class="form-group">
+              {{!-- <input type="text" name="id" value="{{blogId}}"> --}}
               <label class="form-label">Name</label>
               <input class="form-input" type="text" name="name" placeholder="Write your name here...">
             </div>
@@ -52,11 +63,11 @@
         {{/unless}}
       </div>
       {{!-- Show comments --}}
-      {{#if ../comments.length}}
+      {{#if ../comment.length}}
         <h5 class="comments-title" id="comment-section/{{blogId}}">Comments</h5>
-        {{#each ../comments as | comment |}}
+        {{#each ../comment as | cmnt |}}
           {{!-- Show the right comments on the right blogpost --}}
-          {{#ifEquals comment.blogId blogPost.blogId}}
+          {{#ifEquals cmnt.blogId blog.blogId}}
             <div class="comment-container" id="comment/{{cmntId}}">
               <div class="comment-grid">
                 <p class="name">{{cmntName}}</p>
@@ -66,12 +77,12 @@
                 <p class="comment">{{cmntContent}}</p>
                 {{!-- Buttons for editing and deleting comment --}}
                 <div class="float-right comment-icons">
-                 {{#if ../isLoggedIn}}
+                  {{#if ../../session.isLoggedIn}}
                     {{!-- edit button --}}
-                      <a href="/edit-comment/{{cmntId}}" class="icon-button blue-button"><img class="icons" src="/edit_icon_light.png"/></a>
+                    <a href="/edit-comment/{{cmntId}}" class="icon-button blue-button"><img class="icons" src="/images/edit_icon_light.png" alt="Edit icon"/></a>
                     {{!-- delete button --}}
                     <form action="/delete-comment/{{cmntId}}" method="post">
-                      <button type="submit" class="icon-button blue-button"><img class="icons" src="/delete_icon_light.png"/></button>
+                      <button type="submit" class="icon-button blue-button"><img class="icons" src="/images/delete_icon_light.png" alt="Delete icon"/></button>
                     </form>
                   {{/if}}
                 </div>

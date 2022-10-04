@@ -6,7 +6,7 @@
 
 .project-container {
   display: grid;
-  max-width: 65%;
+  max-width: var(--max-width-main);
   margin-left: auto;
   margin-right: auto;
 }
