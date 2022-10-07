@@ -63,11 +63,21 @@
   margin-right: 10px;
 }
 
-/* Edit comments page */
+/* New picture pages */
+
+.picture-input {
+  margin-bottom: 30px;
+}
+
+/* Edit comments pages */
 
 .edit-comment-page {
   background-color: var(--gray);
   height: 100vh;
+}
+
+.thumbnail-picture {
+  height: 80px;
 }
 
 .edit-comment-title {
@@ -89,7 +99,14 @@
   margin-top: 25px;
 }
 
-/* Locked page */
+/* edit picture page */
+
+.picture-edit-button {
+  height: 25px;
+  width: auto;
+}
+
+/* Locked / page not found page */
 
 .clouds-picture {
   max-width: 100vw;

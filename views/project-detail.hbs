@@ -1,12 +1,23 @@
-<div class="padding project-page">
+<div class="padding-on-bottom project-page">
   <p class="my-breadcrumb">
     <a class="breadcrumb-link" href="/#projects">Projects</a>
     /
     <a class="breadcrumb-link">{{project.projTitle}}</a>
   </p>
   <div class="project-container">
+    {{! Display error messages }}
+    {{#if errorMessages.length}}
+      <div class="error-message-container-extended bg-error">
+        <ul class="error-message text-light">
+          {{#each errorMessages}}
+            <li class="error-message-list">{{this}}</li>
+          {{/each}}
+        </ul>
+      </div>
+    {{/if}}
     <h2 class="title">{{project.projTitle}}
       {{#if session.isLoggedIn}}
+        {{! Edit button }}
         <a href="/edit-project/{{project.projId}}"><img
             class="icons margin-left"
             src="/images/edit_icon_light.png"
@@ -14,7 +25,7 @@
           /></a>
         {{! Delete button }}
         <form
-          action="/projects/{{project.projId}}"
+          action="/project/{{project.projId}}"
           method="post"
           class="delete-button"
         >
@@ -37,7 +48,7 @@
     </div>
     <img
       class="project-pic"
-      src="/images/{{project.projPicture}}"
+      src="/uploads/{{project.projPicture}}"
       alt="Picture of a project"
     />
   </div>

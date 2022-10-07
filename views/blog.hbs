@@ -1,10 +1,22 @@
-<div class="blog-page padding">
+<div class="blog-page padding-on-bottom">
+
 {{#if session.isLoggedIn}}
   <a class="add-button new-blog-button" href="/new-blog">+</a>
 {{/if}}
 
-  {{#if blogpost.length}}
-    {{#each blogpost as | blog |}}
+  {{! Display server error messages }}
+  {{#if serverErrorMessages.length}}
+    <div class="error-message-container bg-error">
+      <ul class="error-message text-light">
+        {{#each serverErrorMessages}}
+          <li class="error-message-list">{{this}}</li>
+        {{/each}}
+      </ul>
+    </div>
+  {{/if}}
+
+  {{#if blogposts.length}}
+    {{#each blogposts as | blogpost |}}
       <div class="blog-container" id="blog/{{blogId}}">
         <h2 class="title text-primary float-left">{{blogTitle}}
           {{#if ../session.isLoggedIn}}
@@ -28,7 +40,7 @@
 
       
         {{#if ../errorOccured.length}}
-          {{#ifEquals ../errorOccured blog.blogId}}
+          {{#ifEquals ../errorOccured blogpost.blogId}}
           
             {{! Display error messages }}
             {{#if ../errorMessages.length}}
@@ -63,11 +75,11 @@
         {{/unless}}
       </div>
       {{!-- Show comments --}}
-      {{#if ../comment.length}}
+      {{#if ../comments.length}}
         <h5 class="comments-title" id="comment-section/{{blogId}}">Comments</h5>
-        {{#each ../comment as | cmnt |}}
+        {{#each ../comments as | cmnt |}}
           {{!-- Show the right comments on the right blogpost --}}
-          {{#ifEquals cmnt.blogId blog.blogId}}
+          {{#ifEquals cmnt.blogId blogpost.blogId}}
             <div class="comment-container" id="comment/{{cmntId}}">
               <div class="comment-grid">
                 <p class="name">{{cmntName}}</p>
@@ -101,7 +113,7 @@
 </div>
 
  {{!-- Pagination --}}
-
+<div class="blog-pagination">
 <ul class="pagination">
   <li class="page-item disabled">
     <a href="#" tabindex="-1">Previous</a>
@@ -125,4 +137,5 @@
     <a href="#">Next</a>
   </li>
 </ul>
+</div>
 

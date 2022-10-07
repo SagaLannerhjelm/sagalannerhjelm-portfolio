@@ -1,0 +1,79 @@
+{{#if session.isLoggedIn}}
+
+  {{#if project}}
+
+    <div class="form-page">
+      <div class="card form-container new-project-container">
+        <div class="card-header p-centered">
+          <div class="card-title h3 form-title">Change picture</div>
+        </div>
+        <form
+          action="/edit-project/picture/{{project.projId}}"
+          method="post"
+          enctype="multipart/form-data"
+          class="card-body side-margin"
+        >
+
+          {{! Display error messages }}
+          {{#if errorMessages.length}}
+            <div class="error-message-container-extended bg-error">
+              <ul class="error-message text-light">
+                {{#each errorMessages}}
+                  <li class="error-message-list">{{this}}</li>
+                {{/each}}
+              </ul>
+            </div>
+          {{/if}}
+
+          <div class="form-group">
+            <label class="form-label">File</label>
+            <input
+              name="image"
+              class="form-input picture-input"
+              type="file"
+              {{! accept="image/*" }}
+            />
+          </div>
+          <div class="button-container">
+            <a class="btn" href="/edit-project/{{project.projId}}">Back</a>
+            <input
+              type="submit"
+              class="btn btn-primary"
+              value="Change picture"
+            />
+          </div>
+        </form>
+      </div>
+
+    </div>
+
+  {{else}}
+    <img
+      src="/images/low_opacity_clouds.png"
+      alt="Illustration of clouds"
+      class="cloud clouds-picture"
+    />
+    <div class="locked-page">
+      <div class="">
+        <h4 class="position-relative">This page cannot be found</h4>
+      </div>
+    </div>
+
+  {{/if}}
+
+{{else}}
+
+  <img
+    src="/images/low_opacity_clouds.png"
+    alt="illustration of clouds"
+    class="cloud clouds-picture"
+  />
+  <div class="locked-page">
+    <div class="not-logged-in-container">
+      <p class="position-relative">You are not logged in :&lpar;. You need to be
+        Logged in to access this page.</p>
+      <a href="/login" class="btn btn-primary">Go to login</a>
+    </div>
+  </div>
+
+{{/if}}

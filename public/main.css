@@ -143,8 +143,8 @@ nav a:hover {
   text-decoration: underline;
 }
 
-.padding {
-  padding-bottom: 180px;
+.padding-on-bottom {
+  padding-bottom: 120px;
 }
 
 .icons {
@@ -191,8 +191,9 @@ nav a:hover {
   justify-content: center;
   font-size: 13px;
   line-height: 1em;
-  margin-top: 10px;
+  margin-top: 15px;
   margin-bottom: 10px;
+  padding-bottom: 5px;
 
 }
 

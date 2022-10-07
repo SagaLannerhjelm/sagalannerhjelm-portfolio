@@ -22,15 +22,15 @@
 
 </div>
 
-<div class="projects-container padding">
+<div class="projects-container padding-on-bottom">
   <div class="project-section" id="projects"><h2 class="title">Projects</h2>
     {{! <button class="filter-button">Filter</button> }}
     <div class="filter-container">
-      <span class="chip btn btn-primary">All</span>
-      <span class="chip">Illustrations</span>
-      <span class="chip">Games</span>
-      <span class="chip">Web design</span>
-      <span class="chip">Graphic design</span>
+      <a href="/#projects" class="chip btn btn-primary">All</span>
+      <a href="/projects/Illustration" class="chip">Illustrations</a>
+      <a href="/projects/Game development"class="chip">Games</a>
+      <a href="/projects/Web design" class="chip">Web design</a>
+      <a href="/projects/Graphic design" class="chip">Graphic design</a>
     </div>
   </div>
 
@@ -39,11 +39,11 @@
   {{/if}}
 
   <div class="project-grid">
-    {{#if project.length}}
-      {{#each project}}
+    {{#if projects.length}}
+      {{#each projects}}
         <a href="/project/{{projId}}" class="img-responsive img-fit-cover">
           <img
-            src="/images/{{projPicture}}"
+            src="/uploads/{{projPicture}}"
             class="project-picture"
             alt="Picture of a project"
           />
