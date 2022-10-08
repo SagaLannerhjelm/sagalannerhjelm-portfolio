@@ -63,10 +63,20 @@
   margin-right: 10px;
 }
 
+.blog-form-margin {
+  margin-bottom: 20px;
+}
+
 /* New picture pages */
 
 .picture-input {
   margin-bottom: 30px;
+}
+
+.blog-form-container {
+  background-color: var(--white);
+  color: #000000;
+  border: none;
 }
 
 /* Edit comments pages */

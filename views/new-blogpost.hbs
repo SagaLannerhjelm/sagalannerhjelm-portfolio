@@ -28,8 +28,8 @@
         </div>
       {{/if}}
 
-      <div class="card-body form-content side-margin">
-        <div>
+      <div class="card-body side-margin">
+        <div class="blog-form-margin">
           <div class="form-group">
             <label class="form-label">Title</label>
             <input
@@ -37,6 +37,7 @@
               type="text"
               placeholder="Title"
               name="title"
+              value="{{title}}"
             />
           </div>
           <div class="form-group">
@@ -47,20 +48,13 @@
               placeholder="Description"
               name="description"
               rows="7"
-            ></textarea>
+            >{{description}}</textarea>
           </div>
         </div>
-        <div>
-          <div class="form-group">
-            <label class="form-label">File</label>
-            <input class="form-input" type="file" name="file" />
-          </div>
-        </div>
-
       </div>
       <div class="button-container p-centered">
         <a class="btn" href="/blog">Cancel</a>
-        <button class="btn btn-primary" type="submit">Create</button>
+        <button class="btn btn-primary" type="submit">Next</button>
       </div>
     </div>
   </form>

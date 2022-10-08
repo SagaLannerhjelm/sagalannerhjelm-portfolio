@@ -83,12 +83,16 @@ nav a:hover {
 }
 
 .intro-container {
+  background-image: url(/images/low_opacity_clouds.png);
+  background-repeat: repeat;
+  background-size: 110vw;
+  background-attachment: fixed;
   height: 100vh;
   display: flex;
   align-content: center;
   justify-content: center;
   align-items: center;
-  z-index: -1;
+  z-index: -2;
 }
 
 .cloud {
@@ -102,7 +106,7 @@ nav a:hover {
 
 .intro {
   position: relative;
-  color: var(--white);
+  color: rgb(50, 50, 50);
   display: flex;
   flex-direction: column;
   align-items: center;

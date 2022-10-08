@@ -1,16 +1,16 @@
 {{#if session.isLoggedIn}}
 
-  {{#if project}}
+  {{#if blog}}
 
     <div class="form-page">
-      <div class="card form-container new-project-container">
+      <div class="card form-container blog-form-container">
         <div class="card-header p-centered">
           <div class="card-title h3 form-title">Add a picture</div>
         </div>
 
         {{! Form for uploading picture }}
         <form
-          action="/upload-picture/new/project/{{project.projId}}"
+          action="/upload-picture/new/blog/{{blog.blogId}}"
           method="post"
           enctype="multipart/form-data"
           class="card-body side-margin"
@@ -37,7 +37,7 @@
             />
           </div>
           <div class="button-container">
-            <a class="btn" href="/new-project">Back</a>
+            <a class="btn" href="/new-blog">Back</a>
             <input
               type="submit"
               class="btn btn-primary"

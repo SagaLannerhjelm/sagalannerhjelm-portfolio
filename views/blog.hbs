@@ -36,7 +36,7 @@
         </h2>
         <p class="blog-date">{{blogDate}}</p>
         <p class="blog-descr">{{blogDescription}}</p>
-        <img class="blog-pic" src="/images/{{blogPicture}}" alt="Blog picture">
+        <img class="blog-pic" src="/uploads/{{blogPicture}}" alt="Blog picture">
 
       
         {{#if ../errorOccured.length}}
@@ -94,6 +94,7 @@
                     <a href="/edit-comment/{{cmntId}}" class="icon-button blue-button"><img class="icons" src="/images/edit_icon_light.png" alt="Edit icon"/></a>
                     {{!-- delete button --}}
                     <form action="/delete-comment/{{cmntId}}" method="post">
+                     <input type="hidden" name="blogId" value="{{blogId}}">
                       <button type="submit" class="icon-button blue-button"><img class="icons" src="/images/delete_icon_light.png" alt="Delete icon"/></button>
                     </form>
                   {{/if}}

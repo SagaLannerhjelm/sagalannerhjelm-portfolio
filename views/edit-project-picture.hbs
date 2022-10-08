@@ -8,7 +8,7 @@
           <div class="card-title h3 form-title">Change picture</div>
         </div>
         <form
-          action="/edit-project/picture/{{project.projId}}"
+          action="/upload-picture/edit/project/{{project.projId}}"
           method="post"
           enctype="multipart/form-data"
           class="card-body side-margin"
@@ -31,7 +31,7 @@
               name="image"
               class="form-input picture-input"
               type="file"
-              {{! accept="image/*" }}
+              accept="image/*"
             />
           </div>
           <div class="button-container">
