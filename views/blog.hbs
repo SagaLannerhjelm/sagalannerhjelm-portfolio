@@ -1,3 +1,6 @@
+
+{{#if blogposts}}
+
 <div class="blog-page padding-on-bottom">
 
 {{#if session.isLoggedIn}}
@@ -39,8 +42,8 @@
         <img class="blog-pic" src="/uploads/{{blogPicture}}" alt="Blog picture">
 
       
-        {{#if ../errorOccured.length}}
-          {{#ifEquals ../errorOccured blogpost.blogId}}
+        {{#if ../errorAtBlogId.length}}
+          {{#ifEquals ../errorAtBlogId blogpost.blogId}}
           
             {{! Display error messages }}
             {{#if ../errorMessages.length}}
@@ -115,6 +118,27 @@
 
  {{!-- Pagination --}}
 <div class="blog-pagination">
+{{#if pageNumbers.length}}
+<ul class="pagination">
+  <li class="page-item 
+  {{#if previousPageDisabled}}disabled{{/if}}
+  ">
+    <a href="{{previousPageUrl}}" tabindex="-1">Previous</a>
+  </li>
+   {{#each pageNumbers}}
+  <li class="page-item {{#if this.active}} active {{/if}}
+  ">
+    <a href="/blog?page={{this.page}}" class="{{#unless this.active}}text-primary{{/unless}}">{{this.page}}</a>
+  </li>
+  {{/each}}
+  <li class="page-item {{#if nextPageDisabled}}disabled{{/if}}">
+    <a href="{{nextPageUrl}}">Next</a>
+  </li>
+</ul>
+{{/if}}
+
+</div> 
+
 <ul class="pagination">
   <li class="page-item disabled">
     <a href="#" tabindex="-1">Previous</a>
@@ -138,5 +162,16 @@
     <a href="#">Next</a>
   </li>
 </ul>
-</div>
+{{else}}
+  <img
+      src="/images/low_opacity_clouds.png"
+      alt="Illustration of clouds"
+      class="cloud clouds-picture"
+    />
+    <div class="locked-page">
+      <div class="">
+        <h4 class="position-relative">This page cannot be found</h4>
+      </div>
+    </div>
 
+{{/if}}

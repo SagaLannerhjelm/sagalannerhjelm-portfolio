@@ -189,26 +189,64 @@ app.get("/project/:id", function (request, response) {
 
 // Renders blog page
 app.get("/blog", function (request, response) {
-  const blogQuery = `SELECT * FROM blogposts ORDER BY blogId DESC`;
-  const commentsQuery = `SELECT * FROM comments`;
+  const pageNumber = parseInt(request.query.page);
+  const postPerPage = 5;
+  let nextPageUrl;
+  let nextPageDisabled;
+  let previousPageUrl =
+    pageNumber != 1 ? "/blog?page=" + (pageNumber - 1) : "#";
+  let previousPageDisabled = pageNumber != 1 ? false : true;
+  const offsetValue = (pageNumber - 1) * postPerPage;
 
-  db.all(blogQuery, function (error, blogposts) {
-    const errorMessages = [];
-    if (error) {
-      errorMessages.push("Internal server error");
-    }
-    db.all(commentsQuery, function (error, comments) {
-      const errorMessages = [];
-      if (error) {
-        errorMessages.push("Internal server error");
+  db.all(
+    `SELECT COUNT(*) as tableRows FROM blogposts`,
+    function (error, blogposts) {
+      const numberOfRows = blogposts[0].tableRows;
+      const numberOfPages = Math.ceil(numberOfRows / postPerPage);
+      nextPageUrl =
+        pageNumber != numberOfPages ? "/blog?page=" + (pageNumber + 1) : "#";
+      nextPageDisabled = pageNumber != numberOfPages ? false : true;
+
+      let pageNumbers = [];
+      let pageActive;
+
+      for (let i = 1; i <= numberOfPages; i++) {
+        if (i === pageNumber) {
+          pageActive = true;
+        } else {
+          pageActive = false;
+        }
+        pageNumbers.push({ page: i, active: pageActive });
       }
-      const model = {
-        blogposts,
-        comments,
-      };
-      response.render("blog.hbs", model);
-    });
-  });
+
+      const blogQuery = `SELECT * FROM blogposts ORDER BY blogId DESC LIMIT ? OFFSET ?`;
+      const values = [postPerPage, offsetValue];
+      const commentsQuery = `SELECT * FROM comments`;
+
+      db.all(blogQuery, values, function (error, blogposts) {
+        const errorMessages = [];
+        if (error) {
+          errorMessages.push("Internal server error");
+        }
+        db.all(commentsQuery, function (error, comments) {
+          const errorMessages = [];
+          if (error) {
+            errorMessages.push("Internal server error");
+          }
+          const model = {
+            blogposts,
+            comments,
+            pageNumbers,
+            nextPageUrl,
+            nextPageDisabled,
+            previousPageUrl,
+            previousPageDisabled,
+          };
+          response.render("blog.hbs", model);
+        });
+      });
+    }
+  );
 });
 
 // app.get("/about", function (request, response) {
@@ -279,7 +317,7 @@ app.post("/blog/:id", function (request, response) {
     const blogQuery = `SELECT * FROM blogposts ORDER BY blogId DESC`;
     const commentsQuery = `SELECT * FROM comments`;
 
-    const errorOccured = blogId;
+    const errorAtBlogId = blogId;
 
     db.all(blogQuery, function (error, blogposts) {
       if (error) {
@@ -293,7 +331,7 @@ app.post("/blog/:id", function (request, response) {
           blogposts,
           comments,
           errorMessages,
-          errorOccured,
+          errorAtBlogId,
         };
         response.render("blog.hbs", model);
       });
@@ -971,11 +1009,6 @@ app.post("/edit-blog/:id", function (request, response) {
       response.render("edit-blogpost.hbs", model);
     });
   }
-});
-
-db.all(`SELECT COUNT(*) FROM blogposts`, function (error, blogposts) {
-  const hello = blogposts.blogposts;
-  console.log(hello);
 });
 
 // Deletes a blog with a specific id
