@@ -54,16 +54,16 @@
           </div>
           <div>
             <div class="form-group">
-              <label class="form-label">Current file</label>
+              <label class="form-label">Current Picture</label>
               <img
-                src="/uploads/{{blog.blogPicture}}"
+                src="/uploads/{{blog.blogPictureName}}"
                 alt="thumbnail of blog picture"
                 class="thumbnail-picture"
               />
               {{! Edit picture button }}
               <a href="/edit-blog-picture/{{blog.blogId}}"><img
                   class="icons margin-left picture-edit-button"
-                  src="/images/edit_icon_light.png"
+                  src="/images/edit_icon_dark.png"
                   alt="edit icon"
                 /></a>
             </div>
@@ -71,7 +71,7 @@
 
         </div>
         <div class="button-container p-centered">
-          <a class="btn" href="/blog">Cancel</a>
+          <a class="btn" href="javascript:history.back()">Cancel</a>
           <button type="submit" class="btn btn-primary">Confirm changes</button>
         </div>
       </form>

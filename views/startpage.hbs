@@ -1,22 +1,8 @@
 <div class="intro-container">
-  {{!-- <img
-    class="cloud place-below"
-    src="/images/fluffy_cloud.svg"
-    alt="fluffy cloud illustration"
-  /> --}}
   <div class="p-fixed place-below">
-    <div class="intro place-below">
-      <h1 class="place-below text-normal">Hi, I'm Saga!</h1>
-      <h2 class="place-below text-normal">Welcome to my page</h2>
-      {{! <div class="button-container intro-buttons">
-        <a
-          href="https://www.instagram.com/drawingsby_saga/"
-          target="_blank"
-          class="btn"
-        >
-          Instagram</a>
-        <a href="mailto:lasa21ui@student.ju.se" class="btn">Mail</a>
-      </div> }}
+    <div class="intro place-below intro-text-container">
+      <h1 class="place-below text-normal greeting">Hi, I'm Saga!</h1>
+      <h2 class="place-below text-normal greeting-p2">Welcome to my page</h2>
     </div>
   </div>
 
@@ -43,7 +29,7 @@
       {{#each projects}}
         <a href="/project/{{projId}}" class="img-responsive img-fit-cover">
           <img
-            src="/uploads/{{projPicture}}"
+            src="/uploads/{{projPictureName}}"
             class="project-picture"
             alt="Picture of a project"
           />

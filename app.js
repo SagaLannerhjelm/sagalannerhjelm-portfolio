@@ -13,6 +13,15 @@ const fs = require("fs");
 const titleMaxLength = 40;
 const descriptionMaxLenght = 1000;
 
+// Calculate today's date
+const today = new Date();
+const year = today.getFullYear();
+const month = today.getMonth();
+const monthCorrection = month + 1 < 10 ? "0" + (month + 1) : month + 1;
+const date = today.getDate();
+const dateCorrection = date < 10 ? "0" + date : date;
+const currentDate = year + "-" + monthCorrection + "-" + dateCorrection;
+
 // Database
 const db = new sqlite3.Database("portfolio-database.db");
 
@@ -21,9 +30,6 @@ const adminMail = "admin@gmail.com";
 const adminPassword =
   "$2b$10$VIgcvt4aTDB8pKutc6kuLuIGI/urBZOT0G.pAs0md5/fm4PgD6qAG";
 
-// const test = `SELECT adminMail FROM admin where adminId = 1`;
-// console.log(test);
-
 // Database tables
 db.run(`
   CREATE TABLE IF NOT EXISTS projects (
@@ -31,8 +37,8 @@ db.run(`
     projTitle TEXT,
     projDescription TEXT,
     projCategory TEXT,
-    projDate TEXT,
-    projPicture TEXT
+    projCreatedDate TEXT,
+    projPictureName TEXT
   )
 `);
 
@@ -40,9 +46,9 @@ db.run(`
   CREATE TABLE IF NOT EXISTS blogposts (
     blogId INTEGER PRIMARY KEY,
     blogTitle TEXT,
-    blogDate TEXT,
+    blogPublishedDate TEXT,
     blogDescription TEXT,
-    blogPicture TEXT
+    blogPictureName TEXT
   )
 `);
 
@@ -54,15 +60,6 @@ db.run(`
     cmntContent TEXT,
     blog INTEGER,
     FOREIGN KEY(blog) REFERENCES blogposts (blogId)
-  )
-`);
-
-db.run(`
-  CREATE TABLE IF NOT EXISTS admin (
-    adminId INTEGER PRIMARY KEY,
-    adminName TEXT,
-    adminMail TEXT,
-    adminPassword TEXT
   )
 `);
 
@@ -187,7 +184,7 @@ app.get("/project/:id", function (request, response) {
   });
 });
 
-// Renders blog page
+// Renders blog page and pagination
 app.get("/blog", function (request, response) {
   const pageNumber = parseInt(request.query.page);
   const postPerPage = 5;
@@ -265,15 +262,6 @@ app.post("/blog/:id", function (request, response) {
 
   const name = request.body.name;
   const comment = request.body.comment;
-
-  // Calculate today's date
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth();
-  const monthCorrection = month + 1 < 10 ? "0" + (month + 1) : month + 1;
-  const date = today.getDate();
-  const dateCorrection = date < 10 ? "0" + date : date;
-  const currentDate = year + "-" + monthCorrection + "-" + dateCorrection;
 
   const errorMessages = [];
 
@@ -391,7 +379,7 @@ app.post("/login", function (request, response) {
   const enteredMail = request.body.mail;
   const enteredPassword = request.body.password;
 
-  const correctEnteredMail = enteredMail.includes("@");
+  const mailEnteredCorrectly = enteredMail.includes("@");
   const mailMaxLenght = 60;
   const passwordMaxLenght = 8;
 
@@ -400,7 +388,7 @@ app.post("/login", function (request, response) {
   // Validation of mail
   if (enteredMail === "") {
     errorMessages.push("Mail can't be empty");
-  } else if (correctEnteredMail === false) {
+  } else if (mailEnteredCorrectly === false) {
     errorMessages.push("The entered mail does not include a '@'");
   } else if (enteredMail.length > mailMaxLenght) {
     errorMessages.push(
@@ -435,21 +423,21 @@ app.post("/login", function (request, response) {
   }
 });
 
-app.get("/account", function (request, response) {
-  const query = `SELECT * FROM admin`;
+// app.get("/account", function (request, response) {
+//   const query = `SELECT * FROM admin`;
 
-  db.all(query, function (error, admin) {
-    const errorMessages = [];
-    if (error) {
-      errorMessages.push("Internal server error");
-    }
-    const model = {
-      admin,
-    };
+//   db.all(query, function (error, admin) {
+//     const errorMessages = [];
+//     if (error) {
+//       errorMessages.push("Internal server error");
+//     }
+//     const model = {
+//       admin,
+//     };
 
-    response.render("account.hbs", model);
-  });
-});
+//     response.render("account.hbs", model);
+//   });
+// });
 
 app.post("/logout", function (request, response) {
   request.session.isLoggedIn = false;
@@ -501,6 +489,52 @@ app.post(
         response.render("edit-blog-picture.hbs", model);
       }
     } else {
+      // Delete old picture from file system if editing
+
+      if (destination === "project" && reason === "edit") {
+        // Select old picture name from the database
+        const oldPictureQuery = `SELECT projPictureName FROM projects WHERE projId = ?`;
+        const values = [id];
+
+        db.get(oldPictureQuery, values, function (error, project) {
+          if (error) {
+            errorMessages.push("Internal server error");
+          }
+          const oldPictureName = project.projPictureName;
+
+          // Try to delete the file form the file system
+          fs.unlink("public/uploads/" + oldPictureName, function (error) {
+            if (error) {
+              errorMessages.push(
+                "Problem occured when deleting picture from file system"
+              );
+            }
+          });
+        });
+      } else if (destination === "blog" && reason === "edit") {
+        // Select old picture name from the database
+        const oldPictureQuery = `SELECT blogPictureName FROM blogposts WHERE blogId = ?`;
+        const values = [id];
+
+        db.get(oldPictureQuery, values, function (error, blog) {
+          if (error) {
+            errorMessages.push("Internal server error");
+          }
+          const oldPictureName = blog.blogPictureName;
+
+          // Try to delete the file form the file system
+          fs.unlink("public/uploads/" + oldPictureName, function (error) {
+            if (error) {
+              errorMessages.push(
+                "Problem occured when deleting picture from file system"
+              );
+            }
+          });
+        });
+      }
+
+      // if old file gets deleted, then go ahead and update the picture
+
       // imageFile is the name of the input
       imageFile = request.files.image;
       // Give each file name some random numbers infront of them to make them unique
@@ -518,9 +552,9 @@ app.post(
           let query;
 
           if (destination === "project") {
-            query = `UPDATE projects SET projPicture = ? WHERE projId = ?`;
+            query = `UPDATE projects SET projPictureName = ? WHERE projId = ?`;
           } else if (destination === "blog") {
-            query = `UPDATE blogposts SET blogPicture = ? WHERE blogId = ?`;
+            query = `UPDATE blogposts SET blogPictureName = ? WHERE blogId = ?`;
           }
 
           const values = [uniqueFileName, id];
@@ -535,6 +569,7 @@ app.post(
               if (reason === "new" && destination === "project") {
                 response.render("new-project-picture.hbs", model);
               } else if (reason === "edit" && destination === "project") {
+                // Select old picture name form database
                 response.render("edit-project-picture.hbs", model);
               } else if (reason === "new" && destination === "blog") {
                 response.render("new-blog-picture.hbs", model);
@@ -548,7 +583,7 @@ app.post(
               } else if (reason === "edit" && destination === "project") {
                 response.redirect("/edit-project/" + id);
               } else if (reason === "new" && destination === "blog") {
-                response.redirect("/blog");
+                response.redirect("/blog?page=1");
               } else if (reason === "edit" && destination === "blog") {
                 response.redirect("/edit-blog/" + id);
               }
@@ -575,7 +610,10 @@ app.post(
 );
 
 app.get("/new-project", function (request, response) {
-  response.render("new-project.hbs");
+  const model = {
+    currentDate,
+  };
+  response.render("new-project.hbs", model);
 });
 
 app.post("/new-project", function (request, response) {
@@ -622,7 +660,7 @@ app.post("/new-project", function (request, response) {
   }
 
   if (errorMessages.length === 0) {
-    const query = `INSERT INTO projects (projTitle, projDescription, projDate, projCategory) VALUES (?, ?, ?, ?)`;
+    const query = `INSERT INTO projects (projTitle, projDescription, projCreatedDate, projCategory) VALUES (?, ?, ?, ?)`;
 
     const values = [title, description, date, category];
 
@@ -677,12 +715,26 @@ app.get("/edit-project/:id", function (request, response) {
   const values = [id];
 
   db.get(query, values, function (error, project) {
+    // The variable for the selected date gets true
+    let illustrationSelected =
+      project.projCategory === "Illustration" ? true : false;
+    let gameSelected =
+      project.projCategory === "Game development" ? true : false;
+    let websiteSelected = project.projCategory === "Website" ? true : false;
+    let graphicDesignSelected =
+      project.projCategory === "Graphic design" ? true : false;
+
     const errorMessages = [];
     if (error) {
       errorMessages.push("Internal server error");
     }
     const model = {
       project,
+      currentDate,
+      illustrationSelected,
+      gameSelected,
+      websiteSelected,
+      graphicDesignSelected,
     };
     response.render("edit-project.hbs", model);
   });
@@ -735,7 +787,7 @@ app.post("/edit-project/:id", function (request, response) {
   }
 
   if (errorMessages.length === 0) {
-    const query = `UPDATE projects SET projTitle = ?, projDescription = ?, projDate = ?, projCategory = ? WHERE projId = ?`;
+    const query = `UPDATE projects SET projTitle = ?, projDescription = ?, projCreatedDate = ?, projCategory = ? WHERE projId = ?`;
 
     const values = [title, description, date, category, id];
 
@@ -803,14 +855,14 @@ app.post("/project/:id", function (request, response) {
   const errorMessages = [];
 
   // Get file name of image
-  const imgUrlQuery = `SELECT projPicture FROM projects WHERE projId = ?`;
+  const imgUrlQuery = `SELECT projPictureName FROM projects WHERE projId = ?`;
   const values = [id];
 
   db.get(imgUrlQuery, values, function (error, project) {
     if (error) {
       errorMessages.push("Internal server error");
     }
-    const pictureFileName = project.projPicture;
+    const pictureFileName = project.projPictureName;
 
     // Try to delete the file form the file system
     fs.unlink("public/uploads/" + pictureFileName, function (error) {
@@ -859,15 +911,6 @@ app.post("/new-blog", function (request, response) {
   const title = request.body.title;
   const description = request.body.description;
 
-  // Calculate today's date
-  const today = new Date();
-  const year = today.getFullYear();
-  const month = today.getMonth();
-  const monthCorrection = month + 1 < 10 ? "0" + (month + 1) : month + 1;
-  const date = today.getDate();
-  const dateCorrection = date < 10 ? "0" + date : date;
-  const currentDate = year + "-" + monthCorrection + "-" + dateCorrection;
-
   const errorMessages = [];
 
   // Check if user is logged in
@@ -894,7 +937,7 @@ app.post("/new-blog", function (request, response) {
   }
 
   if (errorMessages.length === 0) {
-    const query = `INSERT INTO blogposts (blogTitle, blogDescription, blogDate) VALUES (?, ?, ?)`;
+    const query = `INSERT INTO blogposts (blogTitle, blogDescription, blogPublishedDate) VALUES (?, ?, ?)`;
     const values = [title, description, currentDate];
 
     db.run(query, values, function (error) {
@@ -902,6 +945,8 @@ app.post("/new-blog", function (request, response) {
         errorMessages.push("Internal server error");
         const model = {
           errorMessages,
+          title,
+          description,
         };
         response.render("new-blogpost.hbs", model);
       } else {
@@ -989,7 +1034,7 @@ app.post("/edit-blog/:id", function (request, response) {
         };
         response.render("edit-blogpost.hbs", model);
       } else {
-        response.redirect("/blog");
+        response.redirect("/blog?page=1");
       }
     });
   } else {
@@ -1018,14 +1063,14 @@ app.post("/delete-blog/:id", function (request, response) {
   const errorMessages = [];
 
   // Get file name of image
-  const imgUrlQuery = `SELECT blogPicture FROM blogposts WHERE blogId = ?`;
+  const imgUrlQuery = `SELECT blogPictureName FROM blogposts WHERE blogId = ?`;
   const values = [id];
 
   db.get(imgUrlQuery, values, function (error, blogpost) {
     if (error) {
       errorMessages.push("Internal server error");
     }
-    const pictureFileName = blogpost.blogPicture;
+    const pictureFileName = blogpost.blogPictureName;
 
     // Try to delete the file form the file system
     fs.unlink("public/uploads/" + pictureFileName, function (error) {
@@ -1072,7 +1117,7 @@ app.post("/delete-blog/:id", function (request, response) {
               });
             });
           } else {
-            response.redirect("/blog");
+            response.redirect("/blog?page=1");
           }
         });
       });
@@ -1151,7 +1196,7 @@ app.post("/edit-comment/:id", function (request, response) {
         };
         response.render("edit-comment.hbs", model);
       }
-      response.redirect("/blog");
+      response.redirect("/blog?page=1");
     });
   } else {
     const query = `SELECT * FROM comments WHERE cmntId = ?`;

@@ -56,6 +56,7 @@ nav {
   display: grid;
   grid-template-columns: 90px 90px 90px;
   text-align: center;
+  color: var(--main-purple);
 }
 
 .nav-links.left {
@@ -70,6 +71,7 @@ nav h1 {
 
 .logga {
   margin-top: 8px;
+  font-family: 'Raleway', sans-serif;
 }
 
 nav a {
@@ -80,6 +82,17 @@ nav a {
 nav a:hover {
   text-decoration: underline;
   color: rgb(121, 121, 121);
+}
+
+.logout-button {
+background-color: var(--white);
+border: none;
+}
+
+.logout-button:hover {
+  text-decoration: underline;
+  color: rgb(121, 121, 121);
+  cursor: pointer;
 }
 
 .intro-container {
@@ -261,6 +274,33 @@ nav a:hover {
   color: gray;
 }
 
+/* Locked / page not found page */
+
+.clouds-picture {
+  max-width: 100vw;
+  opacity: 60%;
+  z-index: -1;
+  filter: grayscale(100%);
+}
+
+.locked-page {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 89vh;
+}
+
+.not-logged-in-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #c9c4cf;
+  padding: 50px;
+  border-radius: 5px;
+}
+
 /* Make CSS responsive */
 
 @media screen and (max-width: 840px) {
@@ -278,6 +318,21 @@ nav a:hover {
 @media screen and (max-width: 500px) {
   html {
     --max-width-main: 85%;
+  }
+  .intro-container {
+    background-image: url(/images/low_opacity_clouds.png);
+    background-size: 300vw;
+    background-attachment: fixed;
+    height: 100vh;
+  }
+  .intro-text-container {
+    margin-top: -100px;
+  }
+  .greeting {
+    font-size: 30px;
+  }
+  .greeting-p2 {
+    font-size: 25px;
   }
   .main-content {
     margin-top: 100px;
