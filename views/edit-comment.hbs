@@ -14,7 +14,7 @@
             method="post"
             class="content-width"
           >
-
+            <input type="hidden" name="page" value="{{pageNumber}}" />
             {{#if errorMessages.length}}
               <div class="error-message-container bg-error">
                 <ul class="error-message text-light">
@@ -49,7 +49,7 @@
             {{! Buttons for editing and deliting comment }}
             <div class="comment-icons edit-comment-buttons">
               {{! Confirm changes }}
-              <a href="/blog" class="btn">Cancel</a>
+              <a href="/blog?page={{pageNumber}}" class="btn">Cancel</a>
               <button type="submit" class="btn btn-primary">Confirm</button>
             </div>
           </form>

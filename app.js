@@ -12,6 +12,7 @@ const fs = require("fs");
 // Variables
 const titleMaxLength = 40;
 const descriptionMaxLenght = 1000;
+const postPerPage = 5;
 
 // Calculate today's date
 const today = new Date();
@@ -187,7 +188,6 @@ app.get("/project/:id", function (request, response) {
 // Renders blog page and pagination
 app.get("/blog", function (request, response) {
   const pageNumber = parseInt(request.query.page);
-  const postPerPage = 5;
   let nextPageUrl;
   let nextPageDisabled;
   let previousPageUrl =
@@ -218,6 +218,7 @@ app.get("/blog", function (request, response) {
 
       const blogQuery = `SELECT * FROM blogposts ORDER BY blogId DESC LIMIT ? OFFSET ?`;
       const values = [postPerPage, offsetValue];
+
       const commentsQuery = `SELECT * FROM comments`;
 
       db.all(blogQuery, values, function (error, blogposts) {
@@ -230,14 +231,20 @@ app.get("/blog", function (request, response) {
           if (error) {
             errorMessages.push("Internal server error");
           }
+
+          // Filter comments on blogposts
+          for (let b of blogposts) {
+            b.comments = comments.filter((c) => c.blogId === b.blogId);
+          }
           const model = {
             blogposts,
-            comments,
+            pageNumber,
             pageNumbers,
             nextPageUrl,
             nextPageDisabled,
             previousPageUrl,
             previousPageDisabled,
+            errorMessages,
           };
           response.render("blog.hbs", model);
         });
@@ -246,20 +253,11 @@ app.get("/blog", function (request, response) {
   );
 });
 
-// app.get("/about", function (request, response) {
-//   const query = `SELECT * FROM blogposts LEFT OUTER JOIN comments ON blogposts.blogId = comments.blogId`;
-//   db.all(query, function (error, blogposts) {
-//     const model = {
-//       blogposts,
-//     };
-//     response.render("about.hbs", model);
-//   });
-// });
-
 // Create comments on blog page
-app.post("/blog/:id", function (request, response) {
-  const blogId = request.params.id;
+app.post("/blog", function (request, response) {
+  const pageNumber = parseInt(request.query.page);
 
+  const blogId = parseInt(request.body.id);
   const name = request.body.name;
   const comment = request.body.comment;
 
@@ -298,37 +296,82 @@ app.post("/blog/:id", function (request, response) {
         };
         response.render("blog.hbs", model);
       } else {
-        response.redirect("/blog#comment-section/" + blogId);
+        response.redirect(
+          "/blog?page=" + pageNumber + "#comment-section/" + blogId
+        );
       }
     });
   } else {
-    const blogQuery = `SELECT * FROM blogposts ORDER BY blogId DESC`;
-    const commentsQuery = `SELECT * FROM comments`;
+    let nextPageUrl;
+    let nextPageDisabled;
+    let previousPageUrl =
+      pageNumber != 1 ? "/blog?page=" + (pageNumber - 1) : "#";
+    let previousPageDisabled = pageNumber != 1 ? false : true;
+    const offsetValue = (pageNumber - 1) * postPerPage;
 
-    const errorAtBlogId = blogId;
+    db.all(
+      `SELECT COUNT(*) as tableRows FROM blogposts`,
+      function (error, blogposts) {
+        const numberOfRows = blogposts[0].tableRows;
+        const numberOfPages = Math.ceil(numberOfRows / postPerPage);
+        nextPageUrl =
+          pageNumber != numberOfPages ? "/blog?page=" + (pageNumber + 1) : "#";
+        nextPageDisabled = pageNumber != numberOfPages ? false : true;
 
-    db.all(blogQuery, function (error, blogposts) {
-      if (error) {
-        errorMessages.push("Internal server error");
-      }
-      db.all(commentsQuery, function (error, comments) {
-        if (error) {
-          errorMessages.push("Internal server error");
+        let pageNumbers = [];
+        let pageActive;
+
+        for (let i = 1; i <= numberOfPages; i++) {
+          if (i === pageNumber) {
+            pageActive = true;
+          } else {
+            pageActive = false;
+          }
+          pageNumbers.push({ page: i, active: pageActive });
         }
-        const model = {
-          blogposts,
-          comments,
-          errorMessages,
-          errorAtBlogId,
-        };
-        response.render("blog.hbs", model);
-      });
-    });
+
+        const errorAtBlogId = blogId;
+
+        const blogQuery = `SELECT * FROM blogposts ORDER BY blogId DESC LIMIT ? OFFSET ?`;
+        const values = [postPerPage, offsetValue];
+
+        const commentsQuery = `SELECT * FROM comments`;
+
+        db.all(blogQuery, values, function (error, blogposts) {
+          if (error) {
+            errorMessages.push("Internal server error");
+          }
+          db.all(commentsQuery, function (error, comments) {
+            if (error) {
+              errorMessages.push("Internal server error");
+            }
+
+            // Filter comments on blogposts
+            for (let b of blogposts) {
+              b.comments = comments.filter((c) => c.blogId === b.blogId);
+            }
+            const model = {
+              blogposts,
+              pageNumber,
+              pageNumbers,
+              nextPageUrl,
+              nextPageDisabled,
+              previousPageUrl,
+              previousPageDisabled,
+              errorMessages,
+              errorAtBlogId,
+            };
+            response.render("blog.hbs", model);
+          });
+        });
+      }
+    );
   }
 });
 
-app.get("/new-blog-picture/:id", function (request, response) {
+app.get("/new-blog-picture/:id/", function (request, response) {
   const id = request.params.id;
+  const pageNumber = parseInt(request.params.page);
 
   const query = `SELECT * FROM blogposts WHERE blogId = ?`;
   const values = [id];
@@ -340,6 +383,7 @@ app.get("/new-blog-picture/:id", function (request, response) {
     }
     const model = {
       blog,
+      pageNumber,
     };
     response.render("new-blog-picture.hbs", model);
   });
@@ -347,6 +391,7 @@ app.get("/new-blog-picture/:id", function (request, response) {
 
 app.get("/edit-blog-picture/:id", function (request, response) {
   const id = request.params.id;
+  const pageNumber = parseInt(request.query.page);
 
   const query = `SELECT * FROM blogposts WHERE blogId = ?`;
   const values = [id];
@@ -358,6 +403,7 @@ app.get("/edit-blog-picture/:id", function (request, response) {
     }
     const model = {
       blog,
+      pageNumber,
     };
     response.render("edit-blog-picture.hbs", model);
   });
@@ -452,13 +498,14 @@ app.post(
     const destination = request.params.destination;
     const id = request.params.id;
 
+    const pageNumber = parseInt(request.body.page);
+
     let imageFile;
     let uploadPath;
 
     const errorMessages = [];
 
     if (!request.files || Object.keys(request.files).length === 0) {
-      // return response.status(400).send("No files were uploaded.");
       errorMessages.push("No file is selected");
 
       let model;
@@ -469,6 +516,7 @@ app.post(
           project: {
             projId: id,
           },
+          pageNumber,
         };
       } else if (destination === "blog") {
         model = {
@@ -476,6 +524,7 @@ app.post(
           blog: {
             blogId: id,
           },
+          pageNumber,
         };
       }
       // Render the same page when error occured
@@ -502,14 +551,16 @@ app.post(
           }
           const oldPictureName = project.projPictureName;
 
-          // Try to delete the file form the file system
-          fs.unlink("public/uploads/" + oldPictureName, function (error) {
-            if (error) {
-              errorMessages.push(
-                "Problem occured when deleting picture from file system"
-              );
-            }
-          });
+          if (fs.existsSync("public/uploads/" + oldPictureName)) {
+            // Try to delete the file form the file system
+            fs.unlink("public/uploads/" + oldPictureName, function (error) {
+              if (error) {
+                errorMessages.push(
+                  "Problem occured when deleting picture from file system"
+                );
+              }
+            });
+          }
         });
       } else if (destination === "blog" && reason === "edit") {
         // Select old picture name from the database
@@ -522,18 +573,22 @@ app.post(
           }
           const oldPictureName = blog.blogPictureName;
 
-          // Try to delete the file form the file system
-          fs.unlink("public/uploads/" + oldPictureName, function (error) {
-            if (error) {
-              errorMessages.push(
-                "Problem occured when deleting picture from file system"
-              );
-            }
-          });
+          if (fs.existsSync("public/uploads/" + oldPictureName)) {
+            console.log("file exists");
+            // Try to delete the file form the file system
+            fs.unlink("public/uploads/" + oldPictureName, function (error) {
+              console.log("file deleted");
+              if (error) {
+                errorMessages.push(
+                  "Problem occured when deleting picture from file system"
+                );
+              }
+            });
+          }
         });
       }
 
-      // if old file gets deleted, then go ahead and update the picture
+      // Go ahead and update the picture
 
       // imageFile is the name of the input
       imageFile = request.files.image;
@@ -583,9 +638,9 @@ app.post(
               } else if (reason === "edit" && destination === "project") {
                 response.redirect("/edit-project/" + id);
               } else if (reason === "new" && destination === "blog") {
-                response.redirect("/blog?page=1");
+                response.redirect("/blog?page=" + pageNumber);
               } else if (reason === "edit" && destination === "blog") {
-                response.redirect("/edit-blog/" + id);
+                response.redirect("/edit-blog/" + id + "/?page=" + pageNumber);
               }
             }
           });
@@ -966,6 +1021,7 @@ app.post("/new-blog", function (request, response) {
 // Shows the edit page for a blog post
 app.get("/edit-blog/:id", function (request, response) {
   const id = request.params.id;
+  const pageNumber = parseInt(request.query.page);
 
   const query = `SELECT * FROM blogposts WHERE blogID = ?`;
   const values = [id];
@@ -979,6 +1035,7 @@ app.get("/edit-blog/:id", function (request, response) {
     }
     const model = {
       blog,
+      pageNumber,
     };
     response.render("edit-blogpost.hbs", model);
   });
@@ -988,6 +1045,7 @@ app.get("/edit-blog/:id", function (request, response) {
 app.post("/edit-blog/:id", function (request, response) {
   const id = request.params.id;
 
+  const pageNumber = parseInt(request.body.page);
   const title = request.body.title;
   const description = request.body.description;
 
@@ -1034,7 +1092,7 @@ app.post("/edit-blog/:id", function (request, response) {
         };
         response.render("edit-blogpost.hbs", model);
       } else {
-        response.redirect("/blog?page=1");
+        response.redirect("/blog?page=" + pageNumber);
       }
     });
   } else {
@@ -1126,8 +1184,9 @@ app.post("/delete-blog/:id", function (request, response) {
 });
 
 // Edit comment page
-app.get("/edit-comment/:id", function (request, response) {
+app.get("/edit-comment/:id/page=:page", function (request, response) {
   const id = request.params.id;
+  const pageNumber = parseInt(request.params.page);
 
   const query = `SELECT * FROM comments WHERE cmntId = ?`;
   const values = [id];
@@ -1139,6 +1198,7 @@ app.get("/edit-comment/:id", function (request, response) {
     }
     const model = {
       comment,
+      pageNumber,
     };
     response.render("edit-comment.hbs", model);
   });
@@ -1148,6 +1208,7 @@ app.get("/edit-comment/:id", function (request, response) {
 app.post("/edit-comment/:id", function (request, response) {
   const id = request.params.id;
 
+  const pageNumber = parseInt(request.body.page);
   const name = request.body.name;
   const comment = request.body.comment;
 
@@ -1180,7 +1241,7 @@ app.post("/edit-comment/:id", function (request, response) {
   }
 
   if (errorMessages.length === 0) {
-    const query = `UPDATE comments SET cmntName = ?, cmntContent = ? WHERE cmntId = ?`;
+    const query = `UPD comments SET cmntName = ?, cmntContent = ? WHERE cmntId = ?`;
     const values = [name, comment, id];
 
     db.run(query, values, function (error) {
@@ -1193,10 +1254,12 @@ app.post("/edit-comment/:id", function (request, response) {
             name,
             comment,
           },
+          pageNumber,
         };
         response.render("edit-comment.hbs", model);
+      } else {
+        response.redirect("/blog?page=" + pageNumber);
       }
-      response.redirect("/blog?page=1");
     });
   } else {
     const query = `SELECT * FROM comments WHERE cmntId = ?`;
@@ -1209,6 +1272,7 @@ app.post("/edit-comment/:id", function (request, response) {
       const model = {
         errorMessages,
         comment,
+        pageNumber,
       };
       response.render("edit-comment.hbs", model);
     });

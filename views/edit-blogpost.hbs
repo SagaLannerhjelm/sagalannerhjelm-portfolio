@@ -14,6 +14,7 @@
         method="post"
         class="card form-container p-centered"
       >
+        <input type="hidden" name="page" value="{{pageNumber}}" />
         <div class="card-header p-centered">
           <div class="card-title h3 form-title">Edit blog post</div>
         </div>
@@ -61,7 +62,9 @@
                 class="thumbnail-picture"
               />
               {{! Edit picture button }}
-              <a href="/edit-blog-picture/{{blog.blogId}}"><img
+              <a
+                href="/edit-blog-picture/{{blog.blogId}}/?page={{pageNumber}}"
+              ><img
                   class="icons margin-left picture-edit-button"
                   src="/images/edit_icon_dark.png"
                   alt="edit icon"
@@ -71,7 +74,7 @@
 
         </div>
         <div class="button-container p-centered">
-          <a class="btn" href="javascript:history.back()">Cancel</a>
+          <a class="btn" href="/blog?page={{pageNumber}}">Cancel</a>
           <button type="submit" class="btn btn-primary">Confirm changes</button>
         </div>
       </form>

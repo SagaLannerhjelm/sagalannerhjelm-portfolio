@@ -24,7 +24,7 @@
         <h2 class="title text-primary float-left">{{blogTitle}}
           {{#if ../session.isLoggedIn}}
             {{!-- Edit button --}}
-            <a href="/edit-blog/{{blogId}}"><img class="icons margin-left" src="/images/edit_icon_dark.png"  alt="Edit icon"/></a>
+            <a href="/edit-blog/{{blogId}}?page={{../pageNumber}}"><img class="icons margin-left" src="/images/edit_icon_dark.png"  alt="Edit icon"/></a>
 
             {{!-- Delete button --}}
             <form
@@ -42,28 +42,29 @@
         <img class="blog-pic" src="/uploads/{{blogPictureName}}" alt="Blog picture">
 
       
-        {{#if ../errorAtBlogId.length}}
+        {{!-- {{#if ../errorAtBlogId.length}} --}}
           {{#ifEquals ../errorAtBlogId blogpost.blogId}}
           
             {{! Display error messages }}
-            {{#if ../errorMessages.length}}
-              <div class="error-message-container-extended bg-error">
-                <ul class="error-message text-light">
-                  {{#each ../errorMessages}}
-                    <li class="error-message-list">{{this}}</li>
-                  {{/each}}
-                </ul>
-              </div>
-            {{/if}}
+              {{#if ../errorMessages.length}}
+                <div class="error-message-container-extended bg-error">
+                  <ul class="error-message text-light">
+                    {{#each ../errorMessages}}
+                      <li class="error-message-list">{{this}}</li>
+                    {{/each}}
+                  </ul>
+                </div>
+              {{/if}}
             
           {{/ifEquals}}
-        {{/if}}
+        {{!-- {{/if}} --}}
          
 
         {{!-- Form for creating comments --}}
         {{#unless ../session.isLoggedIn}}
           <div class="card-title h4 form-title" id="new-comment-section/{{blogId}}">Write a comment</div>
-          <form action="/blog/{{blogId}}" method="post">
+          <form action="/blog?page={{../pageNumber}}" method="post">
+          <input type="hidden" name="id" value="{{blogId}}">
             <div class="form-group">
               {{!-- <input type="text" name="id" value="{{blogId}}"> --}}
               <label class="form-label">Name</label>
@@ -78,11 +79,11 @@
         {{/unless}}
       </div>
       {{!-- Show comments --}}
-      {{#if ../comments.length}}
+      {{#if comments}}
         <h5 class="comments-title" id="comment-section/{{blogId}}">Comments</h5>
-        {{#each ../comments as | cmnt |}}
+        {{#each comments}}
           {{!-- Show the right comments on the right blogpost --}}
-          {{#ifEquals cmnt.blogId blogpost.blogId}}
+          {{!-- {{#ifEquals cmnt.blogId blogpost.blogId}} --}}
             <div class="comment-container" id="comment/{{cmntId}}">
               <div class="comment-grid">
                 <p class="name">{{cmntName}}</p>
@@ -94,7 +95,7 @@
                 <div class="float-right comment-icons">
                   {{#if ../../session.isLoggedIn}}
                     {{!-- edit button --}}
-                    <a href="/edit-comment/{{cmntId}}" class="icon-button blue-button"><img class="icons" src="/images/edit_icon_light.png" alt="Edit icon"/></a>
+                    <a href="/edit-comment/{{cmntId}}/page={{../../pageNumber}}" class="icon-button blue-button"><img class="icons" src="/images/edit_icon_light.png" alt="Edit icon"/></a>
                     {{!-- delete button --}}
                     <form action="/delete-comment/{{cmntId}}" method="post">
                      <input type="hidden" name="blogId" value="{{blogId}}">
@@ -104,10 +105,8 @@
                 </div>
               </div>
             </div>
-          {{/ifEquals}}
+          {{!-- {{/ifEquals}} --}}
         {{/each}}
-        {{else}}
-          <p>No comments exists yet...</p>
       {{/if}}
 
     {{/each}}
@@ -115,6 +114,7 @@
         <p>No blogposts exists yet...</p>
   {{/if}}
 </div>
+
 
  {{!-- Pagination --}}
 <div class="blog-pagination">
