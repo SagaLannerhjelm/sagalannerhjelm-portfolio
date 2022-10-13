@@ -13,6 +13,7 @@ const fs = require("fs");
 const titleMaxLength = 40;
 const descriptionMaxLenght = 1000;
 const postPerPage = 5;
+let viewAllProjects;
 
 // Calculate today's date
 const today = new Date();
@@ -126,6 +127,8 @@ app.use(cookieParser());
 app.get("/", function (request, response) {
   const query = `SELECT * FROM projects ORDER BY projId DESC`;
 
+  viewAllProjects = true;
+
   db.all(query, function (error, projects) {
     const errorMessages = [];
 
@@ -137,18 +140,25 @@ app.get("/", function (request, response) {
       // session: request.session,
       errorMessages,
       projects,
+      viewAllProjects,
     };
 
     response.render("startpage.hbs", model);
   });
 });
 
-// Simple filter
-app.get("/projects/:category", function (request, response) {
-  const category = request.params.category;
+// Sort projects based on categoty
+app.get("/projects", function (request, response) {
+  const category = request.query.category;
+
+  viewAllProjects = false;
+
+  let illustrationsSelected = category === "Illustration" ? true : false;
+  let gamesSelected = category === "Game development" ? true : false;
+  let webDesignsSelected = category === "Web design" ? true : false;
+  let graphicDesignsSelected = category === "Graphic design" ? true : false;
 
   const query = `SELECT * FROM projects WHERE projCategory = ? ORDER BY projId DESC`;
-
   const values = [category];
 
   db.all(query, values, function (error, projects) {
@@ -161,6 +171,11 @@ app.get("/projects/:category", function (request, response) {
     const model = {
       errorMessages,
       projects,
+      viewAllProjects,
+      illustrationsSelected,
+      gamesSelected,
+      webDesignsSelected,
+      graphicDesignsSelected,
     };
     response.render("startpage.hbs", model);
   });
@@ -552,8 +567,10 @@ app.post(
           const oldPictureName = project.projPictureName;
 
           if (fs.existsSync("public/uploads/" + oldPictureName)) {
+            console.log("file exist");
             // Try to delete the file form the file system
             fs.unlink("public/uploads/" + oldPictureName, function (error) {
+              console.log("file deleted");
               if (error) {
                 errorMessages.push(
                   "Problem occured when deleting picture from file system"
@@ -638,7 +655,7 @@ app.post(
               } else if (reason === "edit" && destination === "project") {
                 response.redirect("/edit-project/" + id);
               } else if (reason === "new" && destination === "blog") {
-                response.redirect("/blog?page=" + pageNumber);
+                response.redirect("/blog?page=1");
               } else if (reason === "edit" && destination === "blog") {
                 response.redirect("/edit-blog/" + id + "/?page=" + pageNumber);
               }

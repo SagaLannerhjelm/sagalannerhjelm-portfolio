@@ -31,17 +31,22 @@
   color: var(--white);
 }
 
-.filter-button {
+/* .filter-button {
   display: flex;
   width: 50px;
   margin-top: 15px;
   justify-content: center;
   margin-left: auto;
   margin-right: auto;
-}
+} */
 
-.filter-container {
-  color: #2d2d2d;
+.filter-buttons-container {
+  display: flex;
+  column-gap: 3px;
+  row-gap: 3px;
+  max-width: 80%;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 .project-grid {
   margin-top: 40px;
