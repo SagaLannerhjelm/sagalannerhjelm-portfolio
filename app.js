@@ -1,6 +1,5 @@
 const express = require("express");
 const expressHandlebars = require("express-handlebars");
-const sqlite3 = require("sqlite3");
 const expressSession = require("express-session");
 const cookieParser = require("cookie-parser");
 const connectSqLite3 = require("connect-sqlite3");
@@ -8,6 +7,7 @@ const SQLiteStore = connectSqLite3(expressSession);
 const fileUpload = require("express-fileupload");
 const bcrypt = require("bcrypt");
 const fs = require("fs");
+const db = require("./db.js");
 
 // Variables
 const titleMaxLength = 40;
@@ -25,46 +25,10 @@ const date = today.getDate();
 const dateCorrection = date < 10 ? "0" + date : date;
 const currentDate = year + "-" + monthCorrection + "-" + dateCorrection;
 
-// Database
-const db = new sqlite3.Database("portfolio-database.db");
-
 // Hardcoded mail and password for login
 const adminMail = "admin@gmail.com";
 const adminPassword =
   "$2b$10$VIgcvt4aTDB8pKutc6kuLuIGI/urBZOT0G.pAs0md5/fm4PgD6qAG";
-
-// Database tables
-db.run(`
-  CREATE TABLE IF NOT EXISTS projects (
-    projId INTEGER PRIMARY KEY,
-    projTitle TEXT,
-    projDescription TEXT,
-    projCategory TEXT,
-    projCreatedDate TEXT,
-    projPictureName TEXT
-  )
-`);
-
-db.run(`
-  CREATE TABLE IF NOT EXISTS blogposts (
-    blogId INTEGER PRIMARY KEY,
-    blogTitle TEXT,
-    blogPublishedDate TEXT,
-    blogDescription TEXT,
-    blogPictureName TEXT
-  )
-`);
-
-db.run(`
-  CREATE TABLE IF NOT EXISTS comments (
-    cmntId INTEGER PRIMARY KEY,
-    cmntName TEXT,
-    cmntPublishedDate TEXT,
-    cmntContent TEXT,
-    blogId INTEGER,
-    FOREIGN KEY(blog) REFERENCES blogposts (blogId)
-  )
-`);
 
 const app = express();
 expressHandlebars.register;
@@ -121,11 +85,9 @@ app.use(function (request, response, next) {
 app.use(cookieParser());
 
 app.get("/", function (request, response) {
-  const query = `SELECT * FROM projects ORDER BY projId DESC`;
-
   viewAllProjects = true;
 
-  db.all(query, function (error, projects) {
+  db.getAllProjects(function (error, projects) {
     const errorMessages = [];
 
     if (error) {
@@ -154,10 +116,7 @@ app.get("/projects", function (request, response) {
   let webDesignsSelected = category === "Web design" ? true : false;
   let graphicDesignsSelected = category === "Graphic design" ? true : false;
 
-  const query = `SELECT * FROM projects WHERE projCategory = ? ORDER BY projId DESC`;
-  const values = [category];
-
-  db.all(query, values, function (error, projects) {
+  db.getProjectsByCategory(category, function (error, projects) {
     const errorMessages = [];
 
     if (error) {
@@ -182,10 +141,7 @@ app.get("/projects", function (request, response) {
 app.get("/project/:id", function (request, response) {
   const id = request.params.id;
 
-  const query = `SELECT * FROM projects WHERE projId = ?`;
-  const values = [id];
-
-  db.get(query, values, function (error, project) {
+  db.getProjectById(id, function (error, project) {
     const errorMessages = [];
 
     if (error) {
@@ -214,44 +170,43 @@ app.get("/blog", function (request, response) {
   const serverErrorMessages = [];
 
   // Count how many blogposts
-  db.all(
-    `SELECT COUNT(*) as tableRows FROM blogposts`,
-    function (error, blogposts) {
-      if (error) {
-        serverErrorMessages.push("Internal server error");
 
-        const model = {
-          blogposts,
-          errorMessages,
-        };
+  db.countBlogposts(function (error, blogposts) {
+    if (error) {
+      serverErrorMessages.push("Internal server error");
 
-        response.render("blog.hbs", model);
-      } else {
-        // Calculate number of pages
-        const numberOfRows = blogposts[0].tableRows;
-        const numberOfPages = Math.ceil(numberOfRows / postPerPage);
-        nextPageUrl =
-          pageNumber != numberOfPages ? "/blog?page=" + (pageNumber + 1) : "#";
-        nextPageDisabled = pageNumber != numberOfPages ? false : true;
+      const model = {
+        blogposts,
+        errorMessages,
+      };
 
-        let pageNumbers = [];
-        let pageActive;
+      response.render("blog.hbs", model);
+    } else {
+      // Calculate number of pages
+      const numberOfRows = blogposts[0].tableRows;
+      const numberOfPages = Math.ceil(numberOfRows / postPerPage);
+      nextPageUrl =
+        pageNumber != numberOfPages ? "/blog?page=" + (pageNumber + 1) : "#";
+      nextPageDisabled = pageNumber != numberOfPages ? false : true;
 
-        // Splits number of pages into an array with each page number
-        for (let i = 1; i <= numberOfPages; i++) {
-          if (i === pageNumber) {
-            pageActive = true;
-          } else {
-            pageActive = false;
-          }
-          pageNumbers.push({ page: i, active: pageActive });
+      let pageNumbers = [];
+      let pageActive;
+
+      // Splits number of pages into an array with each page number
+      for (let i = 1; i <= numberOfPages; i++) {
+        if (i === pageNumber) {
+          pageActive = true;
+        } else {
+          pageActive = false;
         }
+        pageNumbers.push({ page: i, active: pageActive });
+      }
 
-        // Select blogposts
-        const blogQuery = `SELECT * FROM blogposts ORDER BY blogId DESC LIMIT ? OFFSET ?`;
-        const values = [postPerPage, offsetValue];
-
-        db.all(blogQuery, values, function (error, blogposts) {
+      // Select blogposts
+      db.getBlogpostsByPage(
+        postPerPage,
+        offsetValue,
+        function (error, blogposts) {
           if (error) {
             serverErrorMessages.push("Internal server error");
 
@@ -265,9 +220,7 @@ app.get("/blog", function (request, response) {
             response.render("blog.hbs", model);
           } else {
             // Select comments
-            const commentsQuery = `SELECT * FROM comments`;
-
-            db.all(commentsQuery, function (error, comments) {
+            db.getAllComments(function (error, comments) {
               if (error) {
                 serverErrorMessages.push(
                   "Internal server error when selecting comments"
@@ -301,10 +254,10 @@ app.get("/blog", function (request, response) {
               }
             });
           }
-        });
-      }
+        }
+      );
     }
-  );
+  });
 });
 
 // Create comments on blog page
@@ -338,10 +291,7 @@ app.post("/blog", function (request, response) {
   }
 
   if (errorMessages.length === 0) {
-    const query = `INSERT INTO comments (cmntName, cmntPublishedDate, cmntContent, blogId) VALUES (?, ?, ?, ?)`;
-    const values = [name, currentDate, comment, blogId];
-
-    db.run(query, values, function (error) {
+    db.createComment(name, currentDate, comment, blogId, function (error) {
       if (error) {
         serverErrorMessages.push("Internal server error");
         const model = {
@@ -365,51 +315,46 @@ app.post("/blog", function (request, response) {
     let previousPageDisabled = pageNumber != 1 ? false : true;
     const offsetValue = (pageNumber - 1) * postPerPage;
 
-    db.all(
-      `SELECT COUNT(*) as tableRows FROM blogposts`,
-      function (error, blogposts) {
-        if (error) {
-          serverErrorMessages.push("Internal server error");
-          const model = {
-            serverErrorMessages,
-            blogpost,
-            comment,
-          };
-          response.render("blog.hbs", model);
-        } else {
-          const numberOfRows = blogposts[0].tableRows;
-          const numberOfPages = Math.ceil(numberOfRows / postPerPage);
-          nextPageUrl =
-            pageNumber != numberOfPages
-              ? "/blog?page=" + (pageNumber + 1)
-              : "#";
-          nextPageDisabled = pageNumber != numberOfPages ? false : true;
+    db.countBlogposts(function (error, blogposts) {
+      if (error) {
+        serverErrorMessages.push("Internal server error");
+        const model = {
+          serverErrorMessages,
+          blogposts,
+          comment,
+        };
+        response.render("blog.hbs", model);
+      } else {
+        const numberOfRows = blogposts[0].tableRows;
+        const numberOfPages = Math.ceil(numberOfRows / postPerPage);
+        nextPageUrl =
+          pageNumber != numberOfPages ? "/blog?page=" + (pageNumber + 1) : "#";
+        nextPageDisabled = pageNumber != numberOfPages ? false : true;
 
-          let pageNumbers = [];
-          let pageActive;
+        let pageNumbers = [];
+        let pageActive;
 
-          for (let i = 1; i <= numberOfPages; i++) {
-            if (i === pageNumber) {
-              pageActive = true;
-            } else {
-              pageActive = false;
-            }
-            pageNumbers.push({ page: i, active: pageActive });
+        for (let i = 1; i <= numberOfPages; i++) {
+          if (i === pageNumber) {
+            pageActive = true;
+          } else {
+            pageActive = false;
           }
+          pageNumbers.push({ page: i, active: pageActive });
+        }
 
-          const errorAtBlogId = blogId;
+        const errorAtBlogId = blogId;
 
-          const blogQuery = `SELECT * FROM blogposts ORDER BY blogId DESC LIMIT ? OFFSET ?`;
-          const values = [postPerPage, offsetValue];
-
-          const commentsQuery = `SELECT * FROM comments`;
-
-          db.all(blogQuery, values, function (error, blogposts) {
+        db.getBlogpostsByPage(
+          postPerPage,
+          offsetValue,
+          function (error, blogposts) {
             if (error) {
               serverErrorMessages.push("Internal server error");
               model = [];
             }
-            db.all(commentsQuery, function (error, comments) {
+
+            db.getAllComments(function (error, comments) {
               if (error) {
                 errorMessages.push("Internal server error");
               }
@@ -432,10 +377,10 @@ app.post("/blog", function (request, response) {
               };
               response.render("blog.hbs", model);
             });
-          });
-        }
+          }
+        );
       }
-    );
+    });
   }
 });
 
@@ -443,10 +388,7 @@ app.get("/new-blog-picture/:id/", function (request, response) {
   const id = request.params.id;
   const pageNumber = parseInt(request.params.page);
 
-  const query = `SELECT * FROM blogposts WHERE blogId = ?`;
-  const values = [id];
-
-  db.get(query, values, function (error, blog) {
+  db.getBlogpostById(id, function (error, blog) {
     const errorMessages = [];
     if (error) {
       errorMessages.push("Internal server error");
@@ -463,10 +405,7 @@ app.get("/edit-blog-picture/:id", function (request, response) {
   const id = request.params.id;
   const pageNumber = parseInt(request.query.page);
 
-  const query = `SELECT * FROM blogposts WHERE blogId = ?`;
-  const values = [id];
-
-  db.get(query, values, function (error, blog) {
+  db.getBlogpostById(id, function (error, blog) {
     const errorMessages = [];
     if (error) {
       errorMessages.push("Internal server error");
@@ -571,22 +510,6 @@ app.post("/update-picture/:destination/:id", function (request, response) {
     }
   }
 
-  function pictureOrBlogIfELse(forProject, forBlog, method) {
-    if (method === "redirect") {
-      if (destination === "project") {
-        response.redirect(forProject);
-      } else if (destination === "blog") {
-        response.redirect(forBlog);
-      }
-    } else {
-      if (destination === "project") {
-        response.render(forProject);
-      } else if (destination === "blog") {
-        response.render(forBlog);
-      }
-    }
-  }
-
   // Following line of code was made with help by https://www.youtube.com/watch?v=hyJiNTFtQic retrieved: 2022-10-06
   if (!request.files || Object.keys(request.files).length === 0) {
     errorMessages.push("No file is selected");
@@ -615,10 +538,7 @@ app.post("/update-picture/:destination/:id", function (request, response) {
 
     if (destination === "project") {
       // Select old picture name from the database
-      const oldPictureQuery = `SELECT projPictureName FROM projects WHERE projId = ?`;
-      const values = [id];
-
-      db.get(oldPictureQuery, values, function (error, project) {
+      db.getOldProjectPicture(id, function (error, project) {
         if (error) {
           errorMessages.push("Internal server error");
         }
@@ -630,10 +550,7 @@ app.post("/update-picture/:destination/:id", function (request, response) {
       });
     } else if (destination === "blog") {
       // Select old picture name from the database
-      const oldPictureQuery = `SELECT blogPictureName FROM blogposts WHERE blogId = ?`;
-      const values = [id];
-
-      db.get(oldPictureQuery, values, function (error, blog) {
+      db.getOldBlogPicture(id, function (error, blog) {
         if (error) {
           errorMessages.push("Internal server error");
         }
@@ -661,54 +578,51 @@ app.post("/update-picture/:destination/:id", function (request, response) {
         console.log("file moved");
       });
 
-      let query;
-
       if (destination === "project") {
-        query = `UPDATE projects SET projPictureName = ? WHERE projId = ?`;
+        db.updateProjectPicture(uniqueFileName, id, function (error) {
+          if (error) {
+            errorMessages.push("Internal server error");
+
+            const model = {
+              errorMessages,
+            };
+
+            // Render the same page when error occured
+            response.render("edit-project-picture.hbs", model);
+          } else {
+            console.log("database updated");
+            // Redirect to another page when upload is completed
+            response.redirect("/edit-project/" + id);
+          }
+        });
       } else if (destination === "blog") {
-        query = `UPDATE blogposts SET blogPictureName = ? WHERE blogId = ?`;
+        db.updateBlogPicture(uniqueFileName, id, function (error) {
+          if (error) {
+            errorMessages.push("Internal server error");
+
+            const model = {
+              errorMessages,
+            };
+
+            // Render the same page when error occured
+            response.render("edit-blog-picture.hbs", model);
+          } else {
+            console.log("database updated");
+            // Redirect to another page when upload is completed
+            response.redirect("/edit-blog/" + id + "/?page=" + pageNumber);
+          }
+        });
       }
-
-      const values = [uniqueFileName, id];
-
-      db.run(query, values, function (error) {
-        if (error) {
-          errorMessages.push("Internal server error");
-
-          const model = {
-            errorMessages,
-          };
-
-          // Render the same page when error occured
-          pictureOrBlogIfELse(
-            "edit-project-picture.hbs",
-            model,
-            "edit-blog-picture.hbs",
-            model,
-            "render"
-          );
-        } else {
-          console.log("database updated");
-          // Redirect to another page when upload is completed
-          pictureOrBlogIfELse(
-            "/edit-project/" + id,
-            "/edit-blog/" + id + "/?page=" + pageNumber,
-            "redirect"
-          );
-        }
-      });
     } else {
       const model = {
         errorMessages,
       };
       // Render the same page when error occured
-      pictureOrBlogIfELse(
-        "edit-project-picture.hbs",
-        model,
-        "edit-blog-picture.hbs",
-        model,
-        "render"
-      );
+      if (destination === "project") {
+        response.render("edit-project-picture.hbs", model);
+      } else if (destination === "blog") {
+        response.render("edit-blog-picture.hbs", model);
+      }
     }
   }
 });
@@ -797,21 +711,25 @@ app.post("/new-project", function (request, response) {
 
         // When file upload has been uploaded to the file systen, create the project
 
-        const query = `INSERT INTO projects (projTitle, projDescription, projCreatedDate, projCategory, projPictureName) VALUES (?, ?, ?, ?, ?)`;
-        const values = [title, description, date, category, uniqueFileName];
+        db.createProject(
+          title,
+          description,
+          date,
+          category,
+          uniqueFileName,
+          function (error) {
+            if (error) {
+              errorMessages.push("Internal server error");
+              const model = {
+                errorMessages,
+              };
 
-        db.run(query, values, function (error) {
-          if (error) {
-            errorMessages.push("Internal server error");
-            const model = {
-              errorMessages,
-            };
-
-            response.render("new-project.hbs", model);
-          } else {
-            response.redirect("/#projects");
+              response.render("new-project.hbs", model);
+            } else {
+              response.redirect("/#projects");
+            }
           }
-        });
+        );
       });
     } else {
       const model = {
@@ -830,17 +748,17 @@ app.post("/new-project", function (request, response) {
 app.get("/new-project-picture/:id", function (request, response) {
   const id = request.params.id;
 
-  const query = `SELECT * FROM projects WHERE projId = ?`;
-  const values = [id];
-
-  db.get(query, values, function (error, project) {
+  db.getProjectById(id, function (error, project) {
     const errorMessages = [];
+
     if (error) {
       errorMessages.push("Internal server error");
     }
+
     const model = {
       project,
     };
+
     response.render("new-project-picture.hbs", model);
   });
 });
@@ -849,10 +767,7 @@ app.get("/new-project-picture/:id", function (request, response) {
 app.get("/edit-project/:id", function (request, response) {
   const id = request.params.id;
 
-  const query = `SELECT * FROM projects WHERE projId = ?`;
-  const values = [id];
-
-  db.get(query, values, function (error, project) {
+  db.getProjectById(id, function (error, project) {
     // The variable for the selected date gets true
     let illustrationSelected =
       project.projCategory === "Illustration" ? true : false;
@@ -925,13 +840,10 @@ app.post("/edit-project/:id", function (request, response) {
   }
 
   if (errorMessages.length === 0) {
-    const query = `UPDATE projects SET projTitle = ?, projDescription = ?, projCreatedDate = ?, projCategory = ? WHERE projId = ?`;
-
-    const values = [title, description, date, category, id];
-
-    db.run(query, values, function (error) {
+    db.updateProject(title, description, date, category, id, function (error) {
       if (error) {
         errorMessages.push("Internal server error");
+
         const model = {
           errorMessages,
           project: {
@@ -942,19 +854,18 @@ app.post("/edit-project/:id", function (request, response) {
             category,
           },
         };
+
         response.render("edit-project.hbs", model);
       } else {
         response.redirect("/project/" + id);
       }
     });
   } else {
-    const query = `SELECT * FROM projects WHERE projId = ?`;
-    const values = [id];
-
-    db.get(query, values, function (error, project) {
+    db.getProjectById(id, function (error, project) {
       if (error) {
         errorMessages.push("Internal server error");
       }
+
       const model = {
         errorMessages,
         project,
@@ -963,6 +874,7 @@ app.post("/edit-project/:id", function (request, response) {
         date,
         category,
       };
+
       response.render("edit-project.hbs", model);
     });
   }
@@ -971,17 +883,17 @@ app.post("/edit-project/:id", function (request, response) {
 app.get("/edit-project/picture/:id", function (request, response) {
   const id = request.params.id;
 
-  const query = `SELECT * FROM projects WHERE projId = ?`;
-  const values = [id];
-
-  db.get(query, values, function (error, project) {
+  db.getProjectById(id, function (error, project) {
     const errorMessages = [];
+
     if (error) {
       errorMessages.push("Internal server error");
     }
+
     const model = {
       project,
     };
+
     response.render("edit-project-picture.hbs", model);
   });
 });
@@ -993,13 +905,12 @@ app.post("/project/:id", function (request, response) {
   const errorMessages = [];
 
   // Get file name of image
-  const imgUrlQuery = `SELECT projPictureName FROM projects WHERE projId = ?`;
-  const values = [id];
 
-  db.get(imgUrlQuery, values, function (error, project) {
+  db.getProjectPicture(id, function (error, project) {
     if (error) {
       errorMessages.push("Internal server error");
     }
+
     const pictureFileName = project.projPictureName;
 
     // Try to delete the file form the file system
@@ -1011,17 +922,11 @@ app.post("/project/:id", function (request, response) {
       }
 
       // If no error with deleting form filesystem, then delete from database
-      const query = `DELETE FROM projects WHERE projId = ?`;
-      const values = [id];
-
-      db.run(query, values, function (error) {
+      db.deleteProjectById(id, function (error) {
         if (error) {
           errorMessages.push("Internal server error");
 
-          const query = `SELECT * FROM projects WHERE projId = ?`;
-          const values = [id];
-
-          db.get(query, values, function (error, project) {
+          db.getProjectById(id, function (error, project) {
             if (error) {
               errorMessages.push("Internal server error");
             }
@@ -1103,24 +1008,27 @@ app.post("/new-blog", function (request, response) {
         }
         console.log("File moved");
 
-        // When file is uploaded to the file system, create the broject
+        // When file is uploaded to the file system, create the blog
 
-        const query = `INSERT INTO blogposts (blogTitle, blogDescription, blogPublishedDate, blogPictureName) VALUES (?, ?, ?, ?)`;
-        const values = [title, description, currentDate, uniqueFileName];
-
-        db.run(query, values, function (error) {
-          if (error) {
-            errorMessages.push("Internal server error");
-            const model = {
-              errorMessages,
-              title,
-              description,
-            };
-            response.render("new-blogpost.hbs", model);
-          } else {
-            response.redirect("/blog?page=1");
+        db.createBlog(
+          title,
+          description,
+          currentDate,
+          uniqueFileName,
+          function (error) {
+            if (error) {
+              errorMessages.push("Internal server error");
+              const model = {
+                errorMessages,
+                title,
+                description,
+              };
+              response.render("new-blogpost.hbs", model);
+            } else {
+              response.redirect("/blog?page=1");
+            }
           }
-        });
+        );
       });
     } else {
       const model = {
@@ -1138,10 +1046,7 @@ app.get("/edit-blog/:id", function (request, response) {
   const id = request.params.id;
   const pageNumber = parseInt(request.query.page);
 
-  const query = `SELECT * FROM blogposts WHERE blogID = ?`;
-  const values = [id];
-
-  db.get(query, values, function (error, blog) {
+  db.getBlogpostById(id, function (error, blog) {
     const errorMessages = [];
     if (error) {
       errorMessages.push(
@@ -1159,7 +1064,6 @@ app.get("/edit-blog/:id", function (request, response) {
 // Edits a blog post with a specific id
 app.post("/edit-blog/:id", function (request, response) {
   const id = request.params.id;
-
   const pageNumber = parseInt(request.body.page);
   const title = request.body.title;
   const description = request.body.description;
@@ -1190,13 +1094,10 @@ app.post("/edit-blog/:id", function (request, response) {
   }
 
   if (errorMessages.length === 0) {
-    const query = `UPDATE blogposts SET blogTitle = ?, blogDescription = ? WHERE blogId = ?`;
-
-    const values = [title, description, id];
-
-    db.run(query, values, function (error) {
+    db.updateBlogpost(title, description, id, function (error) {
       if (error) {
         errorMessages.push("Internal server error");
+
         const model = {
           errorMessages,
           blog: {
@@ -1211,10 +1112,7 @@ app.post("/edit-blog/:id", function (request, response) {
       }
     });
   } else {
-    const query = `SELECT * FROM blogposts WHERE blogID = ?`;
-    const values = [id];
-
-    db.get(query, values, function (error, blog) {
+    db.getBlogpostById(id, function (error, blog) {
       if (error) {
         errorMessages.push("Internal server error");
       }
@@ -1232,14 +1130,13 @@ app.post("/edit-blog/:id", function (request, response) {
 // Deletes a blog with a specific id
 app.post("/delete-blog/:id", function (request, response) {
   const id = request.params.id;
+  const pageNumber = parseInt(request.query.page);
+  const offsetValue = (pageNumber - 1) * postPerPage;
 
   const errorMessages = [];
 
   // Get file name of image
-  const imgUrlQuery = `SELECT blogPictureName FROM blogposts WHERE blogId = ?`;
-  const values = [id];
-
-  db.get(imgUrlQuery, values, function (error, blogpost) {
+  db.getBlogPicture(id, function (error, blogpost) {
     if (error) {
       errorMessages.push("Internal server error");
     }
@@ -1254,41 +1151,40 @@ app.post("/delete-blog/:id", function (request, response) {
       }
 
       // If no error with deleting form filesystem, then delete from database
-      const blogpostQuery = `DELETE FROM blogposts WHERE blogId = ?`;
-      const commentQuery = `DELETE FROM comments WHERE blogId = ?`;
-
-      db.run(blogpostQuery, values, function (error) {
+      db.deleteBlogById(id, function (error) {
         const serverErrorMessages = [];
         if (error) {
           serverErrorMessages.push(
             "Internal server error when deleting blogpost"
           );
         }
-        db.run(commentQuery, values, function (error) {
+        db.deleteCommentsWithBlogpost(id, function (error) {
           if (error) {
             serverErrorMessages.push(
               "Internal server error when deleting comments connected to blogpost"
             );
 
-            const blogQuery = `SELECT * FROM blogposts ORDER BY blogId DESC`;
-            const commentsQuery = `SELECT * FROM comments`;
-
-            db.all(blogQuery, function (error, blogposts) {
-              if (error) {
-                serverErrorMessages.push("Internal server error");
-              }
-              db.all(commentsQuery, function (error, comments) {
+            db.getBlogpostsByPage(
+              postPerPage,
+              offsetValue,
+              function (error, blogposts) {
                 if (error) {
                   serverErrorMessages.push("Internal server error");
                 }
-                const model = {
-                  blogposts,
-                  comments,
-                  serverErrorMessages,
-                };
-                response.render("blog.hbs", model);
-              });
-            });
+
+                db.getAllComments(function (error, comments) {
+                  if (error) {
+                    serverErrorMessages.push("Internal server error");
+                  }
+                  const model = {
+                    blogposts,
+                    comments,
+                    serverErrorMessages,
+                  };
+                  response.render("blog.hbs", model);
+                });
+              }
+            );
           } else {
             response.redirect("/blog?page=1");
           }
@@ -1303,18 +1199,18 @@ app.get("/edit-comment/:id/page=:page", function (request, response) {
   const id = request.params.id;
   const pageNumber = parseInt(request.params.page);
 
-  const query = `SELECT * FROM comments WHERE cmntId = ?`;
-  const values = [id];
-
-  db.get(query, values, function (error, comment) {
+  db.getCommentById(id, function (error, comment) {
     const errorMessages = [];
+
     if (error) {
       errorMessages.push("Internal server error");
     }
+
     const model = {
       comment,
       pageNumber,
     };
+
     response.render("edit-comment.hbs", model);
   });
 });
@@ -1322,7 +1218,6 @@ app.get("/edit-comment/:id/page=:page", function (request, response) {
 // Edits a comment with a specific id
 app.post("/edit-comment/:id", function (request, response) {
   const id = request.params.id;
-
   const pageNumber = parseInt(request.body.page);
   const name = request.body.name;
   const comment = request.body.comment;
@@ -1356,12 +1251,10 @@ app.post("/edit-comment/:id", function (request, response) {
   }
 
   if (errorMessages.length === 0) {
-    const query = `UPD comments SET cmntName = ?, cmntContent = ? WHERE cmntId = ?`;
-    const values = [name, comment, id];
-
-    db.run(query, values, function (error) {
+    db.updateComment(name, comment, id, function (error) {
       if (error) {
         errorMessages.push("Internal server error");
+
         const model = {
           errorMessages,
           comment: {
@@ -1371,16 +1264,14 @@ app.post("/edit-comment/:id", function (request, response) {
           },
           pageNumber,
         };
+
         response.render("edit-comment.hbs", model);
       } else {
         response.redirect("/blog?page=" + pageNumber);
       }
     });
   } else {
-    const query = `SELECT * FROM comments WHERE cmntId = ?`;
-    const values = [id];
-
-    db.get(query, values, function (error, comment) {
+    db.getCommentById(id, function (error, comment) {
       if (error) {
         errorMessages.push("Internal server error");
       }
@@ -1404,11 +1295,7 @@ app.post("/delete-comment/:id", function (request, response) {
   if (!request.session.isLoggedIn) {
     errorMessages.push("You need to be logged in to perform this action");
   } else {
-    const query = `DELETE FROM comments WHERE cmntId = ?`;
-
-    const values = [id];
-
-    db.run(query, values, function (error) {
+    db.deleteCommenById(id, function (error) {
       const errorMessages = [];
       if (error) {
         errorMessages.push("Internal server error");

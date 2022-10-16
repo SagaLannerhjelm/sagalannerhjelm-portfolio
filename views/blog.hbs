@@ -29,7 +29,7 @@
 
             {{!-- Delete button --}}
             <form
-              action="/delete-blog/{{blogId}}"
+              action="/delete-blog/{{blogId}}?page={{../pageNumber}}"
               method="post"
               class="delete-button">
               <button type="submit" class="icon-button white-button">
