@@ -3,12 +3,12 @@
   {{#if project}}
 
     <div class="form-page">
-      <div class="card form-container new-project-container">
+      <div class="card form-container project-form-container">
         <div class="card-header p-centered">
           <div class="card-title h3 form-title">Change picture</div>
         </div>
         <form
-          action="/upload-picture/edit/project/{{project.projId}}"
+          action="/update-picture/project/{{project.projId}}"
           method="post"
           enctype="multipart/form-data"
           class="card-body side-margin"

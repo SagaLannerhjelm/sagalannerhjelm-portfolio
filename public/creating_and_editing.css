@@ -21,7 +21,7 @@
   align-items: flex-end;
 }
 
-.new-project-container {
+.project-form-container {
   background-color: var(--dark-blue);
   color: var(--white);
   border: none;

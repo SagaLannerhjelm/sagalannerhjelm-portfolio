@@ -15,19 +15,8 @@ html {
 body {
   margin-top: 0px;
   background-color: var(--white);
-  /* background: linear-gradient(
-    90deg,
-    rgba(122, 201, 236, 1) 0%,
-    rgba(102, 137, 224, 1) 37%,
-    rgba(238, 157, 250, 1) 100%
-  ); */
   min-height: 100vh;
 }
-
-/* https://stackoverflow.com/questions/643879/css-to-make-html-page-footer-stay-at-bottom-of-the-page-with-a-minimum-height-b */
-/* body::after {
-  height: 50px;
-} */
 
 /* Style of the navigation bar */
 

@@ -1,4 +1,5 @@
 
+
 {{#if blogposts}}
 
 <div class="blog-page padding-on-bottom">
@@ -7,7 +8,7 @@
   <a class="add-button new-blog-button" href="/new-blog">+</a>
 {{/if}}
 
-  {{! Display server error messages }}
+{{! Display server error messages }}
   {{#if serverErrorMessages.length}}
     <div class="error-message-container bg-error">
       <ul class="error-message text-light">
@@ -87,7 +88,7 @@
             <div class="comment-container" id="comment/{{cmntId}}">
               <div class="comment-grid">
                 <p class="name">{{cmntName}}</p>
-                <p class="comment-date">{{cmntDate}}</p>
+                <p class="comment-date">{{cmntPublishedDate}}</p>
               </div>
               <div class="comment-grid ">
                 <p class="comment">{{cmntContent}}</p>
@@ -118,50 +119,26 @@
 
  {{!-- Pagination --}}
 <div class="blog-pagination">
-{{#if pageNumbers.length}}
-<ul class="pagination">
-  <li class="page-item 
-  {{#if previousPageDisabled}}disabled{{/if}}
-  ">
-    <a href="{{previousPageUrl}}" tabindex="-1">Previous</a>
-  </li>
-   {{#each pageNumbers}}
-  <li class="page-item {{#if this.active}} active {{/if}}
-  ">
-    <a href="/blog?page={{this.page}}" class="{{#unless this.active}}text-primary{{/unless}}">{{this.page}}</a>
-  </li>
-  {{/each}}
-  <li class="page-item {{#if nextPageDisabled}}disabled{{/if}}">
-    <a href="{{nextPageUrl}}">Next</a>
-  </li>
-</ul>
-{{/if}}
-
+  {{#if pageNumbers.length}}
+    <ul class="pagination">
+      <li class="page-item 
+      {{#if previousPageDisabled}}disabled{{/if}}
+      ">
+        <a href="{{previousPageUrl}}" tabindex="-1">Previous</a>
+      </li>
+      {{#each pageNumbers}}
+      <li class="page-item {{#if this.active}} active {{/if}}
+      ">
+        <a href="/blog?page={{this.page}}" class="{{#unless this.active}}text-primary{{/unless}}">{{this.page}}</a>
+      </li>
+      {{/each}}
+      <li class="page-item {{#if nextPageDisabled}}disabled{{/if}}">
+        <a href="{{nextPageUrl}}">Next</a>
+      </li>
+    </ul>
+  {{/if}}
 </div> 
 
-<ul class="pagination">
-  <li class="page-item disabled">
-    <a href="#" tabindex="-1">Previous</a>
-  </li>
-  <li class="page-item active">
-    <a href="#">1</a>
-  </li>
-  <li class="page-item">
-    <a href="#">2</a>
-  </li>
-  <li class="page-item">
-    <a href="#">3</a>
-  </li>
-  <li class="page-item">
-    <span>...</span>
-  </li>
-  <li class="page-item">
-    <a href="#">12</a>
-  </li>
-  <li class="page-item">
-    <a href="#">Next</a>
-  </li>
-</ul>
 {{else}}
   <img
       src="/images/low_opacity_clouds.png"

@@ -6,7 +6,7 @@
   </p>
 
   <div class="form-page">
-    <div class="card form-container p-centered new-project-container">
+    <div class="card form-container p-centered project-form-container">
       <div class="card-header p-centered">
         <div class="card-title h3 form-title">New project</div>
       </div>
@@ -22,7 +22,12 @@
         </div>
       {{/if}}
 
-      <form action="/new-project" method="post" class="card-body side-margin">
+      <form
+        action="/new-project"
+        method="post"
+        class="card-body side-margin"
+        enctype="multipart/form-data"
+      >
         <div class="form-content">
           <div>
             <div class="form-group">
@@ -72,6 +77,13 @@
               />
             </div>
             <div class="form-group">
+              <label class="form-label">File</label>
+              <input
+                name="image"
+                class="form-input picture-input"
+                type="file"
+                accept="image/*"
+              />
             </div>
           </div>
         </div>
