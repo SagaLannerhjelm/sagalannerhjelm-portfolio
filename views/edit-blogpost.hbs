@@ -10,7 +10,7 @@
     <div class="form-page">
 
       <form
-        action="/edit-blog/{{blog.blogId}}"
+        action="/blog/edit/{{blog.blogId}}"
         method="post"
         class="card form-container p-centered"
       >
@@ -63,7 +63,7 @@
               />
               {{! Edit picture button }}
               <a
-                href="/edit-blog-picture/{{blog.blogId}}/?page={{pageNumber}}"
+                href="/blog/edit/picture/{{blog.blogId}}/?page={{pageNumber}}"
               ><img
                   class="icons margin-left picture-edit-button"
                   src="/images/edit_icon_dark.png"

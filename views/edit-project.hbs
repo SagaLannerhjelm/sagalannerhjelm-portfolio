@@ -30,7 +30,7 @@
         {{/if}}
 
         <form
-          action="/edit-project/{{project.projId}}"
+          action="/project/edit/{{project.projId}}"
           method="post"
           class="card-body side-margin"
         >
@@ -87,7 +87,7 @@
                   class="thumbnail-picture"
                 />
                 {{! Edit picture button }}
-                <a href="/edit-project/picture/{{project.projId}}"><img
+                <a href="/project/edit/picture/{{project.projId}}"><img
                     class="icons margin-left picture-edit-button"
                     src="/images/edit_icon_light.png"
                     alt="edit icon"

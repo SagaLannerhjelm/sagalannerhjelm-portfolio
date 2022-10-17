@@ -5,7 +5,7 @@
 <div class="blog-page padding-on-bottom">
 
 {{#if session.isLoggedIn}}
-  <a class="add-button new-blog-button" href="/new-blog">+</a>
+  <a class="add-button new-blog-button" href="/blog/create">+</a>
 {{/if}}
 
 {{! Display server error messages }}
@@ -25,11 +25,11 @@
         <h2 class="title text-primary float-left">{{blogTitle}}
           {{#if ../session.isLoggedIn}}
             {{!-- Edit button --}}
-            <a href="/edit-blog/{{blogId}}?page={{../pageNumber}}"><img class="icons margin-left" src="/images/edit_icon_dark.png"  alt="Edit icon"/></a>
+            <a href="/blog/edit/{{blogId}}?page={{../pageNumber}}"><img class="icons margin-left" src="/images/edit_icon_dark.png"  alt="Edit icon"/></a>
 
             {{!-- Delete button --}}
             <form
-              action="/delete-blog/{{blogId}}?page={{../pageNumber}}"
+              action="/blog/delete/{{blogId}}?page={{../pageNumber}}"
               method="post"
               class="delete-button">
               <button type="submit" class="icon-button white-button">
@@ -64,7 +64,7 @@
         {{!-- Form for creating comments --}}
         {{#unless ../session.isLoggedIn}}
           <div class="card-title h4 form-title" id="new-comment-section/{{blogId}}">Write a comment</div>
-          <form action="/blog?page={{../pageNumber}}" method="post">
+          <form action="/comments/create?page={{../pageNumber}}" method="post">
           <input type="hidden" name="id" value="{{blogId}}">
             <div class="form-group">
               {{!-- <input type="text" name="id" value="{{blogId}}"> --}}
@@ -96,9 +96,9 @@
                 <div class="float-right comment-icons">
                   {{#if ../../session.isLoggedIn}}
                     {{!-- edit button --}}
-                    <a href="/edit-comment/{{cmntId}}/page={{../../pageNumber}}" class="icon-button blue-button"><img class="icons" src="/images/edit_icon_light.png" alt="Edit icon"/></a>
+                    <a href="/comment/edit/{{cmntId}}/page={{../../pageNumber}}" class="icon-button blue-button"><img class="icons" src="/images/edit_icon_light.png" alt="Edit icon"/></a>
                     {{!-- delete button --}}
-                    <form action="/delete-comment/{{cmntId}}" method="post">
+                    <form action="/comment/delete/{{cmntId}}" method="post">
                      <input type="hidden" name="blogId" value="{{blogId}}">
                       <button type="submit" class="icon-button blue-button"><img class="icons" src="/images/delete_icon_light.png" alt="Delete icon"/></button>
                     </form>

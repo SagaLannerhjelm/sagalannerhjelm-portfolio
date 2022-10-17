@@ -9,21 +9,14 @@ const bcrypt = require("bcrypt");
 const fs = require("fs");
 const db = require("./db.js");
 
+//Routers
+const blogRouter = require("./routers/blog-router");
+const projectRouter = require("./routers/project-router");
+const commentRouter = require("./routers/comment-router");
+
 // Variables
-const titleMaxLength = 40;
-const descriptionMaxLenght = 1000;
-const postPerPage = 5;
 let viewAllProjects;
 const path = __dirname + "/public/uploads/";
-
-// Calculate today's date
-const today = new Date();
-const year = today.getFullYear();
-const month = today.getMonth();
-const monthCorrection = month + 1 < 10 ? "0" + (month + 1) : month + 1;
-const date = today.getDate();
-const dateCorrection = date < 10 ? "0" + date : date;
-const currentDate = year + "-" + monthCorrection + "-" + dateCorrection;
 
 // Hardcoded mail and password for login
 const adminMail = "admin@gmail.com";
@@ -74,15 +67,20 @@ app.use(
   })
 );
 
+app.use(cookieParser());
+
 app.use(fileUpload());
 
 app.use(function (request, response, next) {
   response.locals.session = request.session;
-
   next();
 });
 
-app.use(cookieParser());
+app.use("/blog", blogRouter);
+
+app.use("/project", projectRouter);
+
+app.use("/comment", commentRouter);
 
 app.get("/", function (request, response) {
   viewAllProjects = true;
@@ -137,286 +135,22 @@ app.get("/projects", function (request, response) {
   });
 });
 
-// Read projects with a specific id and render corresponding page
-app.get("/project/:id", function (request, response) {
-  const id = request.params.id;
+// app.get("/new-blog-picture/:id/", function (request, response) {
+//   const id = request.params.id;
+//   const pageNumber = parseInt(request.params.page);
 
-  db.getProjectById(id, function (error, project) {
-    const errorMessages = [];
-
-    if (error) {
-      errorMessages.push("Internal server error");
-    }
-
-    const model = {
-      project,
-    };
-
-    response.render("project-detail.hbs", model);
-  });
-});
-
-// Renders blog page and pagination
-app.get("/blog", function (request, response) {
-  const pageNumber = parseInt(request.query.page);
-  let nextPageUrl;
-  let nextPageDisabled;
-  let previousPageUrl =
-    pageNumber != 1 ? "/blog?page=" + (pageNumber - 1) : "#";
-  let previousPageDisabled = pageNumber != 1 ? false : true;
-  const offsetValue = (pageNumber - 1) * postPerPage;
-
-  const errorMessages = [];
-  const serverErrorMessages = [];
-
-  // Count how many blogposts
-
-  db.countBlogposts(function (error, blogposts) {
-    if (error) {
-      serverErrorMessages.push("Internal server error");
-
-      const model = {
-        blogposts,
-        errorMessages,
-      };
-
-      response.render("blog.hbs", model);
-    } else {
-      // Calculate number of pages
-      const numberOfRows = blogposts[0].tableRows;
-      const numberOfPages = Math.ceil(numberOfRows / postPerPage);
-      nextPageUrl =
-        pageNumber != numberOfPages ? "/blog?page=" + (pageNumber + 1) : "#";
-      nextPageDisabled = pageNumber != numberOfPages ? false : true;
-
-      let pageNumbers = [];
-      let pageActive;
-
-      // Splits number of pages into an array with each page number
-      for (let i = 1; i <= numberOfPages; i++) {
-        if (i === pageNumber) {
-          pageActive = true;
-        } else {
-          pageActive = false;
-        }
-        pageNumbers.push({ page: i, active: pageActive });
-      }
-
-      // Select blogposts
-      db.getBlogpostsByPage(
-        postPerPage,
-        offsetValue,
-        function (error, blogposts) {
-          if (error) {
-            serverErrorMessages.push("Internal server error");
-
-            const model = {
-              blogposts,
-              serverErrorMessages,
-              pageNumber,
-              pageNumbers,
-            };
-
-            response.render("blog.hbs", model);
-          } else {
-            // Select comments
-            db.getAllComments(function (error, comments) {
-              if (error) {
-                serverErrorMessages.push(
-                  "Internal server error when selecting comments"
-                );
-
-                const model = {
-                  blogposts,
-                  serverErrorMessages,
-                  pageNumber,
-                  pageNumbers,
-                };
-
-                response.render("blog.hbs", model);
-              } else {
-                // Filter comments on blogposts
-                for (let b of blogposts) {
-                  b.comments = comments.filter((c) => c.blogId === b.blogId);
-                }
-
-                const model = {
-                  blogposts,
-                  pageNumber,
-                  pageNumbers,
-                  nextPageUrl,
-                  nextPageDisabled,
-                  previousPageUrl,
-                  previousPageDisabled,
-                  errorMessages,
-                };
-                response.render("blog.hbs", model);
-              }
-            });
-          }
-        }
-      );
-    }
-  });
-});
-
-// Create comments on blog page
-app.post("/blog", function (request, response) {
-  const pageNumber = parseInt(request.query.page);
-
-  const blogId = parseInt(request.body.id);
-  const name = request.body.name;
-  const comment = request.body.comment;
-
-  const errorMessages = [];
-  const serverErrorMessages = [];
-
-  const nameMaxLength = 50;
-  const commentMaxLenght = 200;
-
-  // Validation of name
-  if (name === "") {
-    errorMessages.push("Name can't be empty");
-  } else if (name.length > nameMaxLength) {
-    errorMessages.push("Name is longer than " + nameMaxLength + " characters");
-  }
-
-  // Validation of comment
-  if (comment === "") {
-    errorMessages.push("Comment can't be empty");
-  } else if (comment.length > commentMaxLenght) {
-    errorMessages.push(
-      "Comment is longer than " + commentMaxLenght + " characters"
-    );
-  }
-
-  if (errorMessages.length === 0) {
-    db.createComment(name, currentDate, comment, blogId, function (error) {
-      if (error) {
-        serverErrorMessages.push("Internal server error");
-        const model = {
-          serverErrorMessages,
-          blogpost,
-          comment,
-        };
-        response.render("blog.hbs", model);
-      } else {
-        response.redirect(
-          "/blog?page=" + pageNumber + "#comment-section/" + blogId
-        );
-      }
-    });
-  } else {
-    // If error when creating comment
-    let nextPageUrl;
-    let nextPageDisabled;
-    let previousPageUrl =
-      pageNumber != 1 ? "/blog?page=" + (pageNumber - 1) : "#";
-    let previousPageDisabled = pageNumber != 1 ? false : true;
-    const offsetValue = (pageNumber - 1) * postPerPage;
-
-    db.countBlogposts(function (error, blogposts) {
-      if (error) {
-        serverErrorMessages.push("Internal server error");
-        const model = {
-          serverErrorMessages,
-          blogposts,
-          comment,
-        };
-        response.render("blog.hbs", model);
-      } else {
-        const numberOfRows = blogposts[0].tableRows;
-        const numberOfPages = Math.ceil(numberOfRows / postPerPage);
-        nextPageUrl =
-          pageNumber != numberOfPages ? "/blog?page=" + (pageNumber + 1) : "#";
-        nextPageDisabled = pageNumber != numberOfPages ? false : true;
-
-        let pageNumbers = [];
-        let pageActive;
-
-        for (let i = 1; i <= numberOfPages; i++) {
-          if (i === pageNumber) {
-            pageActive = true;
-          } else {
-            pageActive = false;
-          }
-          pageNumbers.push({ page: i, active: pageActive });
-        }
-
-        const errorAtBlogId = blogId;
-
-        db.getBlogpostsByPage(
-          postPerPage,
-          offsetValue,
-          function (error, blogposts) {
-            if (error) {
-              serverErrorMessages.push("Internal server error");
-              model = [];
-            }
-
-            db.getAllComments(function (error, comments) {
-              if (error) {
-                errorMessages.push("Internal server error");
-              }
-
-              // Filter comments on blogposts
-              for (let b of blogposts) {
-                b.comments = comments.filter((c) => c.blogId === b.blogId);
-              }
-
-              const model = {
-                blogposts,
-                pageNumber,
-                pageNumbers,
-                nextPageUrl,
-                nextPageDisabled,
-                previousPageUrl,
-                previousPageDisabled,
-                errorMessages,
-                errorAtBlogId,
-              };
-              response.render("blog.hbs", model);
-            });
-          }
-        );
-      }
-    });
-  }
-});
-
-app.get("/new-blog-picture/:id/", function (request, response) {
-  const id = request.params.id;
-  const pageNumber = parseInt(request.params.page);
-
-  db.getBlogpostById(id, function (error, blog) {
-    const errorMessages = [];
-    if (error) {
-      errorMessages.push("Internal server error");
-    }
-    const model = {
-      blog,
-      pageNumber,
-    };
-    response.render("new-blog-picture.hbs", model);
-  });
-});
-
-app.get("/edit-blog-picture/:id", function (request, response) {
-  const id = request.params.id;
-  const pageNumber = parseInt(request.query.page);
-
-  db.getBlogpostById(id, function (error, blog) {
-    const errorMessages = [];
-    if (error) {
-      errorMessages.push("Internal server error");
-    }
-    const model = {
-      blog,
-      pageNumber,
-    };
-    response.render("edit-blog-picture.hbs", model);
-  });
-});
+//   db.getBlogpostById(id, function (error, blog) {
+//     const errorMessages = [];
+//     if (error) {
+//       errorMessages.push("Internal server error");
+//     }
+//     const model = {
+//       blog,
+//       pageNumber,
+//     };
+//     response.render("new-blog-picture.hbs", model);
+//   });
+// });
 
 app.get("/about", function (request, response) {
   response.render("about.hbs");
@@ -483,6 +217,30 @@ app.post("/logout", function (request, response) {
   response.redirect("/login");
 });
 
+function renderPage() {
+  if (destination === "project") {
+    const model = {
+      errorMessages,
+      project: {
+        projId: id,
+      },
+      pageNumber,
+    };
+
+    response.render("edit-project-picture.hbs", model);
+  } else if (destination === "blog") {
+    const model = {
+      errorMessages,
+      blog: {
+        blogId: id,
+      },
+      pageNumber,
+    };
+
+    response.render("edit-blog-picture.hbs", model);
+  }
+}
+
 app.post("/update-picture/:destination/:id", function (request, response) {
   const destination = request.params.destination;
   const id = request.params.id;
@@ -514,25 +272,7 @@ app.post("/update-picture/:destination/:id", function (request, response) {
   if (!request.files || Object.keys(request.files).length === 0) {
     errorMessages.push("No file is selected");
 
-    if (destination === "project") {
-      const model = {
-        errorMessages,
-        project: {
-          projId: id,
-        },
-        pageNumber,
-      };
-      response.render("edit-project-picture.hbs", model);
-    } else if (destination === "blog") {
-      const model = {
-        errorMessages,
-        blog: {
-          blogId: id,
-        },
-        pageNumber,
-      };
-      response.render("edit-blog-picture.hbs", model);
-    }
+    renderPage();
   } else {
     // Delete old picture from file system
 
@@ -574,45 +314,48 @@ app.post("/update-picture/:destination/:id", function (request, response) {
       imageFile.mv(uploadPath, function (error) {
         if (error) {
           errorMessages.push("Error when uploading file");
+
+          renderPage();
+        } else {
+          console.log("file moved");
+
+          if (destination === "project") {
+            db.updateProjectPicture(uniqueFileName, id, function (error) {
+              if (error) {
+                errorMessages.push("Internal server error");
+
+                const model = {
+                  errorMessages,
+                };
+
+                // Render the same page when error occured
+                response.render("edit-project-picture.hbs", model);
+              } else {
+                console.log("database updated");
+                // Redirect to another page when upload is completed
+                response.redirect("/project/edit/" + id);
+              }
+            });
+          } else if (destination === "blog") {
+            db.updateBlogPicture(uniqueFileName, id, function (error) {
+              if (error) {
+                errorMessages.push("Internal server error");
+
+                const model = {
+                  errorMessages,
+                };
+
+                // Render the same page when error occured
+                response.render("edit-blog-picture.hbs", model);
+              } else {
+                console.log("database updated");
+                // Redirect to another page when upload is completed
+                response.redirect("/blog/edit/" + id + "/?page=" + pageNumber);
+              }
+            });
+          }
         }
-        console.log("file moved");
       });
-
-      if (destination === "project") {
-        db.updateProjectPicture(uniqueFileName, id, function (error) {
-          if (error) {
-            errorMessages.push("Internal server error");
-
-            const model = {
-              errorMessages,
-            };
-
-            // Render the same page when error occured
-            response.render("edit-project-picture.hbs", model);
-          } else {
-            console.log("database updated");
-            // Redirect to another page when upload is completed
-            response.redirect("/edit-project/" + id);
-          }
-        });
-      } else if (destination === "blog") {
-        db.updateBlogPicture(uniqueFileName, id, function (error) {
-          if (error) {
-            errorMessages.push("Internal server error");
-
-            const model = {
-              errorMessages,
-            };
-
-            // Render the same page when error occured
-            response.render("edit-blog-picture.hbs", model);
-          } else {
-            console.log("database updated");
-            // Redirect to another page when upload is completed
-            response.redirect("/edit-blog/" + id + "/?page=" + pageNumber);
-          }
-        });
-      }
     } else {
       const model = {
         errorMessages,
@@ -627,682 +370,22 @@ app.post("/update-picture/:destination/:id", function (request, response) {
   }
 });
 
-app.get("/new-project", function (request, response) {
-  const model = {
-    currentDate,
-  };
-  response.render("new-project.hbs", model);
-});
-
-app.post("/new-project", function (request, response) {
-  const title = request.body.title;
-  const description = request.body.description;
-  const date = request.body.date;
-  const category = request.body.category;
-
-  let uniqueFileName;
-
-  const errorMessages = [];
-
-  // Check if user is logged in
-  if (!request.session.isLoggedIn) {
-    errorMessages.push("You need to be logged in to perform this action");
-  } else {
-    // validation for title
-    if (title === "") {
-      errorMessages.push("Title can't be empty");
-    } else if (title.length > titleMaxLength) {
-      errorMessages.push(
-        "Title is more than " + titleMaxLength + " characters"
-      );
-    }
-
-    // validation for description
-    if (description === "") {
-      errorMessages.push("Description can't be empty");
-    } else if (title.length > descriptionMaxLenght) {
-      errorMessages.push(
-        "Title is more than " + descriptionMaxLenght + " characters"
-      );
-    }
-
-    // validation for category
-    if (category === "") {
-      errorMessages.push("Choose a category");
-    } else if (category === "Choose an option") {
-      errorMessages.push("Pick a specific category");
-    }
-
-    // validation for date
-    if (date === "") {
-      errorMessages.push("Pick a date");
-    }
-  }
-
-  // Following two lines of code are done with help form a tutorial by Raddy on youtube: https://www.youtube.com/watch?v=hyJiNTFtQic, retrieved: 2022-10-06
-  if (!request.files || Object.keys(request.files).length === 0) {
-    errorMessages.push("No file is selected");
-
-    const model = {
-      errorMessages,
-      title,
-      description,
-      date,
-      category,
-    };
-
-    response.render("new-project.hbs", model);
-  } else {
-    // Following line of code is done with help from  https://www.youtube.com/watch?v=hyJiNTFtQic, retrieved: 2022-10-06
-    // imageFile is the name of the input
-    let imageFile = request.files.image;
-    uniqueFileName = Math.floor(Math.random() * 10000) + imageFile.name;
-    let uploadPath = path + uniqueFileName;
-    console.log(uniqueFileName);
-
-    if (errorMessages.length === 0) {
-      // Move the uploaded file to the right place
-      // Following line of code is done with help from https://www.youtube.com/watch?v=hyJiNTFtQic, retrieved: 2022-10-06
-      imageFile.mv(uploadPath, function (error) {
-        if (error) {
-          errorMessages.push("Error when uploading file");
-        }
-        console.log("File moved");
-
-        // When file upload has been uploaded to the file systen, create the project
-
-        db.createProject(
-          title,
-          description,
-          date,
-          category,
-          uniqueFileName,
-          function (error) {
-            if (error) {
-              errorMessages.push("Internal server error");
-              const model = {
-                errorMessages,
-              };
-
-              response.render("new-project.hbs", model);
-            } else {
-              response.redirect("/#projects");
-            }
-          }
-        );
-      });
-    } else {
-      const model = {
-        errorMessages,
-        title,
-        description,
-        date,
-        category,
-      };
-
-      response.render("new-project.hbs", model);
-    }
-  }
-});
-
-app.get("/new-project-picture/:id", function (request, response) {
-  const id = request.params.id;
-
-  db.getProjectById(id, function (error, project) {
-    const errorMessages = [];
-
-    if (error) {
-      errorMessages.push("Internal server error");
-    }
-
-    const model = {
-      project,
-    };
-
-    response.render("new-project-picture.hbs", model);
-  });
-});
-
-// Renders the edit page for a project
-app.get("/edit-project/:id", function (request, response) {
-  const id = request.params.id;
-
-  db.getProjectById(id, function (error, project) {
-    // The variable for the selected date gets true
-    let illustrationSelected =
-      project.projCategory === "Illustration" ? true : false;
-    let gameSelected =
-      project.projCategory === "Game development" ? true : false;
-    let websiteSelected = project.projCategory === "Website" ? true : false;
-    let graphicDesignSelected =
-      project.projCategory === "Graphic design" ? true : false;
-
-    const errorMessages = [];
-    if (error) {
-      errorMessages.push("Internal server error");
-    }
-    const model = {
-      project,
-      currentDate,
-      illustrationSelected,
-      gameSelected,
-      websiteSelected,
-      graphicDesignSelected,
-    };
-    response.render("edit-project.hbs", model);
-  });
-});
-
-// Edits a project with a specific id
-app.post("/edit-project/:id", function (request, response) {
-  const id = request.params.id;
-
-  const title = request.body.title;
-  const description = request.body.description;
-  const date = request.body.date;
-  const category = request.body.category;
-
-  const errorMessages = [];
-
-  // Check if user is logged in
-  if (!request.session.isLoggedIn) {
-    errorMessages.push("You need to be logged in to perform this action");
-  } else {
-    // validation for title
-    if (title === "") {
-      errorMessages.push("Title can't be empty");
-    } else if (title.length > titleMaxLength) {
-      errorMessages.push(
-        "Title is more than " + titleMaxLength + " characters"
-      );
-    }
-
-    // validation for description
-    if (description === "") {
-      errorMessages.push("Description can't be empty");
-    } else if (title.length > descriptionMaxLenght) {
-      errorMessages.push(
-        "Title is more than " + descriptionMaxLenght + " characters"
-      );
-    }
-
-    // validation for category
-    if (category === "") {
-      errorMessages.push("Choose a category");
-    } else if (category === "Choose an option") {
-      errorMessages.push("Pick a specific category");
-    }
-
-    // validation for date
-    if (date === "") {
-      errorMessages.push("Pick a date");
-    }
-  }
-
-  if (errorMessages.length === 0) {
-    db.updateProject(title, description, date, category, id, function (error) {
-      if (error) {
-        errorMessages.push("Internal server error");
-
-        const model = {
-          errorMessages,
-          project: {
-            projId: id,
-            title,
-            description,
-            date,
-            category,
-          },
-        };
-
-        response.render("edit-project.hbs", model);
-      } else {
-        response.redirect("/project/" + id);
-      }
-    });
-  } else {
-    db.getProjectById(id, function (error, project) {
-      if (error) {
-        errorMessages.push("Internal server error");
-      }
-
-      const model = {
-        errorMessages,
-        project,
-        title,
-        description,
-        date,
-        category,
-      };
-
-      response.render("edit-project.hbs", model);
-    });
-  }
-});
-
-app.get("/edit-project/picture/:id", function (request, response) {
-  const id = request.params.id;
-
-  db.getProjectById(id, function (error, project) {
-    const errorMessages = [];
-
-    if (error) {
-      errorMessages.push("Internal server error");
-    }
-
-    const model = {
-      project,
-    };
-
-    response.render("edit-project-picture.hbs", model);
-  });
-});
-
-// Deletes a project with a specific id
-app.post("/project/:id", function (request, response) {
-  const id = request.params.id;
-
-  const errorMessages = [];
-
-  // Get file name of image
-
-  db.getProjectPicture(id, function (error, project) {
-    if (error) {
-      errorMessages.push("Internal server error");
-    }
-
-    const pictureFileName = project.projPictureName;
-
-    // Try to delete the file form the file system
-    fs.unlink("public/uploads/" + pictureFileName, function (error) {
-      if (error) {
-        errorMessages.push(
-          "Problem occured when deleting picture from file system"
-        );
-      }
-
-      // If no error with deleting form filesystem, then delete from database
-      db.deleteProjectById(id, function (error) {
-        if (error) {
-          errorMessages.push("Internal server error");
-
-          db.getProjectById(id, function (error, project) {
-            if (error) {
-              errorMessages.push("Internal server error");
-            }
-            const model = {
-              project,
-              errorMessages,
-            };
-            response.render("project-detail.hbs", model);
-          });
-        } else {
-          response.redirect("/#projects");
-        }
-      });
-      console.log("File is deleted.");
-    });
-  });
-});
-
-// Renders the page for creating a new blog post
-app.get("/new-blog", function (request, response) {
-  response.render("new-blogpost.hbs");
-});
-
-app.post("/new-blog", function (request, response) {
-  const title = request.body.title;
-  const description = request.body.description;
-
-  let uniqueFileName;
-  const errorMessages = [];
-
-  // Check if user is logged in
-  if (!request.session.isLoggedIn) {
-    errorMessages.push("You need to be logged in to perform this action");
-  } else {
-    // Validation for title
-    if (title === "") {
-      errorMessages.push("Title can't be empty");
-    } else if (title.length > titleMaxLength) {
-      errorMessages.push(
-        "Title is more than " + titleMaxLength + " characters"
-      );
-    }
-
-    // Validation for Description
-    if (description === "") {
-      errorMessages.push("Description can't be empty");
-    } else if (description.length > descriptionMaxLenght) {
-      errorMessages.push(
-        "Title is more than " + descriptionMaxLenght + " characters"
-      );
-    }
-  }
-
-  // Following two lines of code are done with help form a tutorial by Raddy on youtube: https://www.youtube.com/watch?v=hyJiNTFtQic, retrieved: 2022-10-06
-  if (!request.files || Object.keys(request.files).length === 0) {
-    errorMessages.push("No file is selected");
-
-    const model = {
-      errorMessages,
-      title,
-      description,
-    };
-
-    response.render("new-blogpost.hbs", model);
-  } else {
-    // Following line of code is done with help from  https://www.youtube.com/watch?v=hyJiNTFtQic, retrieved: 2022-10-06
-    // imageFile is the name of the input
-    let imageFile = request.files.image;
-    uniqueFileName = Math.floor(Math.random() * 10000) + imageFile.name;
-    let uploadPath = path + uniqueFileName;
-    console.log(uniqueFileName);
-
-    if (errorMessages.length === 0) {
-      // Move the uploaded file to the right place
-      // Following line of code is done with help from https://www.youtube.com/watch?v=hyJiNTFtQic, retrieved: 2022-10-06
-      imageFile.mv(uploadPath, function (error) {
-        if (error) {
-          errorMessages.push("Error when uploading file");
-        }
-        console.log("File moved");
-
-        // When file is uploaded to the file system, create the blog
-
-        db.createBlog(
-          title,
-          description,
-          currentDate,
-          uniqueFileName,
-          function (error) {
-            if (error) {
-              errorMessages.push("Internal server error");
-              const model = {
-                errorMessages,
-                title,
-                description,
-              };
-              response.render("new-blogpost.hbs", model);
-            } else {
-              response.redirect("/blog?page=1");
-            }
-          }
-        );
-      });
-    } else {
-      const model = {
-        errorMessages,
-        title,
-        description,
-      };
-      response.render("new-blogpost.hbs", model);
-    }
-  }
-});
-
-// Shows the edit page for a blog post
-app.get("/edit-blog/:id", function (request, response) {
-  const id = request.params.id;
-  const pageNumber = parseInt(request.query.page);
-
-  db.getBlogpostById(id, function (error, blog) {
-    const errorMessages = [];
-    if (error) {
-      errorMessages.push(
-        "Internal server error when trying to go to the edit page"
-      );
-    }
-    const model = {
-      blog,
-      pageNumber,
-    };
-    response.render("edit-blogpost.hbs", model);
-  });
-});
-
-// Edits a blog post with a specific id
-app.post("/edit-blog/:id", function (request, response) {
-  const id = request.params.id;
-  const pageNumber = parseInt(request.body.page);
-  const title = request.body.title;
-  const description = request.body.description;
-
-  const errorMessages = [];
-
-  // Check if user is logged in
-  if (!request.session.isLoggedIn) {
-    errorMessages.push("You need to be logged in to perform this action");
-  } else {
-    // Validation for title
-    if (title === "") {
-      errorMessages.push("Title can't be empty");
-    } else if (title.length > titleMaxLength) {
-      errorMessages.push(
-        "Title is more than " + titleMaxLength + " characters"
-      );
-    }
-
-    // Validation for Description
-    if (description === "") {
-      errorMessages.push("Description can't be empty");
-    } else if (description.length > descriptionMaxLenght) {
-      errorMessages.push(
-        "Title is more than " + descriptionMaxLenght + " characters"
-      );
-    }
-  }
-
-  if (errorMessages.length === 0) {
-    db.updateBlogpost(title, description, id, function (error) {
-      if (error) {
-        errorMessages.push("Internal server error");
-
-        const model = {
-          errorMessages,
-          blog: {
-            blogId: id,
-            title,
-            description,
-          },
-        };
-        response.render("edit-blogpost.hbs", model);
-      } else {
-        response.redirect("/blog?page=" + pageNumber);
-      }
-    });
-  } else {
-    db.getBlogpostById(id, function (error, blog) {
-      if (error) {
-        errorMessages.push("Internal server error");
-      }
-      const model = {
-        errorMessages,
-        blog,
-        title,
-        description,
-      };
-      response.render("edit-blogpost.hbs", model);
-    });
-  }
-});
-
-// Deletes a blog with a specific id
-app.post("/delete-blog/:id", function (request, response) {
-  const id = request.params.id;
-  const pageNumber = parseInt(request.query.page);
-  const offsetValue = (pageNumber - 1) * postPerPage;
-
-  const errorMessages = [];
-
-  // Get file name of image
-  db.getBlogPicture(id, function (error, blogpost) {
-    if (error) {
-      errorMessages.push("Internal server error");
-    }
-    const pictureFileName = blogpost.blogPictureName;
-
-    // Try to delete the file form the file system
-    fs.unlink("public/uploads/" + pictureFileName, function (error) {
-      if (error) {
-        errorMessages.push(
-          "Problem occured when deleting picture from file system"
-        );
-      }
-
-      // If no error with deleting form filesystem, then delete from database
-      db.deleteBlogById(id, function (error) {
-        const serverErrorMessages = [];
-        if (error) {
-          serverErrorMessages.push(
-            "Internal server error when deleting blogpost"
-          );
-        }
-        db.deleteCommentsWithBlogpost(id, function (error) {
-          if (error) {
-            serverErrorMessages.push(
-              "Internal server error when deleting comments connected to blogpost"
-            );
-
-            db.getBlogpostsByPage(
-              postPerPage,
-              offsetValue,
-              function (error, blogposts) {
-                if (error) {
-                  serverErrorMessages.push("Internal server error");
-                }
-
-                db.getAllComments(function (error, comments) {
-                  if (error) {
-                    serverErrorMessages.push("Internal server error");
-                  }
-                  const model = {
-                    blogposts,
-                    comments,
-                    serverErrorMessages,
-                  };
-                  response.render("blog.hbs", model);
-                });
-              }
-            );
-          } else {
-            response.redirect("/blog?page=1");
-          }
-        });
-      });
-    });
-  });
-});
-
-// Edit comment page
-app.get("/edit-comment/:id/page=:page", function (request, response) {
-  const id = request.params.id;
-  const pageNumber = parseInt(request.params.page);
-
-  db.getCommentById(id, function (error, comment) {
-    const errorMessages = [];
-
-    if (error) {
-      errorMessages.push("Internal server error");
-    }
-
-    const model = {
-      comment,
-      pageNumber,
-    };
-
-    response.render("edit-comment.hbs", model);
-  });
-});
-
-// Edits a comment with a specific id
-app.post("/edit-comment/:id", function (request, response) {
-  const id = request.params.id;
-  const pageNumber = parseInt(request.body.page);
-  const name = request.body.name;
-  const comment = request.body.comment;
-
-  const errorMessages = [];
-
-  const nameMaxLength = 30;
-  const commentMaxLenght = 200;
-
-  // Check if user is logged in
-  if (!request.session.isLoggedIn) {
-    errorMessages.push("You need to be logged in to perform this action");
-  } else {
-    // Validation of name
-    if (name === "") {
-      errorMessages.push("Name can't be empty");
-    } else if (name.length > nameMaxLength) {
-      errorMessages.push(
-        "Name is longer than " + nameMaxLength + " characters"
-      );
-    }
-
-    // Validation of comment
-    if (comment === "") {
-      errorMessages.push("Comment can't be empty");
-    } else if (comment.length > commentMaxLenght) {
-      errorMessages.push(
-        "Comment is longer than " + commentMaxLenght + " characters"
-      );
-    }
-  }
-
-  if (errorMessages.length === 0) {
-    db.updateComment(name, comment, id, function (error) {
-      if (error) {
-        errorMessages.push("Internal server error");
-
-        const model = {
-          errorMessages,
-          comment: {
-            comntId: id,
-            name,
-            comment,
-          },
-          pageNumber,
-        };
-
-        response.render("edit-comment.hbs", model);
-      } else {
-        response.redirect("/blog?page=" + pageNumber);
-      }
-    });
-  } else {
-    db.getCommentById(id, function (error, comment) {
-      if (error) {
-        errorMessages.push("Internal server error");
-      }
-      const model = {
-        errorMessages,
-        comment,
-        pageNumber,
-      };
-      response.render("edit-comment.hbs", model);
-    });
-  }
-});
-
-// Deletes a comment with a specific id
-app.post("/delete-comment/:id", function (request, response) {
-  const id = request.params.id;
-  const blogId = request.body.blogId;
-
-  const errorMessages = [];
-  // Check if user is logged in
-  if (!request.session.isLoggedIn) {
-    errorMessages.push("You need to be logged in to perform this action");
-  } else {
-    db.deleteCommenById(id, function (error) {
-      const errorMessages = [];
-      if (error) {
-        errorMessages.push("Internal server error");
-      }
-      response.redirect("/blog/#blog/" + blogId);
-    });
-  }
-});
+// app.get("/new-project-picture/:id", function (request, response) {
+//   const id = request.params.id;
+
+//   db.getProjectById(id, function (error, project) {
+//     const errorMessages = [];
+
+//     if (error) {
+//       errorMessages.push("Internal server error");
+//     }
+
+//     const model = {
+//       project,
+//     };
+
+//     response.render("new-project-picture.hbs", model);
+//   });
+// });
 
 app.listen(8080);

@@ -18,14 +18,14 @@
     <h2 class="title">{{project.projTitle}}
       {{#if session.isLoggedIn}}
         {{! Edit button }}
-        <a href="/edit-project/{{project.projId}}"><img
+        <a href="/project/edit/{{project.projId}}"><img
             class="icons margin-left"
             src="/images/edit_icon_light.png"
             alt="edit icon"
           /></a>
         {{! Delete button }}
         <form
-          action="/project/{{project.projId}}"
+          action="/project/delete/{{project.projId}}"
           method="post"
           class="delete-button"
         >
