@@ -1,6 +1,7 @@
 const express = require("express");
 const db = require("../db.js");
 const fs = require("fs");
+const pathModule = require("path");
 
 const router = express.Router();
 
@@ -8,7 +9,10 @@ const router = express.Router();
 const titleMaxLength = 40;
 const descriptionMaxLenght = 1000;
 const postPerPage = 5;
-const path = __dirname + "/public/uploads/";
+let oneStepBackInDir = pathModule.join(__dirname, "../");
+const path = oneStepBackInDir + "public/uploads/";
+
+console.log(path);
 
 // Calculate today's date
 const today = new Date();

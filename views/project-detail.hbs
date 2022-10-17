@@ -1,55 +1,71 @@
-<div class="padding-on-bottom project-page">
-  <p class="breadcrumb">
-    <a class="breadcrumb-link" href="/#projects">Projects</a>
-    /
-    <a class="breadcrumb-link">{{project.projTitle}}</a>
-  </p>
-  <div class="project-container">
-    {{! Display error messages }}
-    {{#if errorMessages.length}}
-      <div class="error-message-container-extended bg-error">
-        <ul class="error-message text-light">
-          {{#each errorMessages}}
-            <li class="error-message-list">{{this}}</li>
-          {{/each}}
-        </ul>
-      </div>
-    {{/if}}
-    <h2 class="title">{{project.projTitle}}
-      {{#if session.isLoggedIn}}
-        {{! Edit button }}
-        <a href="/project/edit/{{project.projId}}"><img
-            class="icons margin-left"
-            src="/images/edit_icon_light.png"
-            alt="edit icon"
-          /></a>
-        {{! Delete button }}
-        <form
-          action="/project/delete/{{project.projId}}"
-          method="post"
-          class="delete-button"
-        >
-          <button type="submit" class="icon-button blue-button">
-            <img
-              class="icons"
-              src="/images/delete_icon_light.png"
-              alt="Delete icon"
-            />
-          </button>
-        </form>
+{{#if project}}
+
+  <div class="padding-on-bottom project-page">
+    <p class="breadcrumb">
+      <a class="breadcrumb-link" href="/#projects">Projects</a>
+      /
+      <a class="breadcrumb-link">{{project.projTitle}}</a>
+    </p>
+    <div class="project-container">
+      {{! Display error messages }}
+      {{#if errorMessages.length}}
+        <div class="error-message-container-extended bg-error">
+          <ul class="error-message text-light">
+            {{#each errorMessages}}
+              <li class="error-message-list">{{this}}</li>
+            {{/each}}
+          </ul>
+        </div>
       {{/if}}
-    </h2>
-    <div class="project-content">
-      <p class="project-descr">{{project.projDescription}}</p>
-      <div class="date-category-container">
-        <p class="project-date">Date: <br /> {{project.projCreatedDate}}</p>
-        <p class="project-category">Category: <br />{{project.projCategory}}</p>
+      <h2 class="title">{{project.projTitle}}
+        {{#if session.isLoggedIn}}
+          {{! Edit button }}
+          <a href="/project/edit/{{project.projId}}"><img
+              class="icons margin-left"
+              src="/images/edit_icon_light.png"
+              alt="edit icon"
+            /></a>
+          {{! Delete button }}
+          <form
+            action="/project/delete/{{project.projId}}"
+            method="post"
+            class="delete-button"
+          >
+            <button type="submit" class="icon-button blue-button">
+              <img
+                class="icons"
+                src="/images/delete_icon_light.png"
+                alt="Delete icon"
+              />
+            </button>
+          </form>
+        {{/if}}
+      </h2>
+      <div class="project-content">
+        <p class="project-descr">{{project.projDescription}}</p>
+        <div class="date-category-container">
+          <p class="project-date">Date: <br /> {{project.projCreatedDate}}</p>
+          <p class="project-category">Category:
+            <br />{{project.projCategory}}</p>
+        </div>
       </div>
+      <img
+        class="project-pic"
+        src="/uploads/{{project.projPictureName}}"
+        alt="Picture of a project"
+      />
     </div>
-    <img
-      class="project-pic"
-      src="/uploads/{{project.projPictureName}}"
-      alt="Picture of a project"
-    />
   </div>
-</div>
+
+{{else}}
+
+  <img
+    src="/images/low_opacity_clouds.png"
+    alt="Illustration of clouds"
+    class="cloud clouds-background"
+  />
+  <div class="locked-page">
+    <h4 class="position-relative">This page cannot be found</h4>
+  </div>
+
+{{/if}}

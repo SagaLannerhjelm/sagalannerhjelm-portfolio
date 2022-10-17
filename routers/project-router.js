@@ -1,17 +1,14 @@
 const express = require("express");
 const db = require("../db.js");
-const fileUpload = require("express-fileupload");
+const pathModule = require("path");
 const fs = require("fs");
-
 const router = express.Router();
-
-const app = express();
-app.use(fileUpload());
 
 // Variables
 const titleMaxLength = 40;
 const descriptionMaxLenght = 1000;
-const path = __dirname + "../public/uploads/";
+let oneStepBackInDir = pathModule.join(__dirname, "../");
+const path = oneStepBackInDir + "public/uploads/";
 
 // Calculate today's date
 const today = new Date();
@@ -161,29 +158,33 @@ router.post("/create", function (request, response) {
 router.get("/edit/:id", function (request, response) {
   const id = request.params.id;
 
-  db.getProjectById(id, function (error, project) {
+  db.getProjectById(id, function (error, project, category) {
     // The variable for the selected date gets true
-    let illustrationSelected =
-      project.projCategory === "Illustration" ? true : false;
-    let gameSelected =
-      project.projCategory === "Game development" ? true : false;
-    let websiteSelected = project.projCategory === "Website" ? true : false;
-    let graphicDesignSelected =
-      project.projCategory === "Graphic design" ? true : false;
+    if (project != undefined) {
+      let illustrationSelected =
+        project.projCategory === "Illustration" ? true : false;
+      let gameSelected =
+        project.projCategory === "Game development" ? true : false;
+      let websiteSelected = project.projCategory === "Website" ? true : false;
+      let graphicDesignSelected =
+        project.projCategory === "Graphic design" ? true : false;
 
-    const errorMessages = [];
-    if (error) {
-      errorMessages.push("Internal server error");
+      const errorMessages = [];
+      if (error) {
+        errorMessages.push("Internal server error");
+      }
+      const model = {
+        project,
+        currentDate,
+        illustrationSelected,
+        gameSelected,
+        websiteSelected,
+        graphicDesignSelected,
+      };
+      response.render("edit-project.hbs", model);
+    } else {
+      response.render("edit-project.hbs");
     }
-    const model = {
-      project,
-      currentDate,
-      illustrationSelected,
-      gameSelected,
-      websiteSelected,
-      graphicDesignSelected,
-    };
-    response.render("edit-project.hbs", model);
   });
 });
 
