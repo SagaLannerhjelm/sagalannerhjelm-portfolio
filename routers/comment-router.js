@@ -240,6 +240,7 @@ router.post("/edit/:id", function (request, response) {
 router.post("/delete/:id", function (request, response) {
   const id = request.params.id;
   const blogId = request.body.blogId;
+  const pageNumber = parseInt(request.query.page);
 
   const errorMessages = [];
   // Check if user is logged in
@@ -251,7 +252,7 @@ router.post("/delete/:id", function (request, response) {
       if (error) {
         errorMessages.push("Internal server error");
       }
-      response.redirect("/blog/#blog/" + blogId);
+      response.redirect("/blog?page=" + pageNumber + "#blog/" + blogId);
     });
   }
 });

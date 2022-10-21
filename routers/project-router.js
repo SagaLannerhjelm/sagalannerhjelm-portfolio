@@ -83,6 +83,7 @@ router.post("/create", function (request, response) {
       description,
       date,
       category,
+      currentDate,
     };
 
     response.render("new-project.hbs", model);
@@ -127,6 +128,7 @@ router.post("/create", function (request, response) {
                 errorMessages.push("Internal server error");
                 const model = {
                   errorMessages,
+                  currentDate,
                 };
 
                 response.render("new-project.hbs", model);
@@ -159,7 +161,7 @@ router.get("/edit/:id", function (request, response) {
   const id = request.params.id;
 
   db.getProjectById(id, function (error, project, category) {
-    // The variable for the selected date gets true
+    // The variable for the selected category gets true
     if (project != undefined) {
       let illustrationSelected =
         project.projCategory === "Illustration" ? true : false;
@@ -197,6 +199,9 @@ router.post("/edit/:id", function (request, response) {
   const date = request.body.date;
   const category = request.body.category;
 
+  let imageFile;
+  let uploadPath;
+
   const errorMessages = [];
 
   // Check if user is logged in
@@ -232,10 +237,17 @@ router.post("/edit/:id", function (request, response) {
     if (date === "") {
       errorMessages.push("Pick a date");
     }
+
+    // Validation for file
+    // Following line of code was made with help by https://www.youtube.com/watch?v=hyJiNTFtQic retrieved: 2022-10-06
+    if (!request.files || Object.keys(request.files).length === 0) {
+      errorMessages.push("No file is selected");
+    }
   }
 
   if (errorMessages.length === 0) {
-    db.updateProject(title, description, date, category, id, function (error) {
+    // Select old picture from the database
+    db.getProjectPicture(id, function (error, project) {
       if (error) {
         errorMessages.push("Internal server error");
 
@@ -248,11 +260,139 @@ router.post("/edit/:id", function (request, response) {
             date,
             category,
           },
+          title,
+          description,
+          date,
         };
 
         response.render("edit-project.hbs", model);
       } else {
-        response.redirect("/project/" + id);
+        const oldPictureName = project.projPictureName;
+        console.log(oldPictureName);
+
+        // Get the new image form the input
+        imageFile = request.files.image;
+        const uniqueFileName =
+          Math.floor(Math.random() * 10000) + imageFile.name;
+        uploadPath = path + uniqueFileName;
+
+        // Move the uploaded file to the right place
+        // Following line of code made with help by https://www.youtube.com/watch?v=hyJiNTFtQic retrieved: 2022-10-06
+        imageFile.mv(uploadPath, function (error) {
+          if (error) {
+            errorMessages.push("Error when uploading file");
+
+            const model = {
+              errorMessages,
+              project: {
+                projId: id,
+                title,
+                description,
+                date,
+                category,
+              },
+              title,
+              description,
+              date,
+              oldPictureName,
+            };
+
+            response.render("edit-project.hbs", model);
+          } else {
+            console.log("file moved");
+
+            db.updateProject(
+              title,
+              description,
+              date,
+              category,
+              uniqueFileName,
+              id,
+              function (error) {
+                if (error) {
+                  errorMessages.push("Internal server error");
+
+                  db.getProjectById(id, function (error, project) {
+                    if (error) {
+                      errorMessages.push("Internal server error");
+                    }
+
+                    // The variable for the selected category gets true
+                    let illustrationSelected =
+                      project.projCategory === "Illustration" ? true : false;
+                    let gameSelected =
+                      project.projCategory === "Game development"
+                        ? true
+                        : false;
+                    let websiteSelected =
+                      project.projCategory === "Website" ? true : false;
+                    let graphicDesignSelected =
+                      project.projCategory === "Graphic design" ? true : false;
+
+                    const model = {
+                      errorMessages,
+                      project: {
+                        projId: id,
+                        title,
+                        description,
+                        date,
+                        category,
+                      },
+                      title,
+                      description,
+                      date,
+                      projectPicture: project.projPictureName,
+                      illustrationSelected,
+                      gameSelected,
+                      websiteSelected,
+                      graphicDesignSelected,
+                    };
+
+                    response.render("edit-project.hbs", model);
+                  });
+                } else {
+                  // Check if old picture exists in files system
+
+                  if (fs.existsSync("public/uploads/" + oldPictureName)) {
+                    console.log("old picture exists");
+                    // Try to delete the old picture from the file system
+                    fs.unlink(
+                      "public/uploads/" + oldPictureName,
+                      function (error) {
+                        if (error) {
+                          errorMessages.push(
+                            "Problem occured when deleting picture from file system"
+                          );
+
+                          const model = {
+                            errorMessages,
+                            project: {
+                              projId: id,
+                              title,
+                              description,
+                              date,
+                              category,
+                            },
+                            title,
+                            description,
+                            date,
+                            oldPictureName,
+                          };
+
+                          response.render("edit-project.hbs", model);
+                        } else {
+                          console.log("old picture deleted");
+
+                          response.redirect("/project/" + id);
+                        }
+                      }
+                    );
+                  }
+                }
+              }
+            );
+          }
+        });
       }
     });
   } else {
@@ -261,13 +401,32 @@ router.post("/edit/:id", function (request, response) {
         errorMessages.push("Internal server error");
       }
 
+      // The variable for the selected category gets true
+      let illustrationSelected =
+        project.projCategory === "Illustration" ? true : false;
+      let gameSelected =
+        project.projCategory === "Game development" ? true : false;
+      let websiteSelected = project.projCategory === "Website" ? true : false;
+      let graphicDesignSelected =
+        project.projCategory === "Graphic design" ? true : false;
+
       const model = {
         errorMessages,
-        project,
+        project: {
+          projId: id,
+          title,
+          description,
+          date,
+          category,
+        },
         title,
         description,
         date,
-        category,
+        projectPicture: project.projPictureName,
+        illustrationSelected,
+        gameSelected,
+        websiteSelected,
+        graphicDesignSelected,
       };
 
       response.render("edit-project.hbs", model);

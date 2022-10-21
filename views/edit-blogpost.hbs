@@ -13,6 +13,7 @@
         action="/blog/edit/{{blog.blogId}}"
         method="post"
         class="card form-container p-centered"
+        enctype="multipart/form-data"
       >
         <input type="hidden" name="page" value="{{pageNumber}}" />
         <div class="card-header p-centered">
@@ -39,7 +40,7 @@
                 type="text"
                 placeholder="Title"
                 name="title"
-                value="{{blog.blogTitle}}"
+                value="{{blog.blogTitle}}{{title}}"
               />
             </div>
             <div class="form-group">
@@ -50,25 +51,31 @@
                 placeholder="Description"
                 name="description"
                 rows="7"
-              >{{blog.blogDescription}}</textarea>
+              >{{blog.blogDescription}}{{description}}</textarea>
             </div>
           </div>
           <div>
             <div class="form-group">
               <label class="form-label">Current Picture</label>
               <img
-                src="/uploads/{{blog.blogPictureName}}"
+                src="/uploads/{{blog.blogPictureName}}{{blogPictureName}}"
                 alt="thumbnail of blog picture"
                 class="thumbnail-picture"
               />
+              <input
+                name="image"
+                class="form-input picture-input"
+                type="file"
+                accept="image/*"
+              />
               {{! Edit picture button }}
-              <a
+              {{!-- <a
                 href="/blog/edit/picture/{{blog.blogId}}/?page={{pageNumber}}"
               ><img
                   class="icons margin-left picture-edit-button"
                   src="/images/edit_icon_dark.png"
                   alt="edit icon"
-                /></a>
+                /></a> --}}
             </div>
           </div>
 

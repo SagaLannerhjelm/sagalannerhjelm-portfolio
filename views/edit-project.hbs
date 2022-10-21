@@ -33,6 +33,7 @@
           action="/project/edit/{{project.projId}}"
           method="post"
           class="card-body side-margin"
+          enctype="multipart/form-data"
         >
           <div class="form-content">
             <div>
@@ -43,7 +44,7 @@
                   class="form-input"
                   type="text"
                   placeholder="Title"
-                  value="{{project.projTitle}}"
+                  value="{{project.projTitle}}{{title}}"
                   required
                 />
               </div>
@@ -55,7 +56,7 @@
                   placeholder="Description"
                   name="description"
                   rows="6"
-                >{{project.projDescription}}</textarea>
+                >{{project.projDescription}}{{description}}</textarea>
               </div>
             </div>
             <div>
@@ -76,28 +77,24 @@
                   class="form-input"
                   type="date"
                   max="{{currentDate}}"
-                  value="{{project.projCreatedDate}}"
+                  value="{{project.projCreatedDate}}{{date}}"
                 />
               </div>
               <div class="form-group">
                 <label class="form-label">Current Picture</label>
-                <img
-                  src="/uploads/{{project.projPictureName}}"
-                  alt="thumbnail of project picture"
-                  class="thumbnail-picture"
+                <img src="/uploads/{{project.projPictureName}}{{projectPicture}}" alt="thumbnail of project picture" class="thumbnail-picture"
                 />
                 {{! Edit picture button }}
-                <a href="/project/edit/picture/{{project.projId}}"><img
+                {{!-- <a href="/project/edit/picture/{{project.projId}}"><img
                     class="icons margin-left picture-edit-button"
                     src="/images/edit_icon_light.png"
                     alt="edit icon"
-                  /></a>
+                  /></a> --}}
+                <input name="image" class="form-input" type="file" accept="image/*">
               </div>
-
             </div>
           </div>
           <div class="button-container p-centered">
-            {{!-- <a class="btn" href="/project/{{project.projId}}">Cancel</a> --}}
             <a href="/project/{{project.projId}}" class="btn">Cancel</a>
             <button type="submit" class="btn btn-primary">Confirm changes</button>
           </div>

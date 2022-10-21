@@ -260,8 +260,12 @@ router.get("/edit/:id", function (request, response) {
 router.post("/edit/:id", function (request, response) {
   const id = request.params.id;
   const pageNumber = parseInt(request.body.page);
+
   const title = request.body.title;
   const description = request.body.description;
+
+  let imageFile;
+  let uploadPath;
 
   const errorMessages = [];
 
@@ -286,24 +290,151 @@ router.post("/edit/:id", function (request, response) {
         "Title is more than " + descriptionMaxLenght + " characters"
       );
     }
+
+    // Validation for file
+    // Following line of code was made with help by https://www.youtube.com/watch?v=hyJiNTFtQic retrieved: 2022-10-06
+    if (!request.files || Object.keys(request.files).length === 0) {
+      errorMessages.push("No file is selected");
+    }
   }
 
   if (errorMessages.length === 0) {
-    db.updateBlogpost(title, description, id, function (error) {
+    // Select old picture name from the database
+    db.getBlogPicture(id, function (error, blog) {
       if (error) {
         errorMessages.push("Internal server error");
 
-        const model = {
-          errorMessages,
-          blog: {
-            blogId: id,
+        db.getBlogpostById(id, function (error, blog) {
+          if (error) {
+            errorMessages.push("Internal server error");
+          }
+          const model = {
+            errorMessages,
+            blog: {
+              blogId: id,
+              title,
+              description,
+            },
+            blogPictureName: blog.blogPictureName,
             title,
             description,
-          },
-        };
-        response.render("edit-blogpost.hbs", model);
+            pageNumber,
+          };
+
+          response.render("edit-blogpost.hbs", model);
+        });
       } else {
-        response.redirect("/blog?page=" + pageNumber);
+        const oldPictureName = blog.blogPictureName;
+        console.log(oldPictureName);
+
+        // Get the new image form the input
+        imageFile = request.files.image;
+        const uniqueFileName =
+          Math.floor(Math.random() * 10000) + imageFile.name;
+        uploadPath = path + uniqueFileName;
+
+        // Move the uploaded file to the right place
+        // Following line of code made with help by https://www.youtube.com/watch?v=hyJiNTFtQic retrieved: 2022-10-06
+        imageFile.mv(uploadPath, function (error) {
+          if (error) {
+            errorMessages.push("Error when uploading file");
+
+            db.getBlogpostById(id, function (error, blog) {
+              if (error) {
+                errorMessages.push("Internal server error");
+              }
+              const model = {
+                errorMessages,
+                blog: {
+                  blogId: id,
+                  title,
+                  description,
+                },
+                blogPictureName: blog.blogPictureName,
+                title,
+                description,
+                pageNumber,
+              };
+
+              response.render("edit-blogpost.hbs", model);
+            });
+          } else {
+            console.log("file moved");
+            db.updateBlogpost(
+              title,
+              description,
+              uniqueFileName,
+              id,
+              function (error) {
+                if (error) {
+                  errorMessages.push("Internal server error");
+
+                  db.getBlogpostById(id, function (error, blog) {
+                    if (error) {
+                      errorMessages.push("Internal server error");
+                    }
+
+                    const model = {
+                      errorMessages,
+                      blog: {
+                        blogId: id,
+                        title,
+                        description,
+                      },
+                      blogPictureName: blog.blogPictureName,
+                      title,
+                      description,
+                      pageNumber,
+                    };
+
+                    response.render("edit-blogpost.hbs", model);
+                  });
+                } else {
+                  // Check if old picture exists in files system
+
+                  if (fs.existsSync("public/uploads/" + oldPictureName)) {
+                    console.log("old picture exists");
+                    // Try to delete the old picture from the file system
+                    fs.unlink(
+                      "public/uploads/" + oldPictureName,
+                      function (error) {
+                        if (error) {
+                          errorMessages.push(
+                            "Problem occured when deleting picture from file system"
+                          );
+                          db.getBlogpostById(id, function (error, blog) {
+                            if (error) {
+                              errorMessages.push("Internal server error");
+                            }
+
+                            const model = {
+                              errorMessages,
+                              blog: {
+                                blogId: id,
+                                title,
+                                description,
+                              },
+                              blogPictureName: blog.blogPictureName,
+                              title,
+                              description,
+                              pageNumber,
+                            };
+
+                            response.render("edit-blogpost.hbs", model);
+                          });
+                        } else {
+                          console.log("old picture deleted");
+
+                          response.redirect("/blog?page=" + pageNumber);
+                        }
+                      }
+                    );
+                  }
+                }
+              }
+            );
+          }
+        });
       }
     });
   } else {
@@ -313,10 +444,17 @@ router.post("/edit/:id", function (request, response) {
       }
       const model = {
         errorMessages,
-        blog,
+        blog: {
+          blogId: id,
+          title,
+          description,
+        },
+        blogPictureName: blog.blogPictureName,
         title,
         description,
+        pageNumber,
       };
+
       response.render("edit-blogpost.hbs", model);
     });
   }

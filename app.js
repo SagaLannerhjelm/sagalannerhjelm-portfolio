@@ -24,7 +24,7 @@ const adminPassword =
   "$2b$10$VIgcvt4aTDB8pKutc6kuLuIGI/urBZOT0G.pAs0md5/fm4PgD6qAG";
 
 const app = express();
-expressHandlebars.register;
+// expressHandlebars.register;
 
 //Middlewares
 
@@ -34,9 +34,11 @@ const hbs = expressHandlebars.create({
 
   // Create custom helper
   helpers: {
-    // Following function retrieved from https://stackoverflow.com/questions/34252817/handlebarsjs-check-if-a-string-is-equal-to-a-value 2022-09-24
-    ifEquals: function (arg1, arg2, options) {
-      return arg1 == arg2 ? options.fn(this) : options.inverse(this);
+    // Following three line of code made with help by https://stackoverflow.com/questions/34252817/handlebarsjs-check-if-a-string-is-equal-to-a-value 2022-09-24
+    ifEquals: function (firstArgument, secondArgument, options) {
+      return firstArgument == secondArgument
+        ? options.fn(this)
+        : options.inverse(this);
     },
   },
 });
@@ -67,7 +69,7 @@ app.use(
   })
 );
 
-app.use(cookieParser());
+// app.use(cookieParser());
 
 app.use(fileUpload());
 
@@ -76,6 +78,7 @@ app.use(function (request, response, next) {
   next();
 });
 
+// Routers
 app.use("/blog", blogRouter);
 
 app.use("/project", projectRouter);
@@ -134,23 +137,6 @@ app.get("/projects", function (request, response) {
     response.render("startpage.hbs", model);
   });
 });
-
-// app.get("/new-blog-picture/:id/", function (request, response) {
-//   const id = request.params.id;
-//   const pageNumber = parseInt(request.params.page);
-
-//   db.getBlogpostById(id, function (error, blog) {
-//     const errorMessages = [];
-//     if (error) {
-//       errorMessages.push("Internal server error");
-//     }
-//     const model = {
-//       blog,
-//       pageNumber,
-//     };
-//     response.render("new-blog-picture.hbs", model);
-//   });
-// });
 
 app.get("/about", function (request, response) {
   response.render("about.hbs");
@@ -343,6 +329,7 @@ app.post("/update-picture/:destination/:id", function (request, response) {
 
                 const model = {
                   errorMessages,
+                  pageNumber,
                 };
 
                 // Render the same page when error occured
@@ -359,6 +346,7 @@ app.post("/update-picture/:destination/:id", function (request, response) {
     } else {
       const model = {
         errorMessages,
+        pageNumber,
       };
       // Render the same page when error occured
       if (destination === "project") {

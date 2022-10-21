@@ -64,7 +64,7 @@
         {{!-- Form for creating comments --}}
         {{#unless ../session.isLoggedIn}}
           <div class="card-title h4 form-title" id="new-comment-section/{{blogId}}">Write a comment</div>
-          <form action="/comments/create?page={{../pageNumber}}" method="post">
+          <form action="/comment/create?page={{../pageNumber}}" method="post">
           <input type="hidden" name="id" value="{{blogId}}">
             <div class="form-group">
               {{!-- <input type="text" name="id" value="{{blogId}}"> --}}
@@ -98,7 +98,7 @@
                     {{!-- edit button --}}
                     <a href="/comment/edit/{{cmntId}}/page={{../../pageNumber}}" class="icon-button blue-button"><img class="icons" src="/images/edit_icon_light.png" alt="Edit icon"/></a>
                     {{!-- delete button --}}
-                    <form action="/comment/delete/{{cmntId}}" method="post">
+                    <form action="/comment/delete/{{cmntId}}?page={{../../pageNumber}}" method="post">
                      <input type="hidden" name="blogId" value="{{blogId}}">
                       <button type="submit" class="icon-button blue-button"><img class="icons" src="/images/delete_icon_light.png" alt="Delete icon"/></button>
                     </form>
