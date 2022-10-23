@@ -149,8 +149,14 @@
 {{else}}
   {{! Page shown when page can not be found }}
   <img src="/images/low_opacity_clouds.png" alt="Illustration of clouds" class="cloud clouds-background"/>
+
+  {{! Show button if user is logged in}}
+  {{#if session.isLoggedIn}}
+    <a class="add-button new-blog-button" href="/blog/create">+</a>
+  {{/if}}
+
   <div class="locked-page">
-    <h4 class="position-relative">This page cannot be found</h4>
+    <h4 class="position-relative">No blogposts exists yet</h4>
   </div>
 
 {{/if}}
