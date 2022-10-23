@@ -18,7 +18,6 @@ const loginRouter = require("./routers/login-router");
 let viewAllProjects;
 
 const app = express();
-// expressHandlebars.register;
 
 //Middlewares
 
@@ -38,13 +37,7 @@ const hbs = expressHandlebars.create({
   },
 });
 
-app.engine(
-  "hbs",
-  hbs.engine
-  // expressHandlebars.engine({
-  //   defaultLayout: "main.hbs",
-  // })
-);
+app.engine("hbs", hbs.engine);
 
 // Middlewares
 
@@ -92,7 +85,6 @@ app.get("/", function (request, response) {
     }
 
     const model = {
-      // session: request.session,
       errorMessages,
       projects,
       viewAllProjects,

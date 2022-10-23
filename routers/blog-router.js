@@ -12,8 +12,6 @@ const postPerPage = 5;
 let oneStepBackInDir = pathModule.join(__dirname, "../");
 const path = oneStepBackInDir + "public/uploads/";
 
-console.log(path);
-
 // Calculate today's date
 const today = new Date();
 const year = today.getFullYear();
@@ -72,28 +70,14 @@ router.get("/", function (request, response) {
         if (error) {
           serverErrorMessages.push("Internal server error");
 
-          const model = {
-            blogposts,
-            serverErrorMessages,
-            pageNumber,
-            pageNumbers,
-          };
-
-          response.render("blog.hbs", model);
+          serverErrorBlog(blogposts, serverErrorMessages, pageNumber, pageNumbers, response);
         } else {
           // Select comments
           db.getAllComments(function (error, comments) {
             if (error) {
               serverErrorMessages.push("Internal server error when selecting comments");
 
-              const model = {
-                blogposts,
-                serverErrorMessages,
-                pageNumber,
-                pageNumbers,
-              };
-
-              response.render("blog.hbs", model);
+              serverErrorBlog(blogposts, serverErrorMessages, pageNumber, pageNumbers, response);
             } else {
               // Filter comments on blogposts
               for (let b of blogposts) {
@@ -169,7 +153,6 @@ router.post("/create", function (request, response) {
     let imageFile = request.files.image;
     uniqueFileName = Math.floor(Math.random() * 10000) + imageFile.name;
     let uploadPath = path + uniqueFileName;
-    console.log(uniqueFileName);
 
     if (errorMessages.length === 0) {
       // Move the uploaded file to the right place
@@ -187,8 +170,6 @@ router.post("/create", function (request, response) {
 
           response.render("new-blogpost.hbs", model);
         } else {
-          console.log("File moved");
-
           // When file is uploaded to the file system, create the blog
 
           db.createBlog(title, description, currentDate, uniqueFileName, function (error) {
@@ -280,7 +261,6 @@ router.post("/edit/:id", function (request, response) {
         errorEditBlog(id, errorMessages, title, description, pageNumber, response);
       } else {
         const oldPictureName = blog.blogPictureName;
-        console.log(oldPictureName);
 
         // Get the new image form the input
         if (request.files != undefined) {
@@ -296,7 +276,6 @@ router.post("/edit/:id", function (request, response) {
 
               errorEditBlog(id, errorMessages, title, description, pageNumber, response);
             } else {
-              console.log("file moved");
               db.updateBlogpost(title, description, uniqueFileName, id, function (error) {
                 if (error) {
                   errorMessages.push("Internal server error");
@@ -306,7 +285,6 @@ router.post("/edit/:id", function (request, response) {
                   // Check if old picture exists in files system
 
                   if (fs.existsSync("public/uploads/" + oldPictureName)) {
-                    console.log("old picture exists");
                     // Try to delete the old picture from the file system
                     fs.unlink("public/uploads/" + oldPictureName, function (error) {
                       if (error) {
@@ -314,8 +292,6 @@ router.post("/edit/:id", function (request, response) {
 
                         errorEditBlog(id, errorMessages, title, description, pageNumber, response);
                       } else {
-                        console.log("old picture deleted");
-
                         response.redirect("/blog?page=" + pageNumber);
                       }
                     });
@@ -357,6 +333,7 @@ router.post("/delete/:id", function (request, response) {
     if (error) {
       errorMessages.push("Internal server error");
     }
+
     const pictureFileName = blogpost.blogPictureName;
 
     // Try to delete the file form the file system
@@ -401,27 +378,16 @@ router.post("/delete/:id", function (request, response) {
   });
 });
 
-// /blog/edit/picture/id
+function serverErrorBlog(blogposts, serverErrorMessages, pageNumber, pageNumbers, response) {
+  const model = {
+    blogposts,
+    serverErrorMessages,
+    pageNumber,
+    pageNumbers,
+  };
 
-router.get("/edit/picture/:id", function (request, response) {
-  const id = request.params.id;
-  const pageNumber = parseInt(request.query.page);
-
-  db.getBlogpostById(id, function (error, blog) {
-    const errorMessages = [];
-
-    if (error) {
-      errorMessages.push("Internal server error");
-    }
-
-    const model = {
-      blog,
-      pageNumber,
-      errorMessages,
-    };
-    response.render("edit-blog-picture.hbs", model);
-  });
-});
+  response.render("blog.hbs", model);
+}
 
 function errorEditBlog(id, errorMessages, title, description, pageNumber, response) {
   db.getBlogpostById(id, function (error, blog) {
@@ -432,12 +398,10 @@ function errorEditBlog(id, errorMessages, title, description, pageNumber, respon
       errorMessages,
       blog: {
         blogId: id,
-        title,
-        description,
+        blogTitle: title,
+        blogDescription: description,
+        blogPictureName: blog.blogPictureName,
       },
-      blogPictureName: blog.blogPictureName,
-      title,
-      description,
       pageNumber,
     };
 

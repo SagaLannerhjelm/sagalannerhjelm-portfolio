@@ -73,16 +73,7 @@ router.post("/create", function (request, response) {
   if (!request.files) {
     errorMessages.push("No file is selected");
 
-    const model = {
-      errorMessages,
-      title,
-      description,
-      date,
-      category,
-      currentDate,
-    };
-
-    response.render("new-project.hbs", model);
+    errorNewProj(errorMessages, title, description, date, category, response);
   } else {
     // Following line of code is done with help from
     // https://www.youtube.com/watch?v=hyJiNTFtQic, retrieved: 2022-10-06
@@ -90,7 +81,6 @@ router.post("/create", function (request, response) {
     let imageFile = request.files.image;
     uniqueFileName = Math.floor(Math.random() * 10000) + imageFile.name;
     let uploadPath = path + uniqueFileName;
-    console.log(uniqueFileName);
 
     if (errorMessages.length === 0) {
       // Move the uploaded file to the right place
@@ -100,29 +90,14 @@ router.post("/create", function (request, response) {
         if (error) {
           errorMessages.push("Error when uploading file");
 
-          const model = {
-            currentDate,
-            errorMessages,
-            title,
-            description,
-            date,
-            category,
-          };
-
-          response.render("new-project.hbs", model);
+          errorNewProj(errorMessages, title, description, date, category, response);
         } else {
-          console.log("File moved");
-
           // When file upload has been uploaded to the file systen, create the project
           db.createProject(title, description, date, category, uniqueFileName, function (error) {
             if (error) {
               errorMessages.push("Internal server error");
-              const model = {
-                errorMessages,
-                currentDate,
-              };
 
-              response.render("new-project.hbs", model);
+              errorNewProj(errorMessages, title, description, date, category, response);
             } else {
               response.redirect("/#projects");
             }
@@ -130,16 +105,7 @@ router.post("/create", function (request, response) {
         }
       });
     } else {
-      const model = {
-        errorMessages,
-        title,
-        description,
-        date,
-        category,
-        currentDate,
-      };
-
-      response.render("new-project.hbs", model);
+      errorNewProj(errorMessages, title, description, date, category, response);
     }
   }
 });
@@ -229,10 +195,9 @@ router.post("/edit/:id", function (request, response) {
       if (error) {
         errorMessages.push("Internal server error");
 
-        errorEditBlog(id, errorMessages, title, description, date, category, response);
+        errorEditProj(id, errorMessages, title, description, date, category, response);
       } else {
         const oldPictureName = project.projPictureName;
-        console.log(oldPictureName);
 
         // Get the new image form the input
         if (request.files != undefined) {
@@ -246,29 +211,24 @@ router.post("/edit/:id", function (request, response) {
             if (error) {
               errorMessages.push("Error when uploading file");
 
-              errorEditBlog(id, errorMessages, title, description, date, category, response);
+              errorEditProj(id, errorMessages, title, description, date, category, response);
             } else {
-              console.log("file moved");
-
               db.updateProject(title, description, date, category, uniqueFileName, id, function (error) {
                 if (error) {
                   errorMessages.push("Internal server error");
 
-                  errorEditBlog(id, errorMessages, title, description, date, category, response);
+                  errorEditProj(id, errorMessages, title, description, date, category, response);
                 } else {
                   // Check if old picture exists in files system
 
                   if (fs.existsSync("public/uploads/" + oldPictureName)) {
-                    console.log("old picture exists");
                     // Try to delete the old picture from the file system
                     fs.unlink("public/uploads/" + oldPictureName, function (error) {
                       if (error) {
                         errorMessages.push("Problem occured when deleting picture from file system");
 
-                        errorEditBlog(id, errorMessages, title, description, date, category, response);
+                        errorEditProj(id, errorMessages, title, description, date, category, response);
                       } else {
-                        console.log("old picture deleted");
-
                         response.redirect("/project/" + id);
                       }
                     });
@@ -283,7 +243,7 @@ router.post("/edit/:id", function (request, response) {
             if (error) {
               errorMessages.push("Internal server error");
 
-              errorEditBlog(id, errorMessages, title, description, date, category, response);
+              errorEditProj(id, errorMessages, title, description, date, category, response);
             } else {
               response.redirect("/project/" + id);
             }
@@ -292,28 +252,8 @@ router.post("/edit/:id", function (request, response) {
       }
     });
   } else {
-    errorEditBlog(id, errorMessages, title, description, date, category, response);
+    errorEditProj(id, errorMessages, title, description, date, category, response);
   }
-});
-
-// /project/edit/picture/id
-
-router.get("/edit/picture/:id", function (request, response) {
-  const id = request.params.id;
-
-  db.getProjectById(id, function (error, project) {
-    const errorMessages = [];
-
-    if (error) {
-      errorMessages.push("Internal server error");
-    }
-
-    const model = {
-      project,
-    };
-
-    response.render("edit-project-picture.hbs", model);
-  });
 });
 
 // /project/delete/id
@@ -329,37 +269,31 @@ router.post("/delete/:id", function (request, response) {
   db.getProjectPicture(id, function (error, project) {
     if (error) {
       errorMessages.push("Internal server error");
-    }
 
-    const pictureFileName = project.projPictureName;
+      errorDeleteProj(id, errorMessages, response);
+    } else {
+      const pictureFileName = project.projPictureName;
 
-    // Try to delete the file form the file system
-    fs.unlink("public/uploads/" + pictureFileName, function (error) {
-      if (error) {
-        errorMessages.push("Problem occured when deleting picture from file system");
-      }
-
-      // If no error with deleting form filesystem, then delete from database
-      db.deleteProjectById(id, function (error) {
+      // Try to delete the file form the file system
+      fs.unlink("public/uploads/" + pictureFileName, function (error) {
         if (error) {
-          errorMessages.push("Internal server error");
+          errorMessages.push("Problem occured when deleting picture from file system");
 
-          db.getProjectById(id, function (error, project) {
+          errorDeleteProj(id, errorMessages, response);
+        } else {
+          // If no error with deleting form filesystem, then delete from database
+          db.deleteProjectById(id, function (error) {
             if (error) {
               errorMessages.push("Internal server error");
+
+              errorDeleteProj(id, errorMessages, response);
+            } else {
+              response.redirect("/#projects");
             }
-            const model = {
-              project,
-              errorMessages,
-            };
-            response.render("project-detail.hbs", model);
           });
-        } else {
-          response.redirect("/#projects");
         }
       });
-      console.log("File is deleted.");
-    });
+    }
   });
 });
 
@@ -374,17 +308,51 @@ router.get("/:id", function (request, response) {
 
     if (error) {
       errorMessages.push("Internal server error");
-    }
 
+      const model = {
+        errorMessages,
+        project: "Error",
+      };
+
+      response.render("project-detail.hbs", model);
+    } else {
+      const model = {
+        project,
+      };
+
+      response.render("project-detail.hbs", model);
+    }
+  });
+});
+
+function errorDeleteProj(id, errorMessages, response) {
+  db.getProjectById(id, function (error, project) {
+    if (error) {
+      errorMessages.push("Internal server error");
+    }
     const model = {
       project,
+      errorMessages,
     };
 
     response.render("project-detail.hbs", model);
   });
-});
+}
 
-function errorEditBlog(id, errorMessages, title, description, date, category, response) {
+function errorNewProj(errorMessages, title, description, date, category, response) {
+  const model = {
+    errorMessages,
+    title,
+    description,
+    date,
+    category,
+    currentDate,
+  };
+
+  response.render("new-project.hbs", model);
+}
+
+function errorEditProj(id, errorMessages, title, description, date, category, response) {
   db.getProjectById(id, function (error, project) {
     if (error) {
       errorMessages.push("Internal server error");
@@ -400,15 +368,12 @@ function errorEditBlog(id, errorMessages, title, description, date, category, re
       errorMessages,
       project: {
         projId: id,
-        title,
-        description,
-        date,
-        category,
+        projTitle: title,
+        projDescription: description,
+        projCreatedDate: date,
+        projCategory: category,
+        projPictureName: project.projPictureName,
       },
-      title,
-      description,
-      date,
-      projectPicture: project.projPictureName,
       illustrationSelected,
       gameSelected,
       websiteSelected,

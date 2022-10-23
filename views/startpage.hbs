@@ -34,6 +34,18 @@
         {{/if}}">Graphic design</a>
     </div>
   </div>
+
+  {{! Display error messages }}
+  {{#if errorMessages.length}}
+    <div class="error-message-container bg-error">
+      <ul class="error-message text-light">
+        {{#each errorMessages}}
+          <li class="error-message-list">{{this}}</li>
+        {{/each}}
+      </ul>
+    </div>
+  {{/if}}
+
   {{! Show add button if user is logged in }}
   {{#if session.isLoggedIn}}
     <a class="add-button add-proj-button" href="/project/create">+</a>
