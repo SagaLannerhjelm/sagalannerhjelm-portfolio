@@ -1,152 +1,156 @@
-
-
 {{#if blogposts}}
 
-<div class="blog-page padding-on-bottom">
+  <div class="blog-page padding-on-bottom">
 
-{{#if session.isLoggedIn}}
-  <a class="add-button new-blog-button" href="/blog/create">+</a>
-{{/if}}
+    {{! Show button if user is logged in}}
+    {{#if session.isLoggedIn}}
+      <a class="add-button new-blog-button" href="/blog/create">+</a>
+    {{/if}}
 
-{{! Display server error messages }}
-  {{#if serverErrorMessages.length}}
-    <div class="error-message-container bg-error">
-      <ul class="error-message text-light">
-        {{#each serverErrorMessages}}
-          <li class="error-message-list">{{this}}</li>
-        {{/each}}
-      </ul>
-    </div>
-  {{/if}}
-
-  {{#if blogposts.length}}
-    {{#each blogposts as | blogpost |}}
-      <div class="blog-container" id="blog/{{blogId}}">
-        <h2 class="title text-primary float-left">{{blogTitle}}
-          {{#if ../session.isLoggedIn}}
-            {{!-- Edit button --}}
-            <a href="/blog/edit/{{blogId}}?page={{../pageNumber}}"><img class="icons margin-left" src="/images/edit_icon_dark.png"  alt="Edit icon"/></a>
-
-            {{!-- Delete button --}}
-            <form
-              action="/blog/delete/{{blogId}}?page={{../pageNumber}}"
-              method="post"
-              class="delete-button">
-              <button type="submit" class="icon-button white-button">
-                <img class="icons" src="/images/delete_icon_dark.png" alt="Delete icon" />
-              </button>
-            </form>
-          {{/if}}
-        </h2>
-        <p class="blog-date">{{blogPublishedDate}}</p>
-        <p class="blog-descr">{{blogDescription}}</p>
-        <img class="blog-pic" src="/uploads/{{blogPictureName}}" alt="Blog picture">
-
-      
-        {{!-- {{#if ../errorAtBlogId.length}} --}}
-          {{#ifEquals ../errorAtBlogId blogpost.blogId}}
-          
-            {{! Display error messages }}
-              {{#if ../errorMessages.length}}
-                <div class="error-message-container-extended bg-error">
-                  <ul class="error-message text-light">
-                    {{#each ../errorMessages}}
-                      <li class="error-message-list">{{this}}</li>
-                    {{/each}}
-                  </ul>
-                </div>
-              {{/if}}
-            
-          {{/ifEquals}}
-        {{!-- {{/if}} --}}
-         
-
-        {{!-- Form for creating comments --}}
-        {{#unless ../session.isLoggedIn}}
-          <div class="card-title h4 form-title" id="new-comment-section/{{blogId}}">Write a comment</div>
-          <form action="/comment/create?page={{../pageNumber}}" method="post">
-          <input type="hidden" name="id" value="{{blogId}}">
-            <div class="form-group">
-              {{!-- <input type="text" name="id" value="{{blogId}}"> --}}
-              <label class="form-label">Name</label>
-              <input class="form-input" type="text" name="name" placeholder="Write your name here...">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Comment</label>
-              <input class="form-input" type="text" name="comment" placeholder="Write a comment...">
-            </div>
-            <input class="btn btn-primary send-comment-button" type="submit" value="Send">
-          </form>
-        {{/unless}}
+    {{! Display server error messages }}
+    {{#if serverErrorMessages.length}}
+      <div class="error-message-container bg-error">
+        <ul class="error-message text-light">
+          {{#each serverErrorMessages}}
+            <li class="error-message-list">{{this}}</li>
+          {{/each}}
+        </ul>
       </div>
-      {{!-- Show comments --}}
-      {{#if comments}}
-        <h5 class="comments-title" id="comment-section/{{blogId}}">Comments</h5>
-        {{#each comments}}
-          {{!-- Show the right comments on the right blogpost --}}
-          {{!-- {{#ifEquals cmnt.blogId blogpost.blogId}} --}}
+    {{/if}}
+
+    {{! Show blogposts }}
+    {{#if blogposts.length}}
+      {{#each blogposts as | blogpost |}}
+      
+        {{! Content of each blogpost }}
+        <div class="blog-container" id="blog/{{blogId}}">
+          <h2 class="title text-primary float-left">{{blogTitle}}
+
+            {{! Only show delete and edit button when user is logged in }}
+            {{#if ../session.isLoggedIn}}
+              {{! Edit button }}
+              <a href="/blog/edit/{{blogId}}?page={{../pageNumber}}">
+                <img class="icons margin-left" src="/images/edit_icon_dark.png"  alt="Edit icon"/>
+              </a>
+              {{! Delete button }}
+              <form action="/blog/delete/{{blogId}}?page={{../pageNumber}}" method="post" class="delete-button">
+                <button type="submit" class="icon-button white-button">
+                  <img class="icons" src="/images/delete_icon_dark.png" alt="Delete icon" />
+                </button>
+              </form>
+            {{/if}}
+          </h2>
+
+          {{! date, description and picture }}
+          <p class="blog-date">{{blogPublishedDate}}</p>
+          <p class="blog-descr">{{blogDescription}}</p>
+          <img class="blog-pic" src="/uploads/{{blogPictureName}}" alt="Blog picture">
+
+          {{! Display error message on the the right blogpost }}
+          {{#ifEquals ../errorAtBlogId blogpost.blogId}}
+            {{! Display error messages }}
+            {{#if ../errorMessages.length}}
+              <div class="error-message-container-extended bg-error">
+                <ul class="error-message text-light">
+                  {{#each ../errorMessages}}
+                    <li class="error-message-list">{{this}}</li>
+                  {{/each}}
+                </ul>
+              </div>
+            {{/if}}
+          {{/ifEquals}}
+          
+          {{! Only show following part if user is not logged in }}
+          {{#unless ../session.isLoggedIn}}
+            <div class="card-title h4 form-title" id="new-comment-section/{{blogId}}">Write a comment</div>
+
+            {{! Form for creating comments }}
+            <form action="/comment/create?page={{../pageNumber}}" method="post">
+              <input type="hidden" name="id" value="{{blogId}}">
+
+              <div class="form-group">
+                <label class="form-label" for="commentName">Name</label>
+                <input class="form-input" type="text" name="name" id="commentName" placeholder="Write your name here..." value="{{../name}}">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="commentContent">Comment</label>
+                <input class="form-input" type="text" name="comment" id="commentContent" placeholder="Write a comment..." value="{{../comment}}">
+              </div>
+
+              <input class="btn btn-primary send-comment-button" type="submit" value="Send">
+            </form>
+          {{/unless}}
+
+        </div>
+
+        {{! Show comments }}
+        {{#if comments}}
+          <h5 class="comments-title" id="comment-section/{{blogId}}">Comments</h5>
+          {{#each comments}}
             <div class="comment-container" id="comment/{{cmntId}}">
+
               <div class="comment-grid">
                 <p class="name">{{cmntName}}</p>
                 <p class="comment-date">{{cmntPublishedDate}}</p>
               </div>
+
               <div class="comment-grid ">
                 <p class="comment">{{cmntContent}}</p>
-                {{!-- Buttons for editing and deleting comment --}}
+                {{! Buttons for editing and deleting comment }}
                 <div class="float-right comment-icons">
                   {{#if ../../session.isLoggedIn}}
-                    {{!-- edit button --}}
-                    <a href="/comment/edit/{{cmntId}}/page={{../../pageNumber}}" class="icon-button blue-button"><img class="icons" src="/images/edit_icon_light.png" alt="Edit icon"/></a>
-                    {{!-- delete button --}}
+                    {{! edit button }}
+                    <a href="/comment/edit/{{cmntId}}/page={{../../pageNumber}}" class="icon-button blue-button">
+                      <img class="icons" src="/images/edit_icon_light.png" alt="Edit icon"/>
+                    </a>
+                    {{! delete button }}
                     <form action="/comment/delete/{{cmntId}}?page={{../../pageNumber}}" method="post">
-                     <input type="hidden" name="blogId" value="{{blogId}}">
-                      <button type="submit" class="icon-button blue-button"><img class="icons" src="/images/delete_icon_light.png" alt="Delete icon"/></button>
+                      <input type="hidden" name="blogId" value="{{blogId}}">
+                      <button type="submit" class="icon-button blue-button">
+                        <img class="icons" src="/images/delete_icon_light.png" alt="Delete icon"/>
+                      </button>
                     </form>
                   {{/if}}
                 </div>
               </div>
+
             </div>
-          {{!-- {{/ifEquals}} --}}
-        {{/each}}
-      {{/if}}
-
-    {{/each}}
-    {{else}}
-        <p>No blogposts exists yet...</p>
-  {{/if}}
-</div>
-
-
- {{!-- Pagination --}}
-<div class="blog-pagination">
-  {{#if pageNumbers.length}}
-    <ul class="pagination">
-      <li class="page-item 
-      {{#if previousPageDisabled}}disabled{{/if}}
-      ">
-        <a href="{{previousPageUrl}}" tabindex="-1">Previous</a>
-      </li>
-      {{#each pageNumbers}}
-      <li class="page-item {{#if this.active}} active {{/if}}
-      ">
-        <a href="/blog?page={{this.page}}" class="{{#unless this.active}}text-primary{{/unless}}">{{this.page}}</a>
-      </li>
+          {{/each}}
+        {{/if}}
       {{/each}}
-      <li class="page-item {{#if nextPageDisabled}}disabled{{/if}}">
-        <a href="{{nextPageUrl}}">Next</a>
-      </li>
-    </ul>
-  {{/if}}
-</div> 
+    {{else}}
+      <p>No blogposts exists yet...</p>
+    {{/if}}
+  </div>
+
+
+  {{! Pagination }}
+  <div class="blog-pagination">
+    {{#if pageNumbers.length}}
+      <ul class="pagination">
+        <li class="page-item 
+        {{#if previousPageDisabled}}disabled{{/if}}
+        ">
+          <a href="{{previousPageUrl}}" tabindex="-1">Previous</a>
+        </li>
+        {{#each pageNumbers}}
+        <li class="page-item {{#if this.active}} active {{/if}}">
+          <a href="/blog?page={{this.page}}" class="{{#unless this.active}}text-primary{{/unless}}">{{this.page}}</a>
+        </li>
+        {{/each}}
+        <li class="page-item {{#if nextPageDisabled}}disabled{{/if}}">
+          <a href="{{nextPageUrl}}">Next</a>
+        </li>
+      </ul>
+    {{/if}}
+  </div> 
 
 {{else}}
-  <img
-      src="/images/low_opacity_clouds.png"
-      alt="Illustration of clouds"
-      class="cloud clouds-background"
-    />
-    <div class="locked-page">
-        <h4 class="position-relative">This page cannot be found</h4>
-    </div>
+  {{! Page shown when page can not be found }}
+  <img src="/images/low_opacity_clouds.png" alt="Illustration of clouds" class="cloud clouds-background"/>
+  <div class="locked-page">
+    <h4 class="position-relative">This page cannot be found</h4>
+  </div>
 
 {{/if}}

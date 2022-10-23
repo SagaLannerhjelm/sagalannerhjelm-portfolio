@@ -5,14 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     {{! Following two links are part of the css framework Spectre https://picturepan2.github.io/spectre/index.html }}
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/spectre.css/dist/spectre.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/spectre.css/dist/spectre-icons.min.css"
-    />
+    <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre.min.css" />
+    <link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre-icons.min.css" />
 
     {{! CSS links }}
     <link rel="stylesheet" href="/main.css" />
@@ -24,14 +18,11 @@
     <link rel="stylesheet" href="/creating_and_editing.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
 
-    {{!   Font: Raleway, ny Matt McInerney, Pablo Impallari and Rodrigo Fuenzalida. From google fonts. 
-    Link: https://fonts.google.com/specimen/Raleway?category=Sans+Serif&thickness=5&preview.text=Saga%20Studio&preview.size=22&preview.text_type=custom }}
+    {{! Font: Raleway, ny Matt McInerney, Pablo Impallari and Rodrigo Fuenzalida. From google fonts. Link: 
+    https://fonts.google.com/specimen/Raleway?category=Sans+Serif&thickness=5&preview.text=Saga%20Studio&preview.size=22&preview.text_type=custom }}
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Raleway:wght@600&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@600&display=swap" rel="stylesheet" />
 
     <title>Saga Studio</title>
   </head>
@@ -53,16 +44,11 @@
             <a href="/login" class="text-primary">Login</a>
           {{else}}
             <form action="/logout" method="post">
-              <input
-                class="logout-button text-primary"
-                type="submit"
-                value="Logout"
-              />
+              <input class="logout-button text-primary" type="submit" value="Logout" />
             </form>
           {{/unless}}
         </span>
       </div>
-
     </nav>
 
     {{! Navigation bar when window size is small }}
@@ -78,20 +64,16 @@
           <a href="/login" class="text-primary">Login</a>
         {{else}}
           <form action="/logout" method="post">
-            <input
-              class="logout-button text-primary"
-              type="submit"
-              value="Logout"
-            />
+            <input class="logout-button text-primary" type="submit" value="Logout" />
           </form>
         {{/unless}}
       </div>
-
     </nav>
 
-    <div class="main-content">
+    {{! Main content on the page is shown here }}
+    <main class="main-content">
       {{{body}}}
-    </div>
+    </main>
 
     <footer>
       <p class="footer">Copyright &copy; 2022 Saga Lannerhjelm</p>

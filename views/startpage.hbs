@@ -1,3 +1,4 @@
+{{! Intro / start section }}
 <div class="intro-container">
   <div class="p-fixed place-below">
     <div class="intro place-below intro-text-container">
@@ -8,33 +9,43 @@
 
 </div>
 
+{{! Project section }}
 <div class="projects-container padding-on-bottom">
-  <div class="project-section" id="projects"><h2 class="title">Projects</h2>
+  <div class="project-section" id="projects">
+    <h2 class="title">Projects</h2>
+    {{! Buttons for sorting projects based on category }}
     <div class="filter-buttons-container">
       <a href="/#projects" class="chip {{#if viewAllProjects}}btn btn-primary{{/if}}">All</a>
-      <a href="/projects?category=Illustration#projects" class="chip {{#if illustrationsSelected}}btn btn-primary{{/if}}">Illustrations</a>
-      <a href="/projects?category=Game development#projects"class="chip {{#if gamesSelected}}btn btn-primary{{/if}}">Games</a>
-      <a href="/projects?category=Web design#projects" class="chip {{#if webDesignsSelected}}btn btn-primary{{/if}}">Web design</a>
-      <a href="/projects?category=Graphic design#projects" class="chip {{#if graphicDesignsSelected}}btn btn-primary{{/if}}">Graphic design</a>
+      <a href="/projects?category=Illustration#projects" class="chip 
+        {{#if illustrationsSelected}}
+          btn btn-primary
+        {{/if}}">Illustrations</a>
+      <a href="/projects?category=Game development#projects"class="chip 
+        {{#if gamesSelected}}
+          btn btn-primary
+        {{/if}}">Games</a>
+      <a href="/projects?category=Web design#projects" class="chip 
+        {{#if webDesignsSelected}}
+          btn btn-primary
+        {{/if}}">Web design</a>
+      <a href="/projects?category=Graphic design#projects" class="chip 
+        {{#if graphicDesignsSelected}}
+          btn btn-primary
+        {{/if}}">Graphic design</a>
     </div>
   </div>
-
+  {{! Show add button if user is logged in }}
   {{#if session.isLoggedIn}}
     <a class="add-button add-proj-button" href="/project/create">+</a>
   {{/if}}
-
+  {{! Grid of projects }}
   <div class="project-grid">
     {{#if projects.length}}
       {{#each projects}}
         <a href="/project/{{projId}}" class="img-responsive img-fit-cover">
-          <img
-            src="/uploads/{{projPictureName}}"
-            class="project-picture"
-            alt="Picture of a project"
-          />
+          <img src="/uploads/{{projPictureName}}" class="project-picture" alt="Picture of a project"/>
         </a>
       {{/each}}
-
     {{else}}
       <p class="p-centered">No projects exist.</p>
     {{/if}}

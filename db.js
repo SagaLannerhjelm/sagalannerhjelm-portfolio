@@ -34,6 +34,8 @@ db.run(`
   )
 `);
 
+// For project
+
 exports.getAllProjects = function (callback) {
   const query = `SELECT * FROM projects ORDER BY projId DESC`;
 
@@ -60,7 +62,53 @@ exports.getProjectById = function (id, callback) {
   });
 };
 
-// For blog page
+exports.getProjectPicture = function (id, callback) {
+  const imgUrlQuery = `SELECT projPictureName FROM projects WHERE projId = ?`;
+  const values = [id];
+
+  db.get(imgUrlQuery, values, function (error, project) {
+    callback(error, project);
+  });
+};
+
+exports.createProject = function (title, description, date, category, uniqueFileName, callback) {
+  const query = `INSERT INTO projects (projTitle, projDescription, projCreatedDate, projCategory, projPictureName) VALUES (?, ?, ?, ?, ?)`;
+  const values = [title, description, date, category, uniqueFileName];
+
+  db.run(query, values, function (error) {
+    callback(error);
+  });
+};
+
+exports.updateProject = function (title, description, date, category, uniqueFileName, id, callback) {
+  if (uniqueFileName === "") {
+    const query = `UPDATE projects SET projTitle = ?, projDescription = ?, projCreatedDate = ?, projCategory = ? WHERE projId = ?`;
+    const values = [title, description, date, category, id];
+
+    db.run(query, values, function (error) {
+      callback(error);
+    });
+  } else {
+    const query = `UPDATE projects SET projTitle = ?, projDescription = ?, projCreatedDate = ?, projCategory = ?, projPictureName = ? WHERE projId = ?`;
+    const values = [title, description, date, category, uniqueFileName, id];
+
+    db.run(query, values, function (error) {
+      callback(error);
+    });
+  }
+};
+
+exports.deleteProjectById = function (id, callback) {
+  const query = `DELETE FROM projects WHERE projId = ?`;
+  const values = [id];
+
+  db.run(query, values, function (error) {
+    callback(error);
+  });
+};
+
+// For blogposts
+
 exports.countBlogposts = function (callback) {
   const countQuery = `SELECT COUNT(*) as tableRows FROM blogposts`;
 
@@ -78,26 +126,67 @@ exports.getBlogpostsByPage = function (postPerPage, offsetValue, callback) {
   });
 };
 
+exports.getBlogpostById = function (id, callback) {
+  const query = `SELECT * FROM blogposts WHERE blogId = ?`;
+  const values = [id];
+
+  db.get(query, values, function (error, blog) {
+    callback(error, blog);
+  });
+};
+
+exports.getBlogPicture = function (id, callback) {
+  const imgUrlQuery = `SELECT blogPictureName FROM blogposts WHERE blogId = ?`;
+  const values = [id];
+
+  db.get(imgUrlQuery, values, function (error, blogpost) {
+    callback(error, blogpost);
+  });
+};
+
+exports.createBlog = function (title, description, currentDate, uniqueFileName, callback) {
+  const query = `INSERT INTO blogposts (blogTitle, blogDescription, blogPublishedDate, blogPictureName) VALUES (?, ?, ?, ?)`;
+  const values = [title, description, currentDate, uniqueFileName];
+
+  db.run(query, values, function (error) {
+    callback(error);
+  });
+};
+
+exports.updateBlogpost = function (title, description, uniqueFileName, id, callback) {
+  if (uniqueFileName === "") {
+    const query = `UPDATE blogposts SET blogTitle = ?, blogDescription = ? WHERE blogId = ?`;
+    const values = [title, description, id];
+
+    db.run(query, values, function (error) {
+      callback(error);
+    });
+  } else {
+    const query = `UPDATE blogposts SET blogTitle = ?, blogDescription = ?, blogPictureName = ? WHERE blogId = ?`;
+    const values = [title, description, uniqueFileName, id];
+
+    db.run(query, values, function (error) {
+      callback(error);
+    });
+  }
+};
+
+exports.deleteBlogById = function (id, callback) {
+  const blogpostQuery = `DELETE FROM blogposts WHERE blogId = ?`;
+  const values = [id];
+
+  db.run(blogpostQuery, values, function (error) {
+    callback(error);
+  });
+};
+
+// For comments
+
 exports.getAllComments = function (callback) {
   const commentsQuery = `SELECT * FROM comments`;
 
   db.all(commentsQuery, function (error, comments) {
     callback(error, comments);
-  });
-};
-
-exports.createComment = function (
-  name,
-  currentDate,
-  comment,
-  blogId,
-  callback
-) {
-  const query = `INSERT INTO comments (cmntName, cmntPublishedDate, cmntContent, blogId) VALUES (?, ?, ?, ?)`;
-  const values = [name, currentDate, comment, blogId];
-
-  db.run(query, values, function (error) {
-    callback(error);
   });
 };
 
@@ -107,6 +196,15 @@ exports.getCommentById = function (id, callback) {
 
   db.get(query, values, function (error, comment) {
     callback(error, comment);
+  });
+};
+
+exports.createComment = function (name, currentDate, comment, blogId, callback) {
+  const query = `INSERT INTO comments (cmntName, cmntPublishedDate, cmntContent, blogId) VALUES (?, ?, ?, ?)`;
+  const values = [name, currentDate, comment, blogId];
+
+  db.run(query, values, function (error) {
+    callback(error);
   });
 };
 
@@ -133,150 +231,6 @@ exports.deleteCommenById = function (id, callback) {
   const values = [id];
 
   db.run(query, values, function (error) {
-    callback(error);
-  });
-};
-
-exports.getBlogpostById = function (id, callback) {
-  const query = `SELECT * FROM blogposts WHERE blogId = ?`;
-  const values = [id];
-
-  db.get(query, values, function (error, blog) {
-    callback(error, blog);
-  });
-};
-
-// exports.getOldProjectPicture = function (id, callback) {
-//   const oldPictureQuery = `SELECT projPictureName FROM projects WHERE projId = ?`;
-//   const values = [id];
-
-//   db.get(oldPictureQuery, values, function (error, project) {
-//     callback(error, project);
-//   });
-// };
-
-exports.getProjectPicture = function (id, callback) {
-  const imgUrlQuery = `SELECT projPictureName FROM projects WHERE projId = ?`;
-  const values = [id];
-
-  db.get(imgUrlQuery, values, function (error, project) {
-    callback(error, project);
-  });
-};
-
-// exports.updateProjectPicture = function (uniqueFileName, id, callback) {
-//   const query = `UPDATE projects SET projPictureName = ? WHERE projId = ?`;
-//   const values = [uniqueFileName, id];
-
-//   db.run(query, values, function (error) {
-//     callback(error);
-//   });
-// };
-
-exports.getBlogPicture = function (id, callback) {
-  const imgUrlQuery = `SELECT blogPictureName FROM blogposts WHERE blogId = ?`;
-  const values = [id];
-
-  db.get(imgUrlQuery, values, function (error, blogpost) {
-    callback(error, blogpost);
-  });
-};
-
-// exports.getOldBlogPicture = function (id, callback) {
-//   const oldPictureQuery = `SELECT blogPictureName FROM blogposts WHERE blogId = ?`;
-//   const values = [id];
-
-//   db.get(oldPictureQuery, values, function (error, blog) {
-//     callback(error, blog);
-//   });
-// };
-
-// exports.updateBlogPicture = function (uniqueFileName, id, callback) {
-//   const query = `UPDATE blogposts SET blogPictureName = ? WHERE blogId = ?`;
-//   const values = [uniqueFileName, id];
-
-//   db.run(query, values, function (error) {
-//     callback(error);
-//   });
-// };
-
-exports.createProject = function (
-  title,
-  description,
-  date,
-  category,
-  uniqueFileName,
-  callback
-) {
-  const query = `INSERT INTO projects (projTitle, projDescription, projCreatedDate, projCategory, projPictureName) VALUES (?, ?, ?, ?, ?)`;
-  const values = [title, description, date, category, uniqueFileName];
-
-  db.run(query, values, function (error) {
-    callback(error);
-  });
-};
-
-exports.updateProject = function (
-  title,
-  description,
-  date,
-  category,
-  uniqueFileName,
-  id,
-  callback
-) {
-  const query = `UPDATE projects SET projTitle = ?, projDescription = ?, projCreatedDate = ?, projCategory = ?, projPictureName = ? WHERE projId = ?`;
-  const values = [title, description, date, category, uniqueFileName, id];
-
-  db.run(query, values, function (error) {
-    callback(error);
-  });
-};
-
-exports.deleteProjectById = function (id, callback) {
-  const query = `DELETE FROM projects WHERE projId = ?`;
-  const values = [id];
-
-  db.run(query, values, function (error) {
-    callback(error);
-  });
-};
-
-exports.createBlog = function (
-  title,
-  description,
-  currentDate,
-  uniqueFileName,
-  callback
-) {
-  const query = `INSERT INTO blogposts (blogTitle, blogDescription, blogPublishedDate, blogPictureName) VALUES (?, ?, ?, ?)`;
-  const values = [title, description, currentDate, uniqueFileName];
-
-  db.run(query, values, function (error) {
-    callback(error);
-  });
-};
-
-exports.updateBlogpost = function (
-  title,
-  description,
-  uniqueFileName,
-  id,
-  callback
-) {
-  const query = `UPDATE blogposts SET blogTitle = ?, blogDescription = ?, blogPictureName = ? WHERE blogId = ?`;
-  const values = [title, description, uniqueFileName, id];
-
-  db.run(query, values, function (error) {
-    callback(error);
-  });
-};
-
-exports.deleteBlogById = function (id, callback) {
-  const blogpostQuery = `DELETE FROM blogposts WHERE blogId = ?`;
-  const values = [id];
-
-  db.run(blogpostQuery, values, function (error) {
     callback(error);
   });
 };

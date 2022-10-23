@@ -1,6 +1,7 @@
 {{#if project}}
 
   <div class="padding-on-bottom project-page">
+    {{! Breadcrumb }}
     <p class="breadcrumb">
       <a class="breadcrumb-link" href="/#projects">Projects</a>
       /
@@ -17,26 +18,17 @@
           </ul>
         </div>
       {{/if}}
+      {{! Show the project }}
       <h2 class="title">{{project.projTitle}}
         {{#if session.isLoggedIn}}
           {{! Edit button }}
-          <a href="/project/edit/{{project.projId}}"><img
-              class="icons margin-left"
-              src="/images/edit_icon_light.png"
-              alt="edit icon"
-            /></a>
+          <a href="/project/edit/{{project.projId}}">
+            <img class="icons margin-left" src="/images/edit_icon_light.png" alt="edit icon" />
+          </a>
           {{! Delete button }}
-          <form
-            action="/project/delete/{{project.projId}}"
-            method="post"
-            class="delete-button"
-          >
+          <form action="/project/delete/{{project.projId}}" method="post" class="delete-button">
             <button type="submit" class="icon-button blue-button">
-              <img
-                class="icons"
-                src="/images/delete_icon_light.png"
-                alt="Delete icon"
-              />
+              <img class="icons" src="/images/delete_icon_light.png" alt="Delete icon" />
             </button>
           </form>
         {{/if}}
@@ -44,26 +36,17 @@
       <div class="project-content">
         <p class="project-descr">{{project.projDescription}}</p>
         <div class="date-category-container">
-          <p class="project-date">Date: <br /> {{project.projCreatedDate}}</p>
-          <p class="project-category">Category:
-            <br />{{project.projCategory}}</p>
+          <p class="project-date">Date: <br />{{project.projCreatedDate}}</p>
+          <p class="project-category">Category: <br />{{project.projCategory}}</p>
         </div>
       </div>
-      <img
-        class="project-pic"
-        src="/uploads/{{project.projPictureName}}"
-        alt="Picture of a project"
-      />
+      <img class="project-pic" src="/uploads/{{project.projPictureName}}" alt="Picture of a project" />
     </div>
   </div>
 
 {{else}}
-
-  <img
-    src="/images/low_opacity_clouds.png"
-    alt="Illustration of clouds"
-    class="cloud clouds-background"
-  />
+  {{! Shown if the page cannot be found}}
+  <img src="/images/low_opacity_clouds.png" alt="Illustration of clouds" class="cloud clouds-background" />
   <div class="locked-page">
     <h4 class="position-relative">This page cannot be found</h4>
   </div>

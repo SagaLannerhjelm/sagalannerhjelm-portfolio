@@ -1,19 +1,15 @@
 {{#if session.isLoggedIn}}
 
   {{#if comment}}
-
     <div class="edit-comment-page">
       <div class="edit-comment-page">
+
         <div class="edit-comment-title">
           <h2 class="title text-primary">Edit comment</h2>
         </div>
 
         <div class="comment-container" id="blog/comment/{{comment.cmntId}}">
-          <form
-            action="/comment/edit/{{comment.cmntId}}"
-            method="post"
-            class="content-width"
-          >
+          <form action="/comment/edit/{{comment.cmntId}}" method="post" class="content-width">
             <input type="hidden" name="page" value="{{pageNumber}}" />
             {{#if errorMessages.length}}
               <div class="error-message-container bg-error">
@@ -24,32 +20,33 @@
                 </ul>
               </div>
             {{/if}}
-
             <div class="form-group">
               <p class="comment-date">{{comment.cmntPublishedDate}}</p>
-              <label class="form-label">Name</label>
+              <label class="form-label" for="editCmntName">Name</label>
               <input
                 type="text"
                 class="form-input"
                 name="name"
+                id="editCmntName"
                 placeholder="Name"
                 value="{{comment.cmntName}}"
               />
             </div>
             <div class="form-group">
-              <label class="form-label">Comment</label>
+              <label class="form-label" for="editComment">Comment</label>
               <input
                 type="text"
                 class="form-input"
                 name="comment"
+                id="editComment"
                 placeholder="Write a comment"
                 value="{{comment.cmntContent}}"
               />
             </div>
-            {{! Buttons for editing and deliting comment }}
             <div class="comment-icons edit-comment-buttons">
-              {{! Confirm changes }}
+              {{! Cancel button }}
               <a href="/blog?page={{pageNumber}}" class="btn">Cancel</a>
+              {{! Button to confirm changes }}
               <button type="submit" class="btn btn-primary">Confirm</button>
             </div>
           </form>
@@ -58,11 +55,8 @@
     </div>
 
   {{else}}
-    <img
-      src="/images/low_opacity_clouds.png"
-      alt="Illustration of clouds"
-      class="cloud clouds-background"
-    />
+    {{! This shows if the page can not be found }}
+    <img src="/images/low_opacity_clouds.png" alt="Illustration of clouds" class="cloud clouds-background" />
     <div class="locked-page">
       <h4 class="position-relative">This page cannot be found</h4>
     </div>
@@ -70,16 +64,12 @@
   {{/if}}
 
 {{else}}
-
-  <img
-    src="/images/low_opacity_clouds.png"
-    alt="Illustration of clouds"
-    class="cloud clouds-background"
-  />
+  {{! This shows if the user is not logged in }}
+  <img src="/images/low_opacity_clouds.png" alt="Illustration of clouds" class="cloud clouds-background" />
   <div class="locked-page">
     <div class="not-logged-in-container">
-      <p class="position-relative">You are not logged in :&lpar;. You need to be
-        Logged in to access this page.</p>
+      <p class="position-relative">You are not logged in :&lpar;. You need to be Logged in to access this
+        page.</p>
       <a href="/login" class="btn btn-primary">Go to login</a>
     </div>
   </div>

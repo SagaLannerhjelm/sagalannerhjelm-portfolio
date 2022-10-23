@@ -1,19 +1,18 @@
 {{#if session.isLoggedIn}}
 
   {{#if project}}
+    {{! Breadcrumbs }}
     <p class="breadcrumb position-absolute">
       <a class="breadcrumb-link" href="/#projects">Projects</a>
       /
-      <a
-        class="breadcrumb-link"
-        href="/project/{{project.projId}}"
-      >{{project.projTitle}}</a>
+      <a class="breadcrumb-link" href="/project/{{project.projId}}">{{project.projTitle}}</a>
       /
       <a class="breadcrumb-link">Edit project</a>
     </p>
 
+    {{! The edit project container }}
     <div class="form-page">
-      <div class="card form-container p-centered project-form-container ">
+      <div class="card form-container p-centered project-form-container">
         <div class="card-header p-centered">
           <div class="card-title h3 form-title">Edit project</div>
         </div>
@@ -29,6 +28,7 @@
           </div>
         {{/if}}
 
+        {{! The form for editing a project }}
         <form
           action="/project/edit/{{project.projId}}"
           method="post"
@@ -36,11 +36,13 @@
           enctype="multipart/form-data"
         >
           <div class="form-content">
+            {{! Left column }}
             <div>
               <div class="form-group">
-                <label class="form-label">Title</label>
+                <label class="form-label" for="editProjTitle">Title</label>
                 <input
                   name="title"
+                  id="editProjTitle"
                   class="form-input"
                   type="text"
                   placeholder="Title"
@@ -49,16 +51,18 @@
                 />
               </div>
               <div class="form-group">
-                <label class="form-label">Description</label>
+                <label class="form-label" for="editProjDescr">Description</label>
                 <textarea
                   class="form-input"
                   type="text"
                   placeholder="Description"
                   name="description"
+                  id="editProjDescr"
                   rows="6"
                 >{{project.projDescription}}{{description}}</textarea>
               </div>
             </div>
+            {{! Right column }}
             <div>
               <div class="form-group">
                 <label class="form-label">Category</label>
@@ -71,9 +75,10 @@
                 </select>
               </div>
               <div class="form-group">
-                <label class="form-label">Date</label>
+                <label class="form-label" for="editProjDate">Date</label>
                 <input
                   name="date"
+                  id="editProjDate"
                   class="form-input"
                   type="date"
                   max="{{currentDate}}"
@@ -82,48 +87,40 @@
               </div>
               <div class="form-group">
                 <label class="form-label">Current Picture</label>
-                <img src="/uploads/{{project.projPictureName}}{{projectPicture}}" alt="thumbnail of project picture" class="thumbnail-picture"
+                <img
+                  src="/uploads/{{project.projPictureName}}{{projectPicture}}"
+                  alt="thumbnail of project picture"
+                  class="thumbnail-picture"
                 />
-                {{! Edit picture button }}
-                {{!-- <a href="/project/edit/picture/{{project.projId}}"><img
-                    class="icons margin-left picture-edit-button"
-                    src="/images/edit_icon_light.png"
-                    alt="edit icon"
-                  /></a> --}}
-                <input name="image" class="form-input" type="file" accept="image/*">
+                <label class="form-label" for="editProjPic">Choose new picture</label>
+                <input name="image" id="editProjPic" class="form-input" type="file" accept="image/*" />
               </div>
             </div>
           </div>
+          {{! Buttons at the end of the form }}
           <div class="button-container p-centered">
             <a href="/project/{{project.projId}}" class="btn">Cancel</a>
             <button type="submit" class="btn btn-primary">Confirm changes</button>
           </div>
         </form>
-
       </div>
     </div>
 
   {{else}}
-    <img
-      src="/images/low_opacity_clouds.png"
-      alt="Illustration of clouds"
-      class="cloud clouds-background"
-    />
+    {{! This is shown of the page can not be found }}
+    <img src="/images/low_opacity_clouds.png" alt="Illustration of clouds" class="cloud clouds-background" />
     <div class="locked-page">
-        <h4 class="position-relative">This page cannot be found</h4>
+      <h4 class="position-relative">This page cannot be found</h4>
     </div>
   {{/if}}
 
 {{else}}
-  <img
-    src="/images/low_opacity_clouds.png"
-    alt="Illustration of clouds"
-    class="cloud clouds-background"
-  />
+  {{! If the user is not logged in, this is shown: }}
+  <img src="/images/low_opacity_clouds.png" alt="Illustration of clouds" class="cloud clouds-background" />
   <div class="locked-page">
     <div class="not-logged-in-container">
-      <p class="position-relative">You are not logged in :&lpar;. You need to be
-        Logged in to access this page.</p>
+      <p class="position-relative">You are not logged in :&lpar;. You need to be Logged in to access this
+        page.</p>
       <a href="/login" class="btn btn-primary">Go to login</a>
     </div>
   </div>

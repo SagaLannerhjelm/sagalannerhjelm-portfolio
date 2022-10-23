@@ -28,8 +28,7 @@ router.get("/", function (request, response) {
   const pageNumber = parseInt(request.query.page);
   let nextPageUrl;
   let nextPageDisabled;
-  let previousPageUrl =
-    pageNumber != 1 ? "/blog?page=" + (pageNumber - 1) : "#";
+  let previousPageUrl = pageNumber != 1 ? "/blog?page=" + (pageNumber - 1) : "#";
   let previousPageDisabled = pageNumber != 1 ? false : true;
   const offsetValue = (pageNumber - 1) * postPerPage;
 
@@ -52,8 +51,7 @@ router.get("/", function (request, response) {
       // Calculate number of pages
       const numberOfRows = blogposts[0].tableRows;
       const numberOfPages = Math.ceil(numberOfRows / postPerPage);
-      nextPageUrl =
-        pageNumber != numberOfPages ? "/blog?page=" + (pageNumber + 1) : "#";
+      nextPageUrl = pageNumber != numberOfPages ? "/blog?page=" + (pageNumber + 1) : "#";
       nextPageDisabled = pageNumber != numberOfPages ? false : true;
 
       let pageNumbers = [];
@@ -70,59 +68,53 @@ router.get("/", function (request, response) {
       }
 
       // Select blogposts
-      db.getBlogpostsByPage(
-        postPerPage,
-        offsetValue,
-        function (error, blogposts) {
-          if (error) {
-            serverErrorMessages.push("Internal server error");
+      db.getBlogpostsByPage(postPerPage, offsetValue, function (error, blogposts) {
+        if (error) {
+          serverErrorMessages.push("Internal server error");
 
-            const model = {
-              blogposts,
-              serverErrorMessages,
-              pageNumber,
-              pageNumbers,
-            };
+          const model = {
+            blogposts,
+            serverErrorMessages,
+            pageNumber,
+            pageNumbers,
+          };
 
-            response.render("blog.hbs", model);
-          } else {
-            // Select comments
-            db.getAllComments(function (error, comments) {
-              if (error) {
-                serverErrorMessages.push(
-                  "Internal server error when selecting comments"
-                );
+          response.render("blog.hbs", model);
+        } else {
+          // Select comments
+          db.getAllComments(function (error, comments) {
+            if (error) {
+              serverErrorMessages.push("Internal server error when selecting comments");
 
-                const model = {
-                  blogposts,
-                  serverErrorMessages,
-                  pageNumber,
-                  pageNumbers,
-                };
+              const model = {
+                blogposts,
+                serverErrorMessages,
+                pageNumber,
+                pageNumbers,
+              };
 
-                response.render("blog.hbs", model);
-              } else {
-                // Filter comments on blogposts
-                for (let b of blogposts) {
-                  b.comments = comments.filter((c) => c.blogId === b.blogId);
-                }
-
-                const model = {
-                  blogposts,
-                  pageNumber,
-                  pageNumbers,
-                  nextPageUrl,
-                  nextPageDisabled,
-                  previousPageUrl,
-                  previousPageDisabled,
-                  errorMessages,
-                };
-                response.render("blog.hbs", model);
+              response.render("blog.hbs", model);
+            } else {
+              // Filter comments on blogposts
+              for (let b of blogposts) {
+                b.comments = comments.filter((c) => c.blogId === b.blogId);
               }
-            });
-          }
+
+              const model = {
+                blogposts,
+                pageNumber,
+                pageNumbers,
+                nextPageUrl,
+                nextPageDisabled,
+                previousPageUrl,
+                previousPageDisabled,
+                errorMessages,
+              };
+              response.render("blog.hbs", model);
+            }
+          });
         }
-      );
+      });
     }
   });
 });
@@ -149,23 +141,19 @@ router.post("/create", function (request, response) {
     if (title === "") {
       errorMessages.push("Title can't be empty");
     } else if (title.length > titleMaxLength) {
-      errorMessages.push(
-        "Title is more than " + titleMaxLength + " characters"
-      );
+      errorMessages.push("Title is more than " + titleMaxLength + " characters");
     }
 
     // Validation for Description
     if (description === "") {
       errorMessages.push("Description can't be empty");
     } else if (description.length > descriptionMaxLenght) {
-      errorMessages.push(
-        "Title is more than " + descriptionMaxLenght + " characters"
-      );
+      errorMessages.push("Title is more than " + descriptionMaxLenght + " characters");
     }
   }
 
-  // Following two lines of code are done with help form a tutorial by Raddy on youtube: https://www.youtube.com/watch?v=hyJiNTFtQic, retrieved: 2022-10-06
-  if (!request.files || Object.keys(request.files).length === 0) {
+  // Validation of file
+  if (!request.files) {
     errorMessages.push("No file is selected");
 
     const model = {
@@ -185,7 +173,8 @@ router.post("/create", function (request, response) {
 
     if (errorMessages.length === 0) {
       // Move the uploaded file to the right place
-      // Following line of code is done with help from https://www.youtube.com/watch?v=hyJiNTFtQic, retrieved: 2022-10-06
+      // Following line of code is made with help from
+      // https://www.youtube.com/watch?v=hyJiNTFtQic, retrieved: 2022-10-06
       imageFile.mv(uploadPath, function (error) {
         if (error) {
           errorMessages.push("Error when uploading file");
@@ -202,25 +191,19 @@ router.post("/create", function (request, response) {
 
           // When file is uploaded to the file system, create the blog
 
-          db.createBlog(
-            title,
-            description,
-            currentDate,
-            uniqueFileName,
-            function (error) {
-              if (error) {
-                errorMessages.push("Internal server error");
-                const model = {
-                  errorMessages,
-                  title,
-                  description,
-                };
-                response.render("new-blogpost.hbs", model);
-              } else {
-                response.redirect("/blog?page=1");
-              }
+          db.createBlog(title, description, currentDate, uniqueFileName, function (error) {
+            if (error) {
+              errorMessages.push("Internal server error");
+              const model = {
+                errorMessages,
+                title,
+                description,
+              };
+              response.render("new-blogpost.hbs", model);
+            } else {
+              response.redirect("/blog?page=1");
             }
-          );
+          });
         }
       });
     } else {
@@ -244,13 +227,12 @@ router.get("/edit/:id", function (request, response) {
   db.getBlogpostById(id, function (error, blog) {
     const errorMessages = [];
     if (error) {
-      errorMessages.push(
-        "Internal server error when trying to go to the edit page"
-      );
+      errorMessages.push("Internal server error when trying to go to the edit page");
     }
     const model = {
       blog,
       pageNumber,
+      errorMessages,
     };
     response.render("edit-blogpost.hbs", model);
   });
@@ -266,6 +248,7 @@ router.post("/edit/:id", function (request, response) {
 
   let imageFile;
   let uploadPath;
+  let uniqueFileName = "";
 
   const errorMessages = [];
 
@@ -277,24 +260,14 @@ router.post("/edit/:id", function (request, response) {
     if (title === "") {
       errorMessages.push("Title can't be empty");
     } else if (title.length > titleMaxLength) {
-      errorMessages.push(
-        "Title is more than " + titleMaxLength + " characters"
-      );
+      errorMessages.push("Title is more than " + titleMaxLength + " characters");
     }
 
     // Validation for Description
     if (description === "") {
       errorMessages.push("Description can't be empty");
     } else if (description.length > descriptionMaxLenght) {
-      errorMessages.push(
-        "Title is more than " + descriptionMaxLenght + " characters"
-      );
-    }
-
-    // Validation for file
-    // Following line of code was made with help by https://www.youtube.com/watch?v=hyJiNTFtQic retrieved: 2022-10-06
-    if (!request.files || Object.keys(request.files).length === 0) {
-      errorMessages.push("No file is selected");
+      errorMessages.push("Title is more than " + descriptionMaxLenght + " characters");
     }
   }
 
@@ -304,159 +277,68 @@ router.post("/edit/:id", function (request, response) {
       if (error) {
         errorMessages.push("Internal server error");
 
-        db.getBlogpostById(id, function (error, blog) {
-          if (error) {
-            errorMessages.push("Internal server error");
-          }
-          const model = {
-            errorMessages,
-            blog: {
-              blogId: id,
-              title,
-              description,
-            },
-            blogPictureName: blog.blogPictureName,
-            title,
-            description,
-            pageNumber,
-          };
-
-          response.render("edit-blogpost.hbs", model);
-        });
+        errorEditBlog(id, errorMessages, title, description, pageNumber, response);
       } else {
         const oldPictureName = blog.blogPictureName;
         console.log(oldPictureName);
 
         // Get the new image form the input
-        imageFile = request.files.image;
-        const uniqueFileName =
-          Math.floor(Math.random() * 10000) + imageFile.name;
-        uploadPath = path + uniqueFileName;
+        if (request.files != undefined) {
+          imageFile = request.files.image;
+          uniqueFileName = Math.floor(Math.random() * 10000) + imageFile.name;
+          uploadPath = path + uniqueFileName;
 
-        // Move the uploaded file to the right place
-        // Following line of code made with help by https://www.youtube.com/watch?v=hyJiNTFtQic retrieved: 2022-10-06
-        imageFile.mv(uploadPath, function (error) {
-          if (error) {
-            errorMessages.push("Error when uploading file");
+          // Move the uploaded file to the right place
+          // Following line of code made with help by https://www.youtube.com/watch?v=hyJiNTFtQic retrieved: 2022-10-06
+          imageFile.mv(uploadPath, function (error) {
+            if (error) {
+              errorMessages.push("Error when uploading file");
 
-            db.getBlogpostById(id, function (error, blog) {
-              if (error) {
-                errorMessages.push("Internal server error");
-              }
-              const model = {
-                errorMessages,
-                blog: {
-                  blogId: id,
-                  title,
-                  description,
-                },
-                blogPictureName: blog.blogPictureName,
-                title,
-                description,
-                pageNumber,
-              };
-
-              response.render("edit-blogpost.hbs", model);
-            });
-          } else {
-            console.log("file moved");
-            db.updateBlogpost(
-              title,
-              description,
-              uniqueFileName,
-              id,
-              function (error) {
+              errorEditBlog(id, errorMessages, title, description, pageNumber, response);
+            } else {
+              console.log("file moved");
+              db.updateBlogpost(title, description, uniqueFileName, id, function (error) {
                 if (error) {
                   errorMessages.push("Internal server error");
 
-                  db.getBlogpostById(id, function (error, blog) {
-                    if (error) {
-                      errorMessages.push("Internal server error");
-                    }
-
-                    const model = {
-                      errorMessages,
-                      blog: {
-                        blogId: id,
-                        title,
-                        description,
-                      },
-                      blogPictureName: blog.blogPictureName,
-                      title,
-                      description,
-                      pageNumber,
-                    };
-
-                    response.render("edit-blogpost.hbs", model);
-                  });
+                  errorEditBlog(id, errorMessages, title, description, pageNumber, response);
                 } else {
                   // Check if old picture exists in files system
 
                   if (fs.existsSync("public/uploads/" + oldPictureName)) {
                     console.log("old picture exists");
                     // Try to delete the old picture from the file system
-                    fs.unlink(
-                      "public/uploads/" + oldPictureName,
-                      function (error) {
-                        if (error) {
-                          errorMessages.push(
-                            "Problem occured when deleting picture from file system"
-                          );
-                          db.getBlogpostById(id, function (error, blog) {
-                            if (error) {
-                              errorMessages.push("Internal server error");
-                            }
+                    fs.unlink("public/uploads/" + oldPictureName, function (error) {
+                      if (error) {
+                        errorMessages.push("Problem occured when deleting picture from file system");
 
-                            const model = {
-                              errorMessages,
-                              blog: {
-                                blogId: id,
-                                title,
-                                description,
-                              },
-                              blogPictureName: blog.blogPictureName,
-                              title,
-                              description,
-                              pageNumber,
-                            };
+                        errorEditBlog(id, errorMessages, title, description, pageNumber, response);
+                      } else {
+                        console.log("old picture deleted");
 
-                            response.render("edit-blogpost.hbs", model);
-                          });
-                        } else {
-                          console.log("old picture deleted");
-
-                          response.redirect("/blog?page=" + pageNumber);
-                        }
+                        response.redirect("/blog?page=" + pageNumber);
                       }
-                    );
+                    });
                   }
                 }
-              }
-            );
-          }
-        });
+              });
+            }
+          });
+        } else {
+          db.updateBlogpost(title, description, uniqueFileName, id, function (error) {
+            if (error) {
+              errorMessages.push("Internal server error");
+
+              errorEditBlog(id, errorMessages, title, description, pageNumber, response);
+            } else {
+              response.redirect("/blog?page=" + pageNumber);
+            }
+          });
+        }
       }
     });
   } else {
-    db.getBlogpostById(id, function (error, blog) {
-      if (error) {
-        errorMessages.push("Internal server error");
-      }
-      const model = {
-        errorMessages,
-        blog: {
-          blogId: id,
-          title,
-          description,
-        },
-        blogPictureName: blog.blogPictureName,
-        title,
-        description,
-        pageNumber,
-      };
-
-      response.render("edit-blogpost.hbs", model);
-    });
+    errorEditBlog(id, errorMessages, title, description, pageNumber, response);
   }
 });
 
@@ -480,46 +362,36 @@ router.post("/delete/:id", function (request, response) {
     // Try to delete the file form the file system
     fs.unlink("public/uploads/" + pictureFileName, function (error) {
       if (error) {
-        errorMessages.push(
-          "Problem occured when deleting picture from file system"
-        );
+        errorMessages.push("Problem occured when deleting picture from file system");
       }
 
       // If no error with deleting form filesystem, then delete from database
       db.deleteBlogById(id, function (error) {
         const serverErrorMessages = [];
         if (error) {
-          serverErrorMessages.push(
-            "Internal server error when deleting blogpost"
-          );
+          serverErrorMessages.push("Internal server error when deleting blogpost");
         }
         db.deleteCommentsWithBlogpost(id, function (error) {
           if (error) {
-            serverErrorMessages.push(
-              "Internal server error when deleting comments connected to blogpost"
-            );
+            serverErrorMessages.push("Internal server error when deleting comments connected to blogpost");
 
-            db.getBlogpostsByPage(
-              postPerPage,
-              offsetValue,
-              function (error, blogposts) {
+            db.getBlogpostsByPage(postPerPage, offsetValue, function (error, blogposts) {
+              if (error) {
+                serverErrorMessages.push("Internal server error");
+              }
+
+              db.getAllComments(function (error, comments) {
                 if (error) {
                   serverErrorMessages.push("Internal server error");
                 }
-
-                db.getAllComments(function (error, comments) {
-                  if (error) {
-                    serverErrorMessages.push("Internal server error");
-                  }
-                  const model = {
-                    blogposts,
-                    comments,
-                    serverErrorMessages,
-                  };
-                  response.render("blog.hbs", model);
-                });
-              }
-            );
+                const model = {
+                  blogposts,
+                  comments,
+                  serverErrorMessages,
+                };
+                response.render("blog.hbs", model);
+              });
+            });
           } else {
             response.redirect("/blog?page=1");
           }
@@ -537,15 +409,40 @@ router.get("/edit/picture/:id", function (request, response) {
 
   db.getBlogpostById(id, function (error, blog) {
     const errorMessages = [];
+
     if (error) {
       errorMessages.push("Internal server error");
     }
+
     const model = {
       blog,
       pageNumber,
+      errorMessages,
     };
     response.render("edit-blog-picture.hbs", model);
   });
 });
+
+function errorEditBlog(id, errorMessages, title, description, pageNumber, response) {
+  db.getBlogpostById(id, function (error, blog) {
+    if (error) {
+      errorMessages.push("Internal server error");
+    }
+    const model = {
+      errorMessages,
+      blog: {
+        blogId: id,
+        title,
+        description,
+      },
+      blogPictureName: blog.blogPictureName,
+      title,
+      description,
+      pageNumber,
+    };
+
+    response.render("edit-blogpost.hbs", model);
+  });
+}
 
 module.exports = router;

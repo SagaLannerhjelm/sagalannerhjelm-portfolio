@@ -1,57 +1,49 @@
 <div class="form-page">
   <div class="card login-container p-centered">
+
     <div class="card-header p-centered">
       <div class="card-title h3 form-title">Login</div>
     </div>
 
-    {{#if failedToLogin}}
+    {{! Display error messages }}
+    {{#if errorMessages.length}}
       <div class="error-message-container bg-error">
-         <ul class="error-message text-light">
-        <li class="error-message-list">Wrong mail or password</li>
+        <ul class="error-message text-light" id="login-errors">
+          {{#each errorMessages}}
+            <li class="error-message-list">{{this}}</li>
+          {{/each}}
+        </ul>
       </div>
     {{else}}
-    
-      {{! Display error messages }}
-      {{#if errorMessages.length}}
+      {{#if failedToLogin}}
+        {{! Display this when user fails to logs in and no other errors are applicable }}
         <div class="error-message-container bg-error">
-          <ul class="error-message text-light">
-            {{#each errorMessages}}
-              <li class="error-message-list">{{this}}</li>
-            {{/each}}
-          </ul>
+          <div class="error-message text-light" id="login-error">
+            <p class="error-message-list">Wrong mail or password</p>
+          </div>
         </div>
       {{/if}}
     {{/if}}
 
-    <form
-      class="card-body login-margin side-margin"
-      action="/login"
-      method="post"
-    >
+    {{! Login form  }}
+    <form class="card-body login-margin side-margin" action="/login" method="post">
       <div class="form-group">
-        <label class="form-label" for="input-example-1">Mail</label>
+        <label class="form-label" for="mail">Mail</label>
         <input
           class="form-input"
           type="text"
-          id="input-example-1"
+          id="mail"
           name="mail"
           placeholder="Mail"
+          value="{{enteredMail}}"
         />
       </div>
       <div class="form-group">
-        <label class="form-label" for="input-example-1">Password</label>
-        <input
-          class="form-input"
-          type="password"
-          id="input-example-1"
-          placeholder="Password"
-          name="password"
-        />
+        <label class="form-label" for="password">Password</label>
+        <input class="form-input" type="password" id="password" placeholder="Password" name="password" />
       </div>
-      <button
-        type="sumbit"
-        class="btn btn-primary p-centered login-button"
-      >Login</button>
+      {{! Login button  }}
+      <button type="sumbit" class="btn btn-primary p-centered login-button">Login</button>
     </form>
   </div>
 </div>

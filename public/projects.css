@@ -1,7 +1,7 @@
 /* Project section on the home screen*/
 
 .white-text {
-  color: #ffffff;
+  color: var(--white);
   display: flex;
   flex-direction: column;
   margin-bottom: 200px;

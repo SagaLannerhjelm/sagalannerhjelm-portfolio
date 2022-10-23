@@ -1,4 +1,5 @@
 {{#if session.isLoggedIn}}
+  {{! Breadcrumbs }}
   <p class="breadcrumb position-absolute">
     <a class="breadcrumb-link" href="/#projects">Projects</a>
     /
@@ -7,6 +8,7 @@
 
   <div class="form-page">
     <div class="card form-container p-centered project-form-container">
+      {{! Header  }}
       <div class="card-header p-centered">
         <div class="card-title h3 form-title">New project</div>
       </div>
@@ -22,6 +24,7 @@
         </div>
       {{/if}}
 
+      {{! Form for creating a project }}
       <form
         action="/project/create"
         method="post"
@@ -29,11 +32,13 @@
         enctype="multipart/form-data"
       >
         <div class="form-content">
+          {{! Left colums }}
           <div>
             <div class="form-group">
-              <label class="form-label">Title</label>
+              <label class="form-label" for="newProjTitle">Title</label>
               <input
                 name="title"
+                id="newProjTitle"
                 class="form-input"
                 type="text"
                 placeholder="Title"
@@ -41,24 +46,22 @@
               />
             </div>
             <div class="form-group">
-              <label class="form-label">Description</label>
+              <label class="form-label" for="newProjDescr">Description</label>
               <textarea
                 class="form-input"
                 type="text"
                 placeholder="Description"
                 name="description"
+                id="newProjDescr"
                 rows="6"
               >{{description}}</textarea>
             </div>
           </div>
+          {{! Right column  }}
           <div>
             <div class="form-group">
               <label class="form-label">Category</label>
-              <select
-                name="category"
-                class="form-select text-dark"
-                value="{{category}}"
-              >
+              <select name="category" class="form-select text-dark" value="{{category}}">
                 <option selected hidden disabled>Choose an option</option>
                 <option>Illustration</option>
                 <option>Game development</option>
@@ -67,9 +70,10 @@
               </select>
             </div>
             <div class="form-group">
-              <label class="form-label">Date</label>
+              <label class="form-label" for="newProjDate">Date</label>
               <input
                 name="date"
+                id="newProjDate"
                 class="form-input"
                 type="date"
                 max="{{currentDate}}"
@@ -77,16 +81,12 @@
               />
             </div>
             <div class="form-group">
-              <label class="form-label">File</label>
-              <input
-                name="image"
-                class="form-input picture-input"
-                type="file"
-                accept="image/*"
-              />
+              <label class="form-label" for="newProjFile">File</label>
+              <input name="image" id="newProjFile" class="form-input" type="file" accept="image/*" />
             </div>
           </div>
         </div>
+        {{! Buttons a the end of the form }}
         <div class="button-container">
           <a class="btn" href="/#projects">Cancel</a>
           <button type="submit" class="btn btn-primary">Next</button>
@@ -96,16 +96,12 @@
   </div>
 
 {{else}}
-
-  <img
-    src="/images/low_opacity_clouds.png"
-    alt="illustration of clouds"
-    class="cloud clouds-background"
-  />
+  {{! Is shown when user is not logged in }}
+  <img src="/images/low_opacity_clouds.png" alt="illustration of clouds" class="cloud clouds-background" />
   <div class="locked-page">
     <div class="not-logged-in-container">
-      <p class="position-relative">You are not logged in :&lpar;. You need to be
-        Logged in to access this page.</p>
+      <p class="position-relative">You are not logged in :&lpar;. You need to be Logged in to access this
+        page.</p>
       <a href="/login" class="btn btn-primary">Go to login</a>
     </div>
   </div>
