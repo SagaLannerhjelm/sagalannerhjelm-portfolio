@@ -326,6 +326,7 @@ a.breadcrumb-link{
   .greeting {
     font-size: 30px;
     background-color: var(--white);
+    z-index: 5;
   }
   .greeting-p2 {
     font-size: 25px;

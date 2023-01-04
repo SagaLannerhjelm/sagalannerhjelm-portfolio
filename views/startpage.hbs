@@ -54,9 +54,14 @@
   <div class="project-grid">
     {{#if projects.length}}
       {{#each projects}}
-        <a href="/project/{{projId}}" class="img-responsive img-fit-cover">
+        <a href="/project/{{projId}}" class="img-responsive img-fit-cover image-proj-container">
           <img src="/uploads/{{projPictureName}}" class="project-picture" alt="Picture of a project"/>
+          <div class="project-title">
+             <h4>{{projTitle}}</h4>
+          </div>
+         
         </a>
+        
       {{/each}}
     {{else}}
       <p class="p-centered">No projects exist.</p>

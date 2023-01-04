@@ -19,8 +19,6 @@ let viewAllProjects;
 
 const app = express();
 
-//Middlewares
-
 /* Following code was made with help by Esterling Accime's video: 
 https://www.youtube.com/watch?v=2BoSBaWvFhM, retrieved 2022-09-24 */
 const hbs = expressHandlebars.create({
