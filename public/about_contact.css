@@ -24,6 +24,10 @@
   width: 99%;
 }
 
+.selfie {
+  width: 100%;
+}
+
 .about-text {
   text-align: left;
   margin-bottom: 100px;
@@ -35,9 +39,6 @@
   display: grid;
   grid-template-columns: 30% 1fr;
   margin-top: 0%;
-  /* margin-left: 5%;
-  width: 350px;
-  margin-bottom: 32vh; */
   align-items: center;
   max-width: 80%;
   margin-right: auto;
@@ -59,7 +60,7 @@
   .about-container {
     display: flex;
     flex-direction: column;
-    padding-top: 75px;
+    padding-top: 35px;
   }
   .img-container {
     margin-bottom: 0px;
@@ -97,8 +98,5 @@
   .about.title {
     text-align: center;
     justify-content: center;
-  }
-  .about-text {
-    text-align: center;
   }
 }
