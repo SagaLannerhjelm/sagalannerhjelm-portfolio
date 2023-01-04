@@ -120,8 +120,8 @@ router.get("/edit/:id", function (request, response) {
     // The variable for the selected category gets true
     if (project != undefined) {
       let illustrationSelected = project.projCategory === "Illustration" ? true : false;
-      let gameSelected = project.projCategory === "Game development" ? true : false;
-      let websiteSelected = project.projCategory === "Website" ? true : false;
+      let programmingSelected = project.projCategory === "Programming" ? true : false;
+      // let websiteSelected = project.projCategory === "Website" ? true : false;
       let graphicDesignSelected = project.projCategory === "Graphic design" ? true : false;
 
       const errorMessages = [];
@@ -132,8 +132,8 @@ router.get("/edit/:id", function (request, response) {
         project,
         currentDate,
         illustrationSelected,
-        gameSelected,
-        websiteSelected,
+        programmingSelected,
+        // websiteSelected,
         graphicDesignSelected,
       };
       response.render("edit-project.hbs", model);
@@ -360,8 +360,8 @@ function errorEditProj(id, errorMessages, title, description, date, category, re
 
     // The variable for the selected category gets true
     let illustrationSelected = project.projCategory === "Illustration" ? true : false;
-    let gameSelected = project.projCategory === "Game development" ? true : false;
-    let websiteSelected = project.projCategory === "Website" ? true : false;
+    let programmingSelected = project.projCategory === "Programming" ? true : false;
+    // let websiteSelected = project.projCategory === "Website" ? true : false;
     let graphicDesignSelected = project.projCategory === "Graphic design" ? true : false;
 
     const model = {
@@ -375,8 +375,8 @@ function errorEditProj(id, errorMessages, title, description, date, category, re
         projPictureName: project.projPictureName,
       },
       illustrationSelected,
-      gameSelected,
-      websiteSelected,
+      programmingSelected,
+      // websiteSelected,
       graphicDesignSelected,
     };
 

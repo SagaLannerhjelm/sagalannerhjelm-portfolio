@@ -112,8 +112,8 @@ app.get("/projects", function (request, response) {
 
   // Sort projects based on category
   let illustrationsSelected = category === "Illustration" ? true : false;
-  let gamesSelected = category === "Game development" ? true : false;
-  let webDesignsSelected = category === "Web design" ? true : false;
+  let programmingSelected = category === "Programming" ? true : false;
+  // let webDesignsSelected = category === "Web design" ? true : false;
   let graphicDesignsSelected = category === "Graphic design" ? true : false;
 
   db.getProjectsByCategory(category, function (error, projects) {
@@ -128,7 +128,7 @@ app.get("/projects", function (request, response) {
       projects,
       viewAllProjects,
       illustrationsSelected,
-      gamesSelected,
+      programmingSelected,
       webDesignsSelected,
       graphicDesignsSelected,
     };

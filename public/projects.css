@@ -64,6 +64,7 @@
 
 .image-proj-container {
   position: relative;
+  background-color: black;
 }
 
 .project-title {
