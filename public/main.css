@@ -98,6 +98,17 @@ border: none;
   z-index: -2;
 }
 
+/* .intro-text-container {
+  animation-name: start-animation;
+  animation-duration: 1.3s;
+  animation-timing-function: ease-out;
+  animation-delay: 0.3s;
+  animation-fill-mode: forwards;
+  animation-iteration-count: 1;
+  transform: translateX(-200px);
+  opacity: 0%;
+} */
+
 .cloud {
   position: fixed;
   margin-top: -30px;
@@ -348,3 +359,16 @@ a.breadcrumb-link{
     font-size: 14px;
   }
 }
+
+
+
+/* @keyframes start-animation {
+  0% {
+    opacity: 0%;
+    transform: translateX(-200px);
+  }
+  100% {
+    opacity: 100%;
+    transform: translateX(0px);
+  }
+} */

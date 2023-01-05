@@ -2,6 +2,7 @@
 <div class="intro-container">
   <div class="p-fixed place-below">
     <div class="intro place-below intro-text-container">
+      <div class="text-revealer"></div>
       <h1 class="place-below text-normal greeting">Hi, I'm Saga!</h1>
       <h2 class="place-below text-normal greeting-p2">Welcome to my page</h2>
     </div>
@@ -15,20 +16,16 @@
     <h2 class="title">Projects</h2>
     {{! Buttons for sorting projects based on category }}
     <div class="filter-buttons-container">
-      <a href="/#projects" class="chip {{#if viewAllProjects}}btn btn-primary{{/if}}">All</a>
-      <a href="/projects?category=Illustration#projects" class="chip 
+      <a href="/#projects" class="chip all-button {{#if viewAllProjects}}btn btn-primary{{/if}}">All</a>
+      <a href="/projects?category=Illustration#projects" class="chip ill-button
         {{#if illustrationsSelected}}
           btn btn-primary
         {{/if}}">Illustrations</a>
-      <a href="/projects?category=Programming#projects"class="chip 
+      <a href="/projects?category=Programming#projects"class="chip prog-button
         {{#if programmingSelected}}
           btn btn-primary
         {{/if}}">Programming</a>
-      {{!-- <a href="/projects?category=Web design#projects" class="chip 
-        {{#if webDesignsSelected}}
-          btn btn-primary
-        {{/if}}">Web design</a> --}}
-      <a href="/projects?category=Graphic design#projects" class="chip 
+      <a href="/projects?category=Graphic design#projects" class="chip gra-button
         {{#if graphicDesignsSelected}}
           btn btn-primary
         {{/if}}">Graphic design</a>
@@ -57,7 +54,8 @@
         <a href="/project/{{projId}}" class="img-responsive img-fit-cover image-proj-container">
           <img src="/uploads/{{projPictureName}}" class="project-picture" alt="Picture of a project"/>
           <div class="project-title">
-             <h4>{{projTitle}}</h4>
+             <h4 class="project-name">{{projTitle}}</h4>
+             
           </div>
          
         </a>

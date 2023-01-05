@@ -129,7 +129,7 @@ app.get("/projects", function (request, response) {
       viewAllProjects,
       illustrationsSelected,
       programmingSelected,
-      webDesignsSelected,
+      // webDesignsSelected,
       graphicDesignsSelected,
     };
 

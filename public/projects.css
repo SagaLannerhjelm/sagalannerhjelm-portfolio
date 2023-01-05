@@ -30,13 +30,34 @@
 }
 
 .filter-buttons-container {
-  display: flex;
+  /* display: flex; */
   column-gap: 3px;
-  row-gap: 3px;
+  row-gap: 5px;
   max-width: 80%;
-  flex-wrap: wrap;
-  justify-content: center;
+  /* flex-wrap: wrap;
+  justify-content: center; */
+  display: grid;
+  grid-template-columns: auto auto auto auto;
+  grid-template-rows: 1fr;
+  grid-template-areas: "first second third fourth";
 }
+
+.all-button {
+  grid-area: first;
+}
+
+.ill-button {
+  grid-area: second;
+}
+
+.prog-button {
+  grid-area: third;
+}
+
+.gra-button {
+  grid-area: fourth;
+}
+
 .project-grid {
   margin-top: 40px;
   display: grid;
@@ -70,15 +91,25 @@
 .project-title {
   position: absolute;
   text-decoration: none;
-  text-align: center;
+
   width: 100%;
   bottom: 0;
   padding-top: 1.5rem;
   padding-bottom: 0.5rem;
+  text-align: center;
   visibility: hidden;
   color: var(--white);
   border-radius: (20px 20px 50px 80px);
   background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.8));
+  display: grid;
+  grid-template-columns: 35px auto 35px;
+  grid-template-rows: 40px;
+  grid-template-areas: ". middle .";
+  align-items: center;
+}
+
+.project-name {
+  grid-area: middle;
 }
 
 .image-proj-container:hover .project-title {
@@ -94,6 +125,20 @@
   .project-title {
     visibility: visible;
   }
+  .filter-buttons-container {
+    grid-template-columns: auto auto auto;
+    grid-template-rows: 1fr;
+    grid-template-areas:
+      ". first ."
+      "second third fourth";
+    justify-content: center;
+  }
+  .all-button {
+    display: flex;
+    justify-content: center;
+    margin-left: auto;
+    margin-right: auto;
+  }
 }
 
 @keyframes hover-opacity {
@@ -101,6 +146,6 @@
     opacity: 100%;
   }
   100% {
-    opacity: 90%;
+    opacity: 70%;
   }
 }
