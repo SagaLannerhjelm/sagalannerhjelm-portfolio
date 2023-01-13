@@ -112,7 +112,7 @@ app.get("/projects", function (request, response) {
 
   // Sort projects based on category
   let illustrationsSelected = category === "Illustration" ? true : false;
-  let programmingSelected = category === "Programming" ? true : false;
+  let programmingsSelected = category === "Programming" ? true : false;
   // let webDesignsSelected = category === "Web design" ? true : false;
   let graphicDesignsSelected = category === "Graphic design" ? true : false;
 
@@ -128,7 +128,7 @@ app.get("/projects", function (request, response) {
       projects,
       viewAllProjects,
       illustrationsSelected,
-      programmingSelected,
+      programmingsSelected,
       // webDesignsSelected,
       graphicDesignsSelected,
     };
